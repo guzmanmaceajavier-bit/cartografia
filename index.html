@@ -228,11 +228,11 @@
     <form id="formFicha" class="modal__cuerpo formulario">
       <input type="hidden" id="fichaId">
       <div class="formulario__fila">
-        <label class="formulario__ancho">Nombre del lugar, actor o experiencia *
-          <input type="text" id="fichaNombre" required placeholder="Ej.: Parque principal de la cabecera">
+        <label class="formulario__ancho">Nombre del lugar, actor o experiencia
+          <input type="text" id="fichaNombre" placeholder="Ej.: Parque principal de la cabecera">
         </label>
-        <label>Categoría principal (02–08) *
-          <select id="fichaCategoria" required></select>
+        <label>Categoría principal (02–08)
+          <select id="fichaCategoria"></select>
         </label>
       </div>
       <div class="formulario__fila">
@@ -241,11 +241,11 @@
         </label>
       </div>
       <div class="formulario__fila">
-        <label>Latitud *
-          <input type="number" id="fichaLat" step="any" min="-90" max="90" required placeholder="8.6100">
+        <label>Latitud
+          <input type="number" id="fichaLat" step="any" min="-90" max="90" placeholder="8.6100">
         </label>
-        <label>Longitud *
-          <input type="number" id="fichaLng" step="any" min="-180" max="180" required placeholder="-75.4698">
+        <label>Longitud
+          <input type="number" id="fichaLng" step="any" min="-180" max="180" placeholder="-75.4698">
         </label>
         <label>Precisión
           <select id="fichaPrecision">
@@ -258,8 +258,8 @@
       <div class="formulario__ayuda">
         <button type="button" class="btn btn--suave" id="btnUbicar">📍 Ubicar haciendo clic en el mapa</button>
       </div>
-      <label>Descripción *
-        <textarea id="fichaDescripcion" rows="3" required placeholder="¿Qué es este lugar o experiencia y por qué es importante para el territorio?"></textarea>
+      <label>Descripción
+        <textarea id="fichaDescripcion" rows="3" placeholder="¿Qué es este lugar o experiencia y por qué es importante para el territorio?"></textarea>
       </label>
       <label>Historia o relato
         <textarea id="fichaHistoria" rows="3" placeholder="Qué ocurrió, cómo lo vive la comunidad, testimonios, fechas, consecuencias…"></textarea>
@@ -279,7 +279,7 @@
         <label>Tipo de fuente
           <select id="fichaTipoFuente"></select>
         </label>
-        <label>Estado de verificación *
+        <label>Estado de verificación
           <select id="fichaEstado">
             <option value="documentado">Documentado (fuente verificable)</option>
             <option value="testimonio">Testimonio (relato de la comunidad)</option>

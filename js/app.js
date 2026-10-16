@@ -1586,8 +1586,6 @@
     $("#fichaLat").value = f && typeof f.lat === "number" ? f.lat : "";
     $("#fichaLng").value = f && typeof f.lng === "number" ? f.lng : "";
     $("#fichaPrecision").value = f ? (f.precision || "exacta") : "exacta";
-    $("#fichaLat").required = $("#fichaPrecision").value !== "sin";
-    $("#fichaLng").required = $("#fichaPrecision").value !== "sin";
     $("#fichaDescripcion").value = f ? f.descripcion : "";
     $("#fichaHistoria").value = f ? (f.historia || "") : "";
     $("#fichaActores").value = f ? (f.actores || "") : "";
@@ -1606,14 +1604,9 @@
 
   function guardarFicha() {
     const form = $("#formFicha");
-    const sinUbi = $("#fichaPrecision").value === "sin";
-    $("#fichaLat").required = !sinUbi;
-    $("#fichaLng").required = !sinUbi;
-    if (!form.checkValidity()) { form.reportValidity(); return; }
-
     const id = $("#fichaId").value;
-    const nombre = $("#fichaNombre").value.trim();
-    const duplicado = estado.fichas.find((f) => f.id !== id && normalizar(f.nombre) === normalizar(nombre));
+    const nombre = $("#fichaNombre").value.trim() || "Registro sin nombre";
+    const duplicado = estado.fichas.find((f) => f.id !== id && normalizar(f.nombre) === normalizar(nombre) && f.nombre !== "Registro sin nombre");
     if (duplicado && !confirm("Ya existe un registro con el nombre «" + duplicado.nombre + "» (sección " + (CATEGORIAS[duplicado.categoria] || {}).seccion + ").\n\nSi son elementos distintos, use un nombre que los diferencie. ¿Guardar de todos modos?")) return;
 
     const datos = {
@@ -2013,7 +2006,6 @@
     $("#archivoImportar").addEventListener("change", manejarImportacion);
     $("#btnAgregarConvencion").addEventListener("click", agregarConvencion);
     $("#btnGuardarLeyenda").addEventListener("click", guardarLeyenda);
-    $("#fichaPrecision").addEventListener("change", () => { const s = $("#fichaPrecision").value !== "sin"; $("#fichaLat").required = s; $("#fichaLng").required = s; });
     $("#btnImprimir").addEventListener("click", () => imprimir(false));
     $("#btnVistaPrevia").addEventListener("click", () => imprimir(true));
     $("#btnImprimirDesdePrevia").addEventListener("click", () => { cerrarModal("modalVistaPrevia"); imprimir(false); });
