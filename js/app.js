@@ -27,6 +27,7 @@
   let clicZona = false;
   let zonaLayers = {};
   let moveZona = null;
+  let nubeTimer = null;
 
   const PALETA = ["#C9A227", "#102D4F", "#15803D", "#9B1C1C", "#6D28D9", "#1D4ED8", "#C2410C", "#5D6B7E"];
 
@@ -163,10 +164,53 @@
     }
   }
 
+  function pintarEstadoNube(texto) {
+    const n = $("#estadoNube");
+    if (n) n.textContent = texto;
+  }
+
+  async function cargarNube() {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 7000);
+      const r = await fetch("api/estado", { signal: ctrl.signal });
+      clearTimeout(t);
+      if (!r.ok) return null;
+      const j = await r.json();
+      if (!j || !j.ok || !j.estado) return null;
+      return migrar(j.estado);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function guardarNube() {
+    nubeTimer = null;
+    if (!estado) return;
+    pintarEstadoNube("☁ Guardando en la nube…");
+    try {
+      const r = await fetch("api/estado", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(estado)
+      });
+      const j = await r.json().catch(() => null);
+      pintarEstadoNube(j && j.ok ? "☁ Nube al día ✓" : "☁ Sin conexión: guardado local");
+    } catch (e) {
+      pintarEstadoNube("☁ Sin conexión: guardado local");
+    }
+  }
+
+  function programarNube() {
+    if (nubeTimer) clearTimeout(nubeTimer);
+    nubeTimer = setTimeout(guardarNube, 900);
+  }
+
   function guardar() {
     try {
       localStorage.setItem(CLAVE, JSON.stringify(estado));
       pintarEstadoGuardado();
+      programarNube();
       return true;
     } catch (e) {
       toast("No fue posible guardar en este navegador. Exporte un respaldo.", "error");
@@ -1542,6 +1586,8 @@
     $("#fichaLat").value = f && typeof f.lat === "number" ? f.lat : "";
     $("#fichaLng").value = f && typeof f.lng === "number" ? f.lng : "";
     $("#fichaPrecision").value = f ? (f.precision || "exacta") : "exacta";
+    $("#fichaLat").required = $("#fichaPrecision").value !== "sin";
+    $("#fichaLng").required = $("#fichaPrecision").value !== "sin";
     $("#fichaDescripcion").value = f ? f.descripcion : "";
     $("#fichaHistoria").value = f ? (f.historia || "") : "";
     $("#fichaActores").value = f ? (f.actores || "") : "";
@@ -1560,6 +1606,9 @@
 
   function guardarFicha() {
     const form = $("#formFicha");
+    const sinUbi = $("#fichaPrecision").value === "sin";
+    $("#fichaLat").required = !sinUbi;
+    $("#fichaLng").required = !sinUbi;
     if (!form.checkValidity()) { form.reportValidity(); return; }
 
     const id = $("#fichaId").value;
@@ -1964,6 +2013,7 @@
     $("#archivoImportar").addEventListener("change", manejarImportacion);
     $("#btnAgregarConvencion").addEventListener("click", agregarConvencion);
     $("#btnGuardarLeyenda").addEventListener("click", guardarLeyenda);
+    $("#fichaPrecision").addEventListener("change", () => { const s = $("#fichaPrecision").value !== "sin"; $("#fichaLat").required = s; $("#fichaLng").required = s; });
     $("#btnImprimir").addEventListener("click", () => imprimir(false));
     $("#btnVistaPrevia").addEventListener("click", () => imprimir(true));
     $("#btnImprimirDesdePrevia").addEventListener("click", () => { cerrarModal("modalVistaPrevia"); imprimir(false); });
@@ -2106,8 +2156,14 @@
 
   /* ==================== INICIO ==================== */
 
-  function iniciar() {
-    const previo = cargar();
+  async function iniciar() {
+    let previo = null;
+    let deNube = false;
+    try {
+      const remoto = await cargarNube();
+      if (remoto) { previo = remoto; deNube = true; }
+    } catch (e) { previo = null; }
+    if (!previo) previo = cargar();
     estado = previo || null;
     if (!estado) restaurarSemilla();
     if (!estado.config) estado.config = clonar(CONFIGURACION_INICIAL);
@@ -2130,6 +2186,7 @@
     pintarMenuTerritorio();
     repintar();
     pintarEstadoGuardado();
+    pintarEstadoNube(deNube ? "☁ Nube conectada ✓" : "☁ Sin conexión: guardado local");
     eventos();
     navegar("mapa");
     if (window.matchMedia && window.matchMedia("(max-width: 900px)").matches) alternarTira(true);
