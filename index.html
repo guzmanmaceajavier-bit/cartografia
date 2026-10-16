@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartografía de Paz · Sahagún, Córdoba</title>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-seccion="mapa" data-vista="mapa">
+
+<header class="cabecera">
+  <div class="cabecera__marca">
+    <span class="cabecera__icono" aria-hidden="true">🕊️</span>
+    <div class="cabecera__titulo">
+      <strong>Cartografía de Paz</strong>
+      <span>Sahagún, Córdoba</span>
+    </div>
+  </div>
+
+  <nav class="principal" aria-label="Secciones del trabajo">
+    <button type="button" class="principal__btn principal__btn--activo" data-seccion="mapa">🗺️ Mapa</button>
+    <button type="button" class="principal__btn" data-seccion="lugares" title="Lugares y experiencias">📇 Lugares</button>
+    <button type="button" class="principal__btn" data-seccion="memoria" title="Memoria y afectaciones">🕯️ Memoria</button>
+    <button type="button" class="principal__btn" data-seccion="actores" title="Actores e iniciativas de paz">🤝 Actores</button>
+    <button type="button" class="principal__btn" data-seccion="reflexion" title="Reflexión final">✍️ Reflexión</button>
+  </nav>
+
+  <div class="cabecera__acciones">
+    <input type="search" id="busqueda" placeholder="Buscar registro, actor, palabra clave…" aria-label="Buscar en la cartografía">
+    <button class="btn btn--primario" id="btnNueva">＋ Agregar registro</button>
+  </div>
+</header>
+
+<nav class="pestanas" aria-label="Paneles del mapa">
+  <button type="button" class="pestanas__btn" data-vista="menu">☰ Menú</button>
+  <button type="button" class="pestanas__btn" data-vista="mapa">Mapa</button>
+  <button type="button" class="pestanas__btn" data-vista="info">Información</button>
+</nav>
+
+<!-- ==================== 1 · MAPA ==================== -->
+<section class="vista vista--activa" id="vista-mapa" data-vista-seccion="mapa">
+  <div class="pagina-datos" id="paginaDatos" aria-hidden="true"></div>
+  <main class="aplicacion">
+
+    <aside class="menu" id="menuLateral">
+      <details class="acordeon" open>
+        <summary>1 · Territorio y capas</summary>
+        <div class="menu__territorio">
+          <p class="menu__territorio-nombre" id="terrMenuNombre"></p>
+          <p class="menu__territorio-desc" id="terrMenuDesc"></p>
+          <button type="button" class="btn menu__btn" id="btnTerritorio">✏️ Editar delimitación y límites</button>
+        </div>
+      </details>
+
+      <details class="acordeon">
+        <summary>Herramientas</summary>
+        <div class="menu__herramientas">
+          <button type="button" class="btn menu__btn" data-accion="leyenda">⚙️ Gestionar convenciones (editar / ocultar / eliminar)</button>
+          <button type="button" class="btn menu__btn" id="btnExportar">⬇️ Exportar respaldo (JSON)</button>
+          <button type="button" class="btn menu__btn" id="btnImportar">⬆️ Importar respaldo (JSON)</button>
+          <input type="file" id="archivoImportar" accept="application/json,.json" hidden>
+          <button type="button" class="btn menu__btn" id="btnVistaPrevia">👁 Vista previa del informe</button>
+          <button type="button" class="btn menu__btn" id="btnImprimir">🖨️ Imprimir / PDF</button>
+          <button type="button" class="btn menu__btn" id="btnAyuda">❓ Cómo usar</button>
+        </div>
+      </details>
+
+      <details class="acordeon">
+        <summary>Guardado</summary>
+        <p class="menu__guardado" id="estadoGuardado">Guardado automático activo</p>
+        <div class="menu__progreso" id="progresoEntrega"></div>
+      </details>
+    </aside>
+
+    <section class="mapa-zona">
+      <button type="button" class="panel-toggle panel-toggle--izq" id="toggleMenu" title="Mostrar u ocultar el menú">›</button>
+      <div id="mapa" role="application" aria-label="Mapa de Sahagún"></div>
+      <div class="rosa" title="Rosa de los vientos: el norte está arriba"><span class="rosa__letra rosa__n">N</span><span class="rosa__letra rosa__e">E</span><span class="rosa__letra rosa__s">S</span><span class="rosa__letra rosa__o">O</span><span class="rosa__centro">✦</span></div>
+
+      <div class="mapa-controles" id="mapaControles">
+      </div>
+
+      <button type="button" class="btn-dibujo" id="btnDibujoToggle" title="Mostrar herramientas de dibujo">✏️ Dibujar</button>
+      <div class="barra-dibujo" id="barraDibujo" role="toolbar" aria-label="Herramientas de dibujo" hidden>
+        <span class="barra-dibujo__grupo barra-dibujo__colores" id="paletaColores" title="Color de relleno activo"></span>
+        <span class="barra-dibujo__sep"></span>
+        <button type="button" class="barra-dibujo__btn" data-dibujo="poligono" title="Dibujar polígono (clic por vértice, doble clic para cerrar)">⬠ Polígono</button>
+        <button type="button" class="barra-dibujo__btn" data-dibujo="rectangulo" title="Dibujar rectángulo (arrastre)">▭ Rectángulo</button>
+        <button type="button" class="barra-dibujo__btn" data-dibujo="circulo" title="Dibujar círculo (arrastre desde el centro)">◯ Círculo</button>
+        <span class="barra-dibujo__sep"></span>
+        <button type="button" class="barra-dibujo__btn" data-dibujo="linea" title="Dibujar ruta o camino (clic por vértice, doble clic para terminar)">∿ Línea</button>
+        <button type="button" class="barra-dibujo__btn" data-dibujo="flecha" title="Dibujar flujo o desplazamiento (clic por vértice, doble clic para terminar)">→ Flecha</button>
+        <span class="barra-dibujo__sep"></span>
+        <button type="button" class="barra-dibujo__btn" data-dibujo="marca" title="Colocar una marca de color">● Marca</button>
+        <button type="button" class="barra-dibujo__btn" data-dibujo="estrella" title="Marcar un hito importante con una estrella">★ Hito</button>
+        <button type="button" class="barra-dibujo__btn" data-dibujo="texto" title="Colocar una etiqueta de texto">T Texto</button>
+        <span class="barra-dibujo__sep"></span>
+        <button type="button" class="barra-dibujo__btn" data-dibujo="mover" title="Arrastrar una figura para moverla">✥ Mover</button>
+        <span class="barra-dibujo__sep"></span>
+        <button type="button" class="barra-dibujo__btn" data-dibujo="rellenar" title="Elegir un color y tocar una figura para rellenarla">🎨 Rellenar</button>
+        <button type="button" class="barra-dibujo__btn barra-dibujo__btn--peligro" data-dibujo="eliminar" title="Tocar una figura para eliminarla">✕ Eliminar</button>
+        <button type="button" class="barra-dibujo__btn barra-dibujo__btn--peligro" data-dibujo="limpiar" title="Borrar todas las figuras dibujadas">🧹 Limpiar</button>
+        <button type="button" class="barra-dibujo__btn barra-dibujo__cerrar" data-dibujo="cerrar" title="Ocultar herramientas de dibujo">✕</button>
+        <span class="barra-dibujo__ayuda" id="dibujoAyuda"></span>
+      </div>
+
+      <button type="button" class="panel-toggle panel-toggle--der" id="toggleInfo" title="Mostrar u ocultar el panel de información">‹</button>
+    </section>
+
+    <aside class="panel-info" id="panelInfo">
+      <div class="panel-info__cabecera">
+        <h2 id="panelInfoTitulo">Información</h2>
+        <button type="button" class="panel-info__plegar" id="toggleLista" title="Plegar o desplegar el contenido">▾</button>
+      </div>
+      <div class="panel-info__cuerpo" id="panelInfoCuerpo">
+        <div class="panel-info__bloque" id="infoDetalle" hidden></div>
+        <div class="panel-info__bloque" id="infoGeneral"></div>
+      </div>
+    </aside>
+
+  </main>
+
+  <section class="tira-lectura" id="tiraLectura">
+    <button type="button" class="tira-lectura__cabecera" id="btnTiraLectura" aria-expanded="true" title="Mostrar u ocultar la lectura de paz del territorio">
+      <strong>▦ Lectura de paz del territorio</strong>
+      <span class="tira-lectura__caret" aria-hidden="true">▾</span>
+    </button>
+    <div class="tira-lectura__cuerpo">
+      <div class="tira-lectura__rejilla" id="tiraLecturaRejilla"></div>
+    </div>
+  </section>
+</section>
+
+<!-- ==================== 2 · LUGARES Y EXPERIENCIAS ==================== -->
+<section class="vista" id="vista-lugares" data-vista-seccion="lugares" hidden>
+  <div class="hoja">
+    <header class="hoja__cabecera">
+      <div>
+        <p class="hoja__numero">Sección 2</p>
+        <h1>Lugares y experiencias</h1>
+        <p class="hoja__intro">Catálogo completo de los registros de la cartografía, con búsqueda, filtros, fuentes y acceso a su ubicación en el mapa.</p>
+      </div>
+      <button type="button" class="btn btn--primario" data-accion="nueva">＋ Agregar registro</button>
+    </header>
+    <div class="chips" id="lugaresChips"></div>
+    <div class="catalogo" id="lugaresLista"></div>
+  </div>
+</section>
+
+<!-- ==================== 3 · MEMORIA Y AFECTACIONES ==================== -->
+<section class="vista" id="vista-memoria" data-vista-seccion="memoria" hidden>
+  <div class="hoja">
+    <header class="hoja__cabecera">
+      <div>
+        <p class="hoja__numero">Sección 3</p>
+        <h1>Memoria y afectaciones</h1>
+        <p class="hoja__intro">Huellas del conflicto, afectaciones, memorias comunitarias y lugares significativos, con protección de la información sensible.</p>
+      </div>
+      <button type="button" class="btn btn--primario" data-accion="nueva">＋ Agregar registro</button>
+    </header>
+    <p class="aviso-proteccion">🕯️ <strong>Protección de identidad:</strong> los registros marcados con «identidad protegida» no revelan nombres de víctimas ni ubicaciones precisas. No publique datos sensibles sin autorización.</p>
+    <div id="memoriaSecciones"></div>
+  </div>
+</section>
+
+<!-- ==================== 4 · ACTORES E INICIATIVAS ==================== -->
+<section class="vista" id="vista-actores" data-vista-seccion="actores" hidden>
+  <div class="hoja">
+    <header class="hoja__cabecera">
+      <div>
+        <p class="hoja__numero">Sección 4</p>
+        <h1>Actores e iniciativas de paz</h1>
+        <p class="hoja__intro">Organizaciones, iglesias, instituciones y comunidades, junto con los procesos de resistencia, reconciliación y construcción de paz.</p>
+      </div>
+      <button type="button" class="btn btn--primario" data-accion="nueva">＋ Agregar registro</button>
+    </header>
+    <div id="actoresSecciones"></div>
+  </div>
+</section>
+
+<!-- ==================== 5 · REFLEXIÓN FINAL ==================== -->
+<section class="vista" id="vista-reflexion" data-vista-seccion="reflexion" hidden>
+  <div class="hoja hoja--estrecha">
+    <header class="hoja__cabecera">
+      <div>
+        <p class="hoja__numero">Espacio narrativo · Pregunta guía</p>
+        <h1>Reflexión final</h1>
+        <p class="hoja__intro">¿Cómo se ha encarnado la teología de paz en Sahagún? Este espacio no es un marcador del mapa: es la interpretación de las experiencias identificadas, con un reto y una oportunidad concretos.</p>
+      </div>
+    </header>
+    <div class="reflexion__estado" id="reflexionEstado"></div>
+    <label class="reflexion__campo">Reflexión
+      <textarea id="refTexto" rows="16" placeholder="Escriba aquí su reflexión…"></textarea>
+    </label>
+    <div class="formulario__fila">
+      <label>Un reto concreto para fortalecer la construcción de paz
+        <textarea id="refReto" rows="5" placeholder="¿Qué debe asumir la comunidad?"></textarea>
+      </label>
+      <label>Una oportunidad concreta en el territorio
+        <textarea id="refOportunidad" rows="5" placeholder="¿Qué posibilidad concreta existe?"></textarea>
+      </label>
+    </div>
+    <div class="modal__pie modal__pie--suelto">
+      <button type="button" class="btn" id="btnExportarReflexion">Descargar reflexión (.txt)</button>
+      <button type="button" class="btn btn--primario" id="btnGuardarReflexion">Guardar reflexión</button>
+    </div>
+    <p class="hoja__nota">Ejemplos de retos y oportunidades también pueden registrarse como fichas de la sección 08 «Retos actuales para la construcción de paz» y verse en el mapa.</p>
+    <section class="tarjeta" style="margin-top:14px">
+      <h2>Retos registrados en el territorio (07)</h2>
+      <div id="reflexionRetos"></div>
+    </section>
+  </div>
+</section>
+
+<div class="barra-ubicar" id="barraUbicar" hidden>
+  <span>📍 Haga clic en el mapa para fijar la ubicación</span>
+  <button type="button" class="btn btn--mini" id="btnCancelarUbicar">Cancelar</button>
+</div>
+
+<div class="modal" id="modalFicha" hidden>
+  <div class="modal__caja modal__caja--grande" role="dialog" aria-modal="true" aria-labelledby="tituloFicha">
+    <header class="modal__cabecera">
+      <h2 id="tituloFicha">Nuevo registro</h2>
+      <button class="modal__cerrar" data-cerrar="modalFicha" aria-label="Cerrar">✕</button>
+    </header>
+    <form id="formFicha" class="modal__cuerpo formulario">
+      <input type="hidden" id="fichaId">
+      <div class="formulario__fila">
+        <label class="formulario__ancho">Nombre del lugar, actor o experiencia *
+          <input type="text" id="fichaNombre" required placeholder="Ej.: Parque principal de la cabecera">
+        </label>
+        <label>Categoría principal (02–08) *
+          <select id="fichaCategoria" required></select>
+        </label>
+      </div>
+      <div class="formulario__fila">
+        <label class="formulario__ancho">Subtema (opcional, lo define usted)
+          <input type="text" id="fichaSubtema" placeholder="Ej.: Amenazas a líderes, organización de víctimas…">
+        </label>
+      </div>
+      <div class="formulario__fila">
+        <label>Latitud *
+          <input type="number" id="fichaLat" step="any" min="-90" max="90" required placeholder="8.6100">
+        </label>
+        <label>Longitud *
+          <input type="number" id="fichaLng" step="any" min="-180" max="180" required placeholder="-75.4698">
+        </label>
+        <label>Precisión
+          <select id="fichaPrecision">
+            <option value="exacta">Exacta</option>
+            <option value="aproximada">Aproximada (zona general)</option>
+            <option value="sin">Sin ubicación en el mapa</option>
+          </select>
+        </label>
+      </div>
+      <div class="formulario__ayuda">
+        <button type="button" class="btn btn--suave" id="btnUbicar">📍 Ubicar haciendo clic en el mapa</button>
+      </div>
+      <label>Descripción *
+        <textarea id="fichaDescripcion" rows="3" required placeholder="¿Qué es este lugar o experiencia y por qué es importante para el territorio?"></textarea>
+      </label>
+      <label>Historia o relato
+        <textarea id="fichaHistoria" rows="3" placeholder="Qué ocurrió, cómo lo vive la comunidad, testimonios, fechas, consecuencias…"></textarea>
+      </label>
+      <div class="formulario__fila">
+        <label>Actores involucrados
+          <input type="text" id="fichaActores" placeholder="Familias, organización X, parroquia…">
+        </label>
+        <label>Fecha o periodo
+          <input type="text" id="fichaFecha" placeholder="Ej.: 1997-2005, actualidad…">
+        </label>
+      </div>
+      <label>Fuente
+        <input type="text" id="fichaFuente" placeholder="Testimonio oral (fecha), informe, prensa, conversación con habitantes…">
+      </label>
+      <div class="formulario__fila">
+        <label>Tipo de fuente
+          <select id="fichaTipoFuente"></select>
+        </label>
+        <label>Estado de verificación *
+          <select id="fichaEstado">
+            <option value="documentado">Documentado (fuente verificable)</option>
+            <option value="testimonio">Testimonio (relato de la comunidad)</option>
+            <option value="pendiente">Pendiente de verificación</option>
+          </select>
+        </label>
+      </div>
+      <label>Evidencias
+        <textarea id="fichaEvidencias" rows="2" placeholder="Fotografías, documentos o enlaces pertinentes (pegue las URLs o describa los archivos)"></textarea>
+      </label>
+      <label>Observaciones
+        <textarea id="fichaObservaciones" rows="2" placeholder="Contexto adicional y limitaciones de la información"></textarea>
+      </label>
+      <label>Aporte a la lectura de paz
+        <textarea id="fichaAporte" rows="2" placeholder="¿Qué permite comprender este registro sobre la violencia, la resistencia, la memoria o la esperanza?"></textarea>
+      </label>
+      <div class="formulario__grupo-rel">
+        <span class="formulario__etiqueta">Registros relacionados (respuestas, memoria o actores vinculados a este punto)</span>
+        <div class="relacionados-lista" id="fichaRelacionados"></div>
+      </div>
+      <label class="casilla">
+        <input type="checkbox" id="fichaAnonimo">
+        Proteger identidad: no revelar nombres de víctimas, testigos ni autores
+      </label>
+      <label class="casilla">
+        <input type="checkbox" id="fichaVisible" checked>
+        Mostrar este registro en el mapa
+      </label>
+    </form>
+    <footer class="modal__pie">
+      <button class="btn" data-cerrar="modalFicha">Cancelar</button>
+      <button class="btn btn--primario" id="btnGuardarFicha">Guardar cambios</button>
+    </footer>
+  </div>
+</div>
+
+<div class="modal" id="modalVerFicha" hidden>
+  <div class="modal__caja modal__caja--grande" role="dialog" aria-modal="true" aria-labelledby="tituloVerFicha">
+    <header class="modal__cabecera">
+      <h2 id="tituloVerFicha">Ficha completa</h2>
+      <button class="modal__cerrar" data-cerrar="modalVerFicha" aria-label="Cerrar">✕</button>
+    </header>
+    <div class="modal__cuerpo" id="verFichaCuerpo"></div>
+    <footer class="modal__pie" id="verFichaPie"></footer>
+  </div>
+</div>
+
+<div class="modal" id="modalTerritorio" hidden>
+  <div class="modal__caja modal__caja--grande" role="dialog" aria-modal="true" aria-labelledby="tituloTerritorio">
+    <header class="modal__cabecera">
+      <h2 id="tituloTerritorio">Territorio y límites</h2>
+      <button class="modal__cerrar" data-cerrar="modalTerritorio" aria-label="Cerrar">✕</button>
+    </header>
+    <div class="modal__cuerpo formulario">
+      <label>Nombre del territorio o comunidad
+          <input type="text" id="terrNombre">
+        </label>
+        <label>Nombre del participante o integrantes del grupo
+          <input type="text" id="terrParticipante" placeholder="Ej.: Grupo juvenil parroquial / María Pérez…">
+        </label>
+        <div class="formulario__fila">
+          <label>Municipio
+            <input type="text" id="terrMunicipio">
+          </label>
+          <label>Departamento
+            <input type="text" id="terrDepartamento">
+          </label>
+        </div>
+      <label>Descripción delimitada del territorio
+        <textarea id="terrDescripcion" rows="3" placeholder="Barrio, vereda, municipio, comunidad de fe… dónde empieza y termina lo representado"></textarea>
+      </label>
+      <div class="formulario__fila">
+        <label>Centro (latitud)
+          <input type="number" id="terrLat" step="any">
+        </label>
+        <label>Centro (longitud)
+          <input type="number" id="terrLng" step="any">
+        </label>
+        <label>Zoom
+          <input type="number" id="terrZoom" min="3" max="18" step="1">
+        </label>
+      </div>
+      <div class="casilla bloque">
+        <label class="casilla">
+          <input type="checkbox" id="terrMostrarLimite">
+          Mostrar el límite del territorio sobre el mapa
+        </label>
+        <button type="button" class="btn btn--suave" id="btnLimiteOficial">🌐 Cargar límite oficial (OpenStreetMap)</button>
+      </div>
+      <p class="formulario__nota">El mapa base siempre es geográfico real. Cuando esté disponible, cargue el límite oficial o pegue el GeoJSON oficial de la Oficina de Planeación / IGAC.</p>
+      <label>Límite del territorio (GeoJSON del polígono)
+        <textarea id="terrLimite" rows="8" spellcheck="false"></textarea>
+      </label>
+      <div class="acciones-peligro">
+        <button type="button" class="btn btn--peligro" id="btnRestablecer">Borrar todo y empezar de cero</button>
+        <span class="formulario__nota">Reemplaza registros, territorio, figuras dibujadas, convenciones y reflexión por el lienzo inicial (solo las fichas base por completar).</span>
+      </div>
+    </div>
+    <footer class="modal__pie">
+      <button class="btn" data-cerrar="modalTerritorio">Cancelar</button>
+      <button class="btn btn--primario" id="btnGuardarTerritorio">Guardar cambios</button>
+    </footer>
+  </div>
+</div>
+
+<div class="modal" id="modalLeyenda" hidden>
+  <div class="modal__caja modal__caja--grande" role="dialog" aria-modal="true" aria-labelledby="tituloLeyenda">
+    <header class="modal__cabecera">
+      <h2 id="tituloLeyenda">Gestionar convenciones (leyenda)</h2>
+      <button class="modal__cerrar" data-cerrar="modalLeyenda" aria-label="Cerrar">✕</button>
+    </header>
+    <div class="modal__cuerpo formulario">
+      <p class="formulario__nota">Las convenciones aparecen en la leyenda del menú, en «Fuentes y metodología» y en el informe impreso. Edite nombres, símbolos y colores, oculte las que no quiera ver o elimine las personalizadas. La estructura 01–08 corresponde al trabajo: se recomienda conservar sus nombres.</p>
+      <h3 class="fuentes__subtitulo">Categorías del trabajo (01–08)</h3>
+      <div id="leyendaCategorias" class="gestion__lista"></div>
+      <h3 class="fuentes__subtitulo">Líneas del territorio</h3>
+      <div id="leyendaBase" class="gestion__lista"></div>
+      <h3 class="fuentes__subtitulo">Convenciones personalizadas</h3>
+      <div id="leyendaCustom" class="gestion__lista"></div>
+      <details class="gestion__nueva" id="gestionNueva">
+        <summary>＋ Agregar convención personalizada</summary>
+        <div class="formulario__fila">
+          <label>Nueva convención: nombre
+            <input type="text" id="convNombre" placeholder="Ej.: Pozo comunitario">
+          </label>
+          <label>Símbolo
+            <input type="text" id="convSimbolo" maxlength="3" placeholder="◆">
+          </label>
+          <label>Color
+            <input type="color" id="convColor" value="#15803D">
+          </label>
+        </div>
+        <p class="formulario__nota">Toque un símbolo y un color para usarlos en la convención nueva:</p>
+        <div class="simbolos-paleta" id="simbolosPaleta"></div>
+        <div class="colores-paleta" id="coloresPaleta"></div>
+        <label>Nota (qué representa)
+          <input type="text" id="convNota" placeholder="Descripción breve para la leyenda">
+        </label>
+        <button type="button" class="btn btn--suave" id="btnAgregarConvencion">＋ Agregar convención</button>
+      </details>
+    </div>
+    <footer class="modal__pie">
+      <button class="btn" data-cerrar="modalLeyenda">Cancelar</button>
+      <button class="btn btn--primario" id="btnGuardarLeyenda">Guardar convenciones</button>
+    </footer>
+  </div>
+</div>
+
+<div class="modal" id="modalAyuda" hidden>
+  <div class="modal__caja" role="dialog" aria-modal="true" aria-labelledby="tituloAyuda">
+    <header class="modal__cabecera">
+      <h2 id="tituloAyuda">Cómo usar la cartografía</h2>
+      <button class="modal__cerrar" data-cerrar="modalAyuda" aria-label="Cerrar">✕</button>
+    </header>
+    <div class="modal__cuerpo ayuda">
+      <h3>1. Mapa y capas</h3>
+      <p>La sección <em>Mapa</em> es el centro del trabajo: arriba a la derecha está el botón <em>▦ Capas</em>, un solo panel con el tipo de mapa (Calles, Satélite, Híbrido, Terreno), las casillas <em>Etiquetas</em> y <em>Nombres</em>, y el cuadro de convenciones con ojos (👁/🚫) para mostrar u ocultar cada sección. Con <em>⚙️</em> (menú Herramientas → Gestionar convenciones) puede cambiar nombres, símbolos y colores. El panel derecho muestra la ficha seleccionada.</p>
+      <h3>2. Cuadro de convenciones</h3>
+      <p>Dentro del panel <em>▦ Capas</em> está el cuadro con los símbolos de las secciones 02–08, las líneas del territorio y sus convenciones propias. Cada fila tiene un ojo (👁/🚫) para mostrar u ocultar sus marcadores en el mapa, sin salir del mapa.</p>
+      <h3>3. Ver el lugar como es y dibujar sobre el mapa</h3>
+      <p>Al seleccionar un lugar, la ficha muestra el botón <em>📷 Ver cómo es</em> que abre la vista callejera (Street View) de Google Maps en sus coordenadas. Con <em>✏️ Dibujar</em> (abajo en el mapa) se despliegan las herramientas: polígono, rectángulo y círculo para zonas; <em>línea</em> para rutas o caminos y <em>flecha</em> para flujos o desplazamientos (clic por vértice, doble clic para terminar); <em>marca</em>, <em>hito</em> (★) y <em>texto</em> para señalar y etiquetar; <em>✥ Mover</em> para arrastrar cualquier figura; paleta de colores, <em>rellenar</em> y <em>eliminar</em>. Toque una figura para recolorearla, editar su texto o borrarla. Las figuras se guardan con el trabajo y se distinguen de los marcadores de registros.</p>
+      <h3>4. Las secciones y la tira de lectura</h3>
+      <p><em>Lugares</em> es el catálogo completo con filtros por sección (02–08); <em>Memoria</em> reúne afectaciones y memoria con aviso de protección; <em>Actores</em> agrupa actores, resistencia y esperanza; <em>Reflexión final</em> es el espacio narrativo con reto y oportunidad. Cada sección tiene su botón para agregar registros. Debajo del mapa, la tira <em>▦ Lectura de paz del territorio</em> resume cada punto en tarjetas breves (se puede plegar; cada tarjeta lleva a su sección). Las fuentes y la metodología quedan documentadas en el informe impreso.</p>
+      <h3>5. Una sola ficha, datos necesarios</h3>
+      <p>Cada registro tiene una <em>categoría principal</em> (02–08, qué punto de la guía representa), un <em>subtema</em> opcional que usted define con sus palabras (p. ej., «Amenazas a líderes»), su ubicación, descripción, historia, actores, fecha, <em>fuente</em> con <em>tipo de fuente</em> y <em>estado de verificación</em> (qué tan respaldada está la información). Un testimonio no es falso ni confirmado: se marca como testimonio y se indica si está pendiente de corroboración. El campo <em>Aporte a la lectura de paz</em> explica qué permite comprender el registro sobre la violencia, la resistencia, la memoria o la esperanza. En <em>Registros relacionados</em> puede vincular una afectación con sus respuestas (acompañamiento, resistencia, reconciliación) para contar la historia completa. Con <em>✓ Solo verificados</em> (en Lugares) se muestran en el mapa y en el informe únicamente los registros documentados, para preparar la entrega.</p>
+      <h3>6. Rigor, ética y respaldo</h3>
+      <p>Cite la fuente, active <em>proteger identidad</em> cuando no deba revelarse nombres y use ubicaciones generalizadas en casos de riesgo. Los cambios se guardan solos en este navegador; <em>Exportar</em> descarga un JSON con todo, <em>Importar</em> lo restaura en otro equipo, <em>Vista previa</em> muestra el informe ordenado antes de imprimir e <em>Imprimir</em> genera el PDF con mapa, leyenda, fichas y reflexión.</p>
+    </div>
+    <footer class="modal__pie">
+      <button class="btn btn--primario" data-cerrar="modalAyuda">Entendido</button>
+    </footer>
+  </div>
+</div>
+
+<div class="modal" id="modalVistaPrevia" hidden>
+  <div class="modal__caja modal__caja--grande" role="dialog" aria-modal="true" aria-labelledby="tituloVistaPrevia">
+    <header class="modal__cabecera">
+      <h2 id="tituloVistaPrevia">Vista previa del informe (4 páginas)</h2>
+      <button class="modal__cerrar" data-cerrar="modalVistaPrevia" aria-label="Cerrar">✕</button>
+    </header>
+    <div class="modal__cuerpo vista-previa" id="vistaPreviaCuerpo"></div>
+    <footer class="modal__pie">
+      <button class="btn" data-cerrar="modalVistaPrevia">Seguir editando</button>
+      <button class="btn btn--primario" id="btnImprimirDesdePrevia">🖨️ Imprimir / PDF</button>
+    </footer>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<div class="area-impresion" id="areaImpresion"></div>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="js/limite.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
