@@ -95,6 +95,19 @@ const FUENTES_BASE = [
   { nombre: "Prensa regional y nacional", detalle: "Artículos sobre la Ciudadela de la Convivencia, la justicia transicional y el sur de Córdoba." }
 ];
 
+const SIMBOLOS_CAMPO = {
+  ganadería: "🐄",
+  escuelas: "🏫",
+  parques: "🏞️",
+  iglesias: "⛪",
+  jóvenes: "👥",
+  fincas: "🏡",
+  agrícolas: "🌾",
+  salud: "🏥",
+  comercio: "🏪",
+  transporte: "🚌",
+};
+
 const CONFIGURACION_INICIAL = {
   participante: "",
   nombreTerritorio: "Municipio de Sahagún, Córdoba",

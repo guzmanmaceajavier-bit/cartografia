@@ -148,6 +148,7 @@
     if (f.visible === undefined) f.visible = true;
     if (f.anonimo === undefined) f.anonimo = false;
     if (f.subtema === undefined) f.subtema = "";
+    if (f.simboloCampo === undefined) f.simboloCampo = "";
     if (!ESTADOS[f.estado]) f.estado = "pendiente";
     return f;
   }
@@ -1061,6 +1062,9 @@
     limpiarDibujoTmp();
     if (pts.length < 3) { toast("El polígono necesita al menos 3 vértices.", "error"); return; }
     crearZona({ tipo: "poligono", coords: pts });
+    const cLat = pts.reduce((s, p) => s + p[0], 0) / pts.length;
+    const cLng = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+    abrirFichaNueva(cLat, cLng, "lugares");
     setHerramienta("poligono");
     dibujoTool = null;
     $$("#barraDibujo [data-dibujo]").forEach((b) => b.classList.remove("barra-dibujo__btn--activo"));
@@ -1079,6 +1083,9 @@
     limpiarDibujoTmp();
     if (pts.length < 2) { toast("La línea necesita al menos 2 puntos.", "error"); return; }
     crearZona({ tipo: tipo, coords: pts });
+    const cLat = pts.reduce((s, p) => s + p[0], 0) / pts.length;
+    const cLng = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+    abrirFichaNueva(cLat, cLng, "lugares");
     setHerramienta(tipo);
     dibujoTool = null;
     $$("#barraDibujo [data-dibujo]").forEach((b) => b.classList.remove("barra-dibujo__btn--activo"));
@@ -1120,10 +1127,12 @@
       const d = Math.abs(c[0] - latlng.lat) + Math.abs(c[1] - latlng.lng);
       if (d < 1e-5) { toast("Arrastre para dibujar el rectángulo.", "error"); return; }
       crearZona({ tipo: "rectangulo", coords: [[c[0], c[1]], [latlng.lat, latlng.lng]] });
+      abrirFichaNueva((c[0] + latlng.lat) / 2, (c[1] + latlng.lng) / 2, "lugares");
     } else {
       const metros = mapa.distance(c, [latlng.lat, latlng.lng]);
       if (metros < 10) { toast("Arrastre desde el centro para crear el círculo.", "error"); return; }
       crearZona({ tipo: "circulo", centro: c, radio: metros });
+      abrirFichaNueva(c[0], c[1], "lugares");
     }
     setHerramienta(tmp.tipo);
     dibujoTool = null;
@@ -1174,9 +1183,10 @@
   function iconoDe(ficha) {
     const cat = CATEGORIAS[ficha.categoria] || CATEGORIAS.territorio;
     const activo = fichaSeleccionada === ficha.id;
+    const simbolo = ficha.simboloCampo || cat.simbolo;
     return L.divIcon({
       className: "marcador" + (activo ? " marcador--activo" : ""),
-      html: "<span class='marcador__nodo' style='background:" + cat.color + (activo ? ";box-shadow:0 0 0 4px rgba(16,45,79,.35),0 2px 6px rgba(0,0,0,.35)" : "") + "'>" + cat.simbolo + "</span>",
+      html: "<span class='marcador__nodo' style='background:" + cat.color + (activo ? ";box-shadow:0 0 0 4px rgba(16,45,79,.35),0 2px 6px rgba(0,0,0,.35)" : "") + "'>" + simbolo + "</span>",
       iconSize: [34, 34],
       iconAnchor: [17, 17]
     });
@@ -1596,10 +1606,38 @@
     $("#fichaEvidencias").value = f ? (f.evidencias || "") : "";
     $("#fichaObservaciones").value = f ? (f.observaciones || "") : "";
     $("#fichaAporte").value = f ? (f.aporte || "") : "";
+    $("#fichaSimboloCampo").value = f ? (f.simboloCampo || "") : "";
     pintarRelacionados(id, f ? (f.relacionados || []) : []);
     $("#fichaAnonimo").checked = f ? !!f.anonimo : false;
     $("#fichaVisible").checked = f ? f.visible !== false : true;
     abrirModal("modalFicha");
+  }
+
+  function abrirFichaNueva(lat, lng, categoria) {
+    $("#tituloFicha").textContent = "Nuevo registro";
+    $("#fichaId").value = "";
+    $("#fichaNombre").value = "";
+    $("#fichaCategoria").value = categoria || "lugares";
+    $("#fichaSubtema").value = "";
+    $("#fichaLat").value = lat;
+    $("#fichaLng").value = lng;
+    $("#fichaPrecision").value = "exacta";
+    $("#fichaDescripcion").value = "";
+    $("#fichaHistoria").value = "";
+    $("#fichaActores").value = "";
+    $("#fichaFecha").value = "";
+    $("#fichaFuente").value = "";
+    $("#fichaTipoFuente").value = "";
+    $("#fichaEstado").value = "pendiente";
+    $("#fichaEvidencias").value = "";
+    $("#fichaObservaciones").value = "";
+    $("#fichaAporte").value = "";
+    $("#fichaSimboloCampo").value = "";
+    $("#fichaRelacionados").innerHTML = "";
+    $("#fichaAnonimo").checked = false;
+    $("#fichaVisible").checked = true;
+    abrirModal("modalFicha");
+    toast("Ubicación fijada. Complete el registro y guarde.");
   }
 
   function guardarFicha() {
@@ -1626,6 +1664,7 @@
       evidencias: $("#fichaEvidencias").value.trim(),
       observaciones: $("#fichaObservaciones").value.trim(),
       aporte: $("#fichaAporte").value.trim(),
+      simboloCampo: $("#fichaSimboloCampo").value,
       relacionados: $$("#fichaRelacionados input:checked").map((i) => i.value),
       anonimo: $("#fichaAnonimo").checked,
       visible: $("#fichaVisible").checked
