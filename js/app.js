@@ -1577,7 +1577,41 @@
       pintarInfo();
     }
     pintarProgreso();
+    pintarMenuConvenciones();
     repintarSeccion();
+  }
+
+  function pintarMenuConvenciones() {
+    const cont = $("#menuConvenciones");
+    if (!cont) return;
+    const base = fichasVisibles();
+    const cats = categoriasConMarcador();
+    let html = "";
+    cats.forEach((k) => {
+      const c = CATEGORIAS[k];
+      const n = base.filter((f) => f.categoria === k).length;
+      html +=
+        "<div class='menu__cat'>" +
+        "<span class='menu__cat__simbolo'>" + c.simbolo + "</span>" +
+        "<div class='menu__cat__info'>" +
+        "<div style='display:flex;justify-content:space-between;align-items:center'>" +
+        "<strong style='color:" + c.color + "'>" + c.seccion + ". " + escapar(c.nombre) + "</strong>" +
+        "<span class='menu__cat__n'>" + n + "</span>" +
+        "</div>" +
+        "<p style='font-size:0.64rem;color:var(--tinta-suave);margin:2px 0 0'>" + escapar(c.descripcion) + "</p>" +
+        "</div>" +
+        "<button class='menu__cat__btn' data-cat='" + k + "' title='Ver solo «" + c.nombre + "»'>▶</button>" +
+        "</div>";
+    });
+    cont.innerHTML = html;
+    $$(".menu__cat__btn").forEach((b) => {
+      b.addEventListener("click", () => {
+        chipLugares = b.dataset.cat;
+        chipSubtema = "todos";
+        pintarLugares();
+        navegar("lugares");
+      });
+    });
   }
 
   /* ==================== CRUD DE FICHAS ==================== */
@@ -1624,6 +1658,10 @@
     pintarRelacionados(id, f ? (f.relacionados || []) : []);
     $("#fichaAnonimo").checked = f ? !!f.anonimo : false;
     $("#fichaVisible").checked = f ? f.visible !== false : true;
+    $$(".formulario__pestana").forEach((b) => b.classList.remove("formulario__pestana--activa"));
+    $$(".formulario__panel").forEach((p) => p.classList.remove("formulario__panel--activa"));
+    $$(".formulario__pestana")[0]?.classList.add("formulario__pestana--activa");
+    $$(".formulario__panel")[0]?.classList.add("formulario__panel--activa");
     abrirModal("modalFicha");
   }
 
@@ -1653,6 +1691,10 @@
     $("#fichaRelacionados").innerHTML = "";
     $("#fichaAnonimo").checked = false;
     $("#fichaVisible").checked = true;
+    $$(".formulario__pestana").forEach((b) => b.classList.remove("formulario__pestana--activa"));
+    $$(".formulario__panel").forEach((p) => p.classList.remove("formulario__panel--activa"));
+    $$(".formulario__pestana")[0]?.classList.add("formulario__pestana--activa");
+    $$(".formulario__panel")[0]?.classList.add("formulario__panel--activa");
     abrirModal("modalFicha");
     toast("Ubicación fijada. Complete el registro y guarde.");
   }
@@ -2052,6 +2094,15 @@
     $("#btnNueva").addEventListener("click", () => abrirFicha(null));
     $("#btnGuardarFicha").addEventListener("click", guardarFicha);
     $("#formFicha").addEventListener("submit", (e) => { e.preventDefault(); guardarFicha(); });
+    $$(".formulario__pestana").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        $$(".formulario__pestana").forEach((b) => b.classList.remove("formulario__pestana--activa"));
+        $$(".formulario__panel").forEach((p) => p.classList.remove("formulario__panel--activa"));
+        btn.classList.add("formulario__pestana--activa");
+        const panel = document.querySelector(btn.dataset.panel);
+        if (panel) panel.classList.add("formulario__panel--activa");
+      });
+    });
     $("#btnTerritorio").addEventListener("click", abrirTerritorio);
     $("#btnGuardarTerritorio").addEventListener("click", guardarTerritorio);
     $("#btnLimiteOficial").addEventListener("click", cargarLimiteOficial);

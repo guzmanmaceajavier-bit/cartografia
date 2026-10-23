@@ -6,6 +6,7 @@
 <title>Cartografía de Paz · Sahagún, Córdoba</title>
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/fase2_menu.css">
 </head>
 <body data-seccion="mapa" data-vista="mapa">
 
@@ -44,17 +45,27 @@
   <main class="aplicacion">
 
     <aside class="menu" id="menuLateral">
-      <details class="acordeon" open>
-        <summary>1 · Territorio y capas</summary>
+      <div class="menu__titulo">
+        <h3 style="margin:0">🕊️ Cartografía de Paz</h3>
+        <p style="font-size:0.72rem;color:var(--tinta-suave);margin:4px 0 0">Sahagún · Córdoba, Colombia</p>
+      </div>
+
+      <div class="menu__seccion">
+        <div class="menu__seccion-titulo">Territorios y capas</div>
         <div class="menu__territorio">
           <p class="menu__territorio-nombre" id="terrMenuNombre"></p>
           <p class="menu__territorio-desc" id="terrMenuDesc"></p>
           <button type="button" class="btn menu__btn" id="btnTerritorio">✏️ Editar delimitación y límites</button>
         </div>
-      </details>
+      </div>
 
-      <details class="acordeon">
-        <summary>🛠 Herramientas</summary>
+      <div class="menu__seccion">
+        <div class="menu__seccion-titulo">Convenciones del trabajo (02–08)</div>
+        <div id="menuConvenciones" class="menu__convenciones"></div>
+      </div>
+
+      <div class="menu__seccion">
+        <div class="menu__seccion-titulo">Herramientas</summary>
         <div class="menu__herramientas">
           <button type="button" class="btn menu__btn" data-accion="leyenda">⚙️ Gestionar convenciones</button>
           <button type="button" class="btn menu__btn" id="btnExportar">⬇️ Exportar respaldo (JSON)</button>
@@ -64,14 +75,14 @@
           <button type="button" class="btn menu__btn" id="btnImprimir">🖨️ Imprimir / PDF</button>
           <button type="button" class="btn menu__btn" id="btnAyuda">❓ Cómo usar</button>
         </div>
-      </details>
+      </div>
 
-      <details class="acordeon">
-        <summary>☁ Guardado</summary>
+      <div class="menu__seccion">
+        <div class="menu__seccion-titulo">Guardado</summary>
         <div class="menu__guardado" id="estadoGuardado">Guardado automático activo</div>
         <div class="menu__guardado" id="estadoNube">☁ Conectando…</div>
         <div class="menu__progreso" id="progresoEntrega"></div>
-      </details>
+      </div>
     </aside>
 
     <section class="mapa-zona">
@@ -227,114 +238,137 @@
     </header>
     <form id="formFicha" class="modal__cuerpo formulario">
       <input type="hidden" id="fichaId">
-      <div class="formulario__fila">
-        <label class="formulario__ancho">Nombre del lugar, actor o experiencia
-          <input type="text" id="fichaNombre" placeholder="Ej.: Parque principal de la cabecera">
+      <div class="formulario__pestanas">
+        <button type="button" class="formulario__pestana formulario__pestana--activa" data-panel="panel-identificacion">Identificación</button>
+        <button type="button" class="formulario__pestana" data-panel="panel-ubicacion">Ubicación</button>
+        <button type="button" class="formulario__pestana" data-panel="panel-narrativa">Narrativa</button>
+        <button type="button" class="formulario__pestana" data-panel="panel-fuentes">Fuentes y ética</button>
+        <button type="button" class="formulario__pestana" data-panel="panel-relaciones">Relaciones</button>
+      </div>
+
+      <div class="formulario__panel formulario__panel--activa" id="panel-identificacion">
+        <div class="formulario__fila">
+          <label class="formulario__ancho">Nombre del lugar, actor o experiencia
+            <input type="text" id="fichaNombre" placeholder="Ej.: Parque principal de la cabecera">
+          </label>
+          <label>Categoría principal (02–08)
+            <select id="fichaCategoria"></select>
+          </label>
+          <label>Tipo de registro
+            <select id="fichaTipoRegistro">
+              <option value="registro">Registro (hecho, experiencia, actor)</option>
+              <option value="territorio">Territorio o área (vereda, barrio, zona)</option>
+              <option value="lugar">Lugar geográfico (iglesia, escuela, finca, vía)</option>
+            </select>
+          </label>
+          <label>Pertenece a territorio
+            <select id="fichaTerritorioPadre">
+              <option value="">Sin territorio padre (independiente)</option>
+            </select>
+          </label>
+        </div>
+        <div class="formulario__fila">
+          <label class="formulario__ancho">Subtema (opcional, lo define usted)
+            <input type="text" id="fichaSubtema" placeholder="Ej.: Amenazas a líderes, organización de víctimas…">
+          </label>
+          <label class="formulario__ancho">Símbolo de mapa (opcional)
+            <select id="fichaSimboloCampo">
+              <option value="">Usar símbolo de categoría</option>
+              <option value="🐄">🐄 Ganadería</option>
+              <option value="🏫">🏫 Escuela</option>
+              <option value="🏞️">🏞️ Parque</option>
+              <option value="⛪">⛪ Iglesia</option>
+              <option value="👥">👥 Jóvenes</option>
+              <option value="🏡">🏡 Finca</option>
+              <option value="🌾">🌾 Agrícola</option>
+              <option value="🏥">🏥 Salud</option>
+              <option value="🏪">🏪 Comercio</option>
+              <option value="🚌">🚌 Transporte</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="formulario__panel" id="panel-ubicacion">
+        <div class="formulario__fila">
+          <label>Latitud
+            <input type="number" id="fichaLat" step="any" min="-90" max="90" placeholder="8.6100">
+          </label>
+          <label>Longitud
+            <input type="number" id="fichaLng" step="any" min="-180" max="180" placeholder="-75.4698">
+          </label>
+          <label>Precisión
+            <select id="fichaPrecision">
+              <option value="exacta">Exacta</option>
+              <option value="aproximada">Aproximada (zona general)</option>
+              <option value="sin">Sin ubicación en el mapa</option>
+            </select>
+          </label>
+        </div>
+        <div class="formulario__ayuda">
+          <button type="button" class="btn btn--suave" id="btnUbicar">📍 Ubicar haciendo clic en el mapa</button>
+        </div>
+      </div>
+
+      <div class="formulario__panel" id="panel-narrativa">
+        <label>Descripción
+          <textarea id="fichaDescripcion" rows="3" placeholder="¿Qué es este lugar o experiencia y por qué es importante para el territorio?"></textarea>
         </label>
-        <label>Categoría principal (02–08)
-          <select id="fichaCategoria"></select>
+        <label>Historia o relato
+          <textarea id="fichaHistoria" rows="3" placeholder="Qué ocurrió, cómo lo vive la comunidad, testimonios, fechas, consecuencias…"></textarea>
         </label>
-        <label>Tipo de registro
-          <select id="fichaTipoRegistro">
-            <option value="registro">Registro (hecho, experiencia, actor)</option>
-            <option value="territorio">Territorio o área (vereda, barrio, zona)</option>
-            <option value="lugar">Lugar geográfico (iglesia, escuela, finca, vía)</option>
-          </select>
-        </label>
-        <label>Pertenece a territorio
-          <select id="fichaTerritorioPadre">
-            <option value="">Sin territorio padre (independiente)</option>
-          </select>
+        <div class="formulario__fila">
+          <label>Actores involucrados
+            <input type="text" id="fichaActores" placeholder="Familias, organización X, parroquia…">
+          </label>
+          <label>Fecha o periodo
+            <input type="text" id="fichaFecha" placeholder="Ej.: 1997-2005, actualidad…">
+          </label>
+        </div>
+        <label>Aporte a la lectura de paz
+          <textarea id="fichaAporte" rows="2" placeholder="¿Qué permite comprender este registro sobre la violencia, la resistencia, la memoria o la esperanza?"></textarea>
         </label>
       </div>
-      <div class="formulario__fila">
-        <label class="formulario__ancho">Subtema (opcional, lo define usted)
-          <input type="text" id="fichaSubtema" placeholder="Ej.: Amenazas a líderes, organización de víctimas…">
+
+      <div class="formulario__panel" id="panel-fuentes">
+        <label>Fuente
+          <input type="text" id="fichaFuente" placeholder="Testimonio oral (fecha), informe, prensa, conversación con habitantes…">
         </label>
-        <label class="formulario__ancho">Símbolo de mapa (opcional)
-          <select id="fichaSimboloCampo">
-            <option value="">Usar símbolo de categoría</option>
-            <option value="🐄">🐄 Ganadería</option>
-            <option value="🏫">🏫 Escuela</option>
-            <option value="🏞️">🏞️ Parque</option>
-            <option value="⛪">⛪ Iglesia</option>
-            <option value="👥">👥 Jóvenes</option>
-            <option value="🏡">🏡 Finca</option>
-            <option value="🌾">🌾 Agrícola</option>
-            <option value="🏥">🏥 Salud</option>
-            <option value="🏪">🏪 Comercio</option>
-            <option value="🚌">🚌 Transporte</option>
-          </select>
+        <div class="formulario__fila">
+          <label>Tipo de fuente
+            <select id="fichaTipoFuente"></select>
+          </label>
+          <label>Estado de verificación
+            <select id="fichaEstado">
+              <option value="documentado">Documentado (fuente verificable)</option>
+              <option value="testimonio">Testimonio (relato de la comunidad)</option>
+              <option value="pendiente">Pendiente de verificación</option>
+            </select>
+          </label>
+        </div>
+        <label>Evidencias
+          <textarea id="fichaEvidencias" rows="2" placeholder="Fotografías, documentos o enlaces pertinentes (pegue las URLs o describa los archivos)"></textarea>
         </label>
-      </div>
-      <div class="formulario__fila">
-        <label>Latitud
-          <input type="number" id="fichaLat" step="any" min="-90" max="90" placeholder="8.6100">
+        <label>Observaciones
+          <textarea id="fichaObservaciones" rows="2" placeholder="Contexto adicional y limitaciones de la información"></textarea>
         </label>
-        <label>Longitud
-          <input type="number" id="fichaLng" step="any" min="-180" max="180" placeholder="-75.4698">
+        <label class="casilla">
+          <input type="checkbox" id="fichaAnonimo">
+          Proteger identidad: no revelar nombres de víctimas, testigos ni autores
         </label>
-        <label>Precisión
-          <select id="fichaPrecision">
-            <option value="exacta">Exacta</option>
-            <option value="aproximada">Aproximada (zona general)</option>
-            <option value="sin">Sin ubicación en el mapa</option>
-          </select>
+        <label class="casilla">
+          <input type="checkbox" id="fichaVisible" checked>
+          Mostrar este registro en el mapa
         </label>
       </div>
-      <div class="formulario__ayuda">
-        <button type="button" class="btn btn--suave" id="btnUbicar">📍 Ubicar haciendo clic en el mapa</button>
+
+      <div class="formulario__panel" id="panel-relaciones">
+        <div class="formulario__grupo-rel">
+          <span class="formulario__etiqueta">Registros relacionados (respuestas, memoria o actores vinculados a este punto)</span>
+          <div class="relacionados-lista" id="fichaRelacionados"></div>
+        </div>
       </div>
-      <label>Descripción
-        <textarea id="fichaDescripcion" rows="3" placeholder="¿Qué es este lugar o experiencia y por qué es importante para el territorio?"></textarea>
-      </label>
-      <label>Historia o relato
-        <textarea id="fichaHistoria" rows="3" placeholder="Qué ocurrió, cómo lo vive la comunidad, testimonios, fechas, consecuencias…"></textarea>
-      </label>
-      <div class="formulario__fila">
-        <label>Actores involucrados
-          <input type="text" id="fichaActores" placeholder="Familias, organización X, parroquia…">
-        </label>
-        <label>Fecha o periodo
-          <input type="text" id="fichaFecha" placeholder="Ej.: 1997-2005, actualidad…">
-        </label>
-      </div>
-      <label>Fuente
-        <input type="text" id="fichaFuente" placeholder="Testimonio oral (fecha), informe, prensa, conversación con habitantes…">
-      </label>
-      <div class="formulario__fila">
-        <label>Tipo de fuente
-          <select id="fichaTipoFuente"></select>
-        </label>
-        <label>Estado de verificación
-          <select id="fichaEstado">
-            <option value="documentado">Documentado (fuente verificable)</option>
-            <option value="testimonio">Testimonio (relato de la comunidad)</option>
-            <option value="pendiente">Pendiente de verificación</option>
-          </select>
-        </label>
-      </div>
-      <label>Evidencias
-        <textarea id="fichaEvidencias" rows="2" placeholder="Fotografías, documentos o enlaces pertinentes (pegue las URLs o describa los archivos)"></textarea>
-      </label>
-      <label>Observaciones
-        <textarea id="fichaObservaciones" rows="2" placeholder="Contexto adicional y limitaciones de la información"></textarea>
-      </label>
-      <label>Aporte a la lectura de paz
-        <textarea id="fichaAporte" rows="2" placeholder="¿Qué permite comprender este registro sobre la violencia, la resistencia, la memoria o la esperanza?"></textarea>
-      </label>
-      <div class="formulario__grupo-rel">
-        <span class="formulario__etiqueta">Registros relacionados (respuestas, memoria o actores vinculados a este punto)</span>
-        <div class="relacionados-lista" id="fichaRelacionados"></div>
-      </div>
-      <label class="casilla">
-        <input type="checkbox" id="fichaAnonimo">
-        Proteger identidad: no revelar nombres de víctimas, testigos ni autores
-      </label>
-      <label class="casilla">
-        <input type="checkbox" id="fichaVisible" checked>
-        Mostrar este registro en el mapa
-      </label>
+
     </form>
     <footer class="modal__pie">
       <button class="btn" data-cerrar="modalFicha">Cancelar</button>

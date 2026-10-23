@@ -1,0 +1,156 @@
+/* ============ MENÚ REORGANIZADO POR CONVENCIONES ============ */
+
+.menu__seccion {
+  margin-bottom: 10px;
+}
+
+.menu__seccion-titulo {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--tinta-suave);
+  text-transform: uppercase;
+  margin: 0 0 6px 0;
+  padding: 0 8px;
+}
+
+.menu__convenciones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.menu__cat {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.menu__cat:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--sombra);
+}
+
+.menu__cat__simbolo {
+  font-size: 1rem;
+  flex: none;
+}
+
+.menu__cat__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu__cat__info strong {
+  color: var(--azul-cartografico);
+  font-size: 0.74rem;
+  font-weight: 800;
+  display: block;
+}
+
+.menu__cat__n {
+  background: var(--azul-cartografico);
+  color: #fff;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  flex: none;
+}
+
+.menu__cat p {
+  font-size: 0.64rem;
+  color: var(--tinta-suave);
+  margin: 2px 0 0;
+  line-height: 1.35;
+}
+
+.menu__cat__btn {
+  border: 1px solid var(--azul-cartografico);
+  background: #fff;
+  color: var(--azul-cartografico);
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex: none;
+}
+
+.menu__cat__btn:hover {
+  background: var(--azul-cartografico);
+  color: #fff;
+}
+
+.menu__separador {
+  height: 1px;
+  background: var(--borde);
+  margin: 9px 0;
+}
+
+/* ============ FORMULARIO POR PESTAÑAS ============ */
+
+.formulario__pestanas {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--borde);
+  padding-bottom: 6px;
+}
+
+.formulario__pestana {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 6px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--tinta-suave);
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+}
+
+.formulario__pestana:hover {
+  background: #F3F4F6;
+  color: var(--azul-cartografico);
+}
+
+.formulario__pestana--activa {
+  color: var(--azul-cartografico);
+  border-bottom-color: var(--azul-cartografico);
+  background: #EEF4F9;
+}
+
+.formulario__panel {
+  display: none;
+  padding: 4px 0 14px 0;
+}
+
+.formulario__panel--activa {
+  display: block;
+}
+
+.formulario__panel h4 {
+  font-size: 0.74rem;
+  color: var(--azul-cartografico);
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ============ PALETAS DE COLOR POR CATEGORÍA ============ */
+
+.categoria-color-02 { color: #102D4F; }
+.categoria-color-03 { color: #9B1C1C; }
+.categoria-color-04 { color: #1D4ED8; }
+.categoria-color-05 { color: #15803D; }
+.categoria-color-06 { color: #6D28D9; }
+.categoria-color-07 { color: #C9A227; }
+.categoria-color-08 { color: #C2410C; }
