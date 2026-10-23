@@ -177,6 +177,8 @@ h1, h2, h3 { margin: 0; }
 
 .pestanas { display: none; }
 
+body[data-seccion="mapa"] .pestanas { display: flex; }
+
 /* ============ VISTAS ============ */
 
 .vista { flex: 1; min-height: 0; display: none; }
