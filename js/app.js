@@ -149,6 +149,8 @@
     if (f.anonimo === undefined) f.anonimo = false;
     if (f.subtema === undefined) f.subtema = "";
     if (f.simboloCampo === undefined) f.simboloCampo = "";
+    if (f.tipo_registro === undefined) f.tipo_registro = "registro";
+    if (f.territorio_padre === undefined) f.territorio_padre = "";
     if (!ESTADOS[f.estado]) f.estado = "pendiente";
     return f;
   }
@@ -1229,6 +1231,16 @@
       Object.keys(TIPOS_FUENTE)
         .map((k) => "<option value='" + k + "'>" + escapar(TIPOS_FUENTE[k].nombre) + "</option>")
         .join("");
+    pintarTipoRegistroSelect();
+  }
+
+  function pintarTipoRegistroSelect() {
+    const tp = $("#fichaTipoRegistro");
+    const tdp = $("#fichaTerritorioPadre");
+    if (!tp || !tdp) return;
+    const territorios = estado.fichas.filter((f) => f.tipo_registro === "territorio");
+    tdp.innerHTML = "<option value=''>Sin territorio padre (independiente)</option>" +
+      territorios.map((t) => "<option value='" + t.id + "'>" + escapar(t.nombre) + "</option>").join("");
   }
 
   function pintarMapa() {
@@ -1606,6 +1618,9 @@
     $("#fichaObservaciones").value = f ? (f.observaciones || "") : "";
     $("#fichaAporte").value = f ? (f.aporte || "") : "";
     $("#fichaSimboloCampo").value = f ? (f.simboloCampo || "") : "";
+    $("#fichaTipoRegistro").value = f ? (f.tipo_registro || "registro") : "";
+    $("#fichaTerritorioPadre").value = f ? (f.territorio_padre || "") : "";
+    pintarTipoRegistroSelect();
     pintarRelacionados(id, f ? (f.relacionados || []) : []);
     $("#fichaAnonimo").checked = f ? !!f.anonimo : false;
     $("#fichaVisible").checked = f ? f.visible !== false : true;
@@ -1632,6 +1647,9 @@
     $("#fichaObservaciones").value = "";
     $("#fichaAporte").value = "";
     $("#fichaSimboloCampo").value = "";
+    $("#fichaTipoRegistro").value = "registro";
+    $("#fichaTerritorioPadre").value = "";
+    pintarTipoRegistroSelect();
     $("#fichaRelacionados").innerHTML = "";
     $("#fichaAnonimo").checked = false;
     $("#fichaVisible").checked = true;
@@ -1664,6 +1682,8 @@
       observaciones: $("#fichaObservaciones").value.trim(),
       aporte: $("#fichaAporte").value.trim(),
       simboloCampo: $("#fichaSimboloCampo").value,
+      tipo_registro: $("#fichaTipoRegistro").value,
+      territorio_padre: $("#fichaTerritorioPadre").value,
       relacionados: $$("#fichaRelacionados input:checked").map((i) => i.value),
       anonimo: $("#fichaAnonimo").checked,
       visible: $("#fichaVisible").checked

@@ -142,6 +142,30 @@ Sugerencias para escribir su reflexión (borre estas líneas y escriba con sus p
 
 const FICHAS_INICIALES = [
   {
+    id: "semilla-00",
+    nombre: "Sahagún, Córdoba",
+    categoria: "lugares",
+    subtema: "Cabecera urbana",
+    lat: 8.6100,
+    lng: -75.4700,
+    precision: "exacta",
+    descripcion: "Territorio principal de la cartografía: municipio de Sahagún, departamento de Córdoba, Colombia. Contiene lugares, afectaciones, actores, memorias, resistencias, esperanzas y retos identificados en la indagación territorial.",
+    historia: "Sahagún es un municipio del departamento de Córdoba, atravesado por la Troncal del Caribe, punto de paso entre Medellín, Cartagena, Montería y el Sinú Superior. Su población combina origen campesino, familias desplazadas del campo y una juventud que busca alternativas.",
+    actores: "Comunidad urbana y rural, instituciones públicas, comunidades de fe, organizaciones sociales",
+    fecha: "Actualidad",
+    fuente: "Observación y fuentes municipales generales; ajustar con datos del DANE y la administración municipal.",
+    tipoFuente: "observacion",
+    estado: "documentado",
+    tipo_registro: "territorio",
+    territorio_padre: "",
+    evidencias: "",
+    observaciones: "Territorio marco de la cartografía. Todos los registros pueden vincularse a este territorio.",
+    aporte: "",
+    anonimo: false,
+    visible: true,
+    creado: "2026-01-01T00:00:00.000Z"
+  },
+  {
     id: "semilla-33",
     nombre: "Iglesia Cristiana Menonita en Sahagún (por completar)",
     categoria: "actores",
