@@ -1553,39 +1553,6 @@
       filas.map((x) => "<div class='convenciones__item'>" + marca(x[1]) + "<span>" + escapar(x[0]) + "</span></div>").join("");
   }
 
-  function pintarMenuConvenciones() {
-    const cont = $("#menuConvenciones");
-    if (!cont) return;
-    const base = fichasVisibles();
-    const cats = categoriasConMarcador();
-    let html = "";
-    cats.forEach((k) => {
-      const c = CATEGORIAS[k];
-      const n = base.filter((f) => f.categoria === k).length;
-      html +=
-        "<div class='menu__cat tarjeta' style='--cat-color:" + c.color + "'>" +
-        "<span class='menu__cat__simbolo'>" + c.simbolo + "</span>" +
-        "<div class='menu__cat__info'>" +
-        "<div style='display:flex;justify-content:space-between;align-items:center'>" +
-        "<strong style='color:var(--cat-color)'>" + c.seccion + ". " + escapar(c.nombre) + "</strong>" +
-        "<span class='menu__cat__n'>" + n + "</span>" +
-        "</div>" +
-        "<p style='font-size:0.66rem;color:var(--tinta-suave);margin:2px 0 0'>" + escapar(c.descripcion) + "</p>" +
-        "</div>" +
-        "<button class='menu__cat__btn' data-cat='" + k + "' title='Ver solo «" + c.nombre + "»'>▶</button>" +
-        "</div>";
-    });
-    cont.innerHTML = html;
-    $$(".menu__cat__btn").forEach((b) => {
-      b.addEventListener("click", () => {
-        chipLugares = b.dataset.cat;
-        chipSubtema = "todos";
-        pintarLugares();
-        navegar("lugares");
-      });
-    });
-  }
-
   function repintar() {
     pintarMapa();
     if (fichaSeleccionada && estado.fichas.some((f) => f.id === fichaSeleccionada)) {
@@ -1598,7 +1565,6 @@
       pintarInfo();
     }
     pintarProgreso();
-    pintarMenuConvenciones();
     repintarSeccion();
   }
 

@@ -44,24 +44,28 @@
   <main class="aplicacion">
 
     <aside class="menu" id="menuLateral">
-      <div class="menu__titulo">
-        <h3 style="margin:0">🕊️ Convenciones del territorio</h3>
-        <p style="font-size:0.72rem;color:var(--tinta-suave);margin:4px 0 0">Secciones 01–08 · toque para ver en mapa</p>
-      </div>
-      <div class="menu__convenciones" id="menuConvenciones"></div>
-      <div class="menu__separador"></div>
+      <details class="acordeon" open>
+        <summary>1 · Territorio y capas</summary>
+        <div class="menu__territorio">
+          <p class="menu__territorio-nombre" id="terrMenuNombre"></p>
+          <p class="menu__territorio-desc" id="terrMenuDesc"></p>
+          <button type="button" class="btn menu__btn" id="btnTerritorio">✏️ Editar delimitación y límites</button>
+        </div>
+      </details>
+
       <details class="acordeon">
         <summary>🛠 Herramientas</summary>
         <div class="menu__herramientas">
           <button type="button" class="btn menu__btn" data-accion="leyenda">⚙️ Gestionar convenciones</button>
-          <button type="button" class="btn menu__btn" id="btnExportar">⬇️ Exportar (JSON)</button>
-          <button type="button" class="btn menu__btn" id="btnImportar">⬆️ Importar (JSON)</button>
+          <button type="button" class="btn menu__btn" id="btnExportar">⬇️ Exportar respaldo (JSON)</button>
+          <button type="button" class="btn menu__btn" id="btnImportar">⬆️ Importar respaldo (JSON)</button>
           <input type="file" id="archivoImportar" accept="application/json,.json" hidden>
           <button type="button" class="btn menu__btn" id="btnVistaPrevia">👁 Vista previa PDF</button>
           <button type="button" class="btn menu__btn" id="btnImprimir">🖨️ Imprimir / PDF</button>
           <button type="button" class="btn menu__btn" id="btnAyuda">❓ Cómo usar</button>
         </div>
       </details>
+
       <details class="acordeon">
         <summary>☁ Guardado</summary>
         <div class="menu__guardado" id="estadoGuardado">Guardado automático activo</div>
