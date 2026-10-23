@@ -1,0 +1,67 @@
+/* ============ MENÚ DE CONVENCIONES (01-08) ============ */
+
+.menu__titulo { padding: 10px; background: var(--azul); color: #fff; border-bottom: 1px solid rgba(255,255,255,.3); }
+
+.menu__convenciones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 8px;
+}
+
+.menu__cat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--cat-color);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.menu__cat:hover { transform: translateY(-2px); box-shadow: var(--sombra); }
+
+.menu__cat__simbolo { font-size: 1.1rem; flex: none; }
+
+.menu__cat__info { flex: 1; min-width: 0; }
+
+.menu__cat__info strong { color: var(--cat-color); font-size: 0.78rem; }
+
+.menu__cat__n {
+  background: var(--cat-color);
+  color: #fff;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  flex: none;
+}
+
+.menu__cat p { font-size: 0.66rem; color: var(--tinta-suave); margin: 3px 0 0; line-height: 1.35; }
+
+.menu__cat__btn {
+  border: 1px solid var(--cat-color);
+  background: #fff;
+  color: var(--cat-color);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex: none;
+}
+
+.menu__cat__btn:hover { background: var(--cat-color); color: #fff; }
+
+.menu__separador { height: 1px; background: var(--borde); margin: 8px 0; }
+
+.menu__herramientas { display: flex; flex-direction: column; gap: 6px; padding: 8px; }
+
+.menu__guardado { font-size: 0.74rem; color: var(--tinta-suave); margin: 4px 8px; }
+.menu__guardado:first-child { color: var(--azul); font-weight: 700; }
+
+.menu__progreso { margin: 8px; }
