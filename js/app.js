@@ -292,39 +292,6 @@
     });
   }
 
-  function pintarConvenciones() {
-    const cont = $("#convencionesExtra");
-    if (!cont) return;
-    const L = leyendaActual();
-    let html = "";
-    const catsMapa = categoriasConMarcador();
-    html += "<div class='convenciones__seccion'>Secciones del trabajo (02–08)</div>";
-    html += catsMapa.map((k) => {
-      const c = CATEGORIAS[k];
-      const apagada = catOculta(k);
-      return "<div class='convenciones__item" + (apagada ? " convenciones__item--apagada" : "") + "'><span class='convenciones__simbolo' style='background:" + c.color + "'>" +
-        escapar(c.simbolo) + "</span><span><strong>" + c.seccion + ". " + escapar(c.nombre) + "</strong></span>" +
-        "<button type='button' class='convenciones__ojo' data-oculta-cat='" + k + "' title='Mostrar u ocultar sus marcadores en el mapa'>" + (apagada ? "🚫" : "👁") + "</button></div>";
-    }).join("");
-    const hayLineas = !convOculta("lim-oficial") || !convOculta("lim-aprox");
-    if (hayLineas) html += "<div class='convenciones__seccion'>Líneas del territorio</div>";
-    if (!convOculta("lim-oficial")) {
-      html += "<div class='convenciones__item'><span class='convenciones__linea' style='border-top:3px solid #0d47a1'></span><span>Límite oficial del municipio</span></div>";
-    }
-    if (!convOculta("lim-aprox")) {
-      html += "<div class='convenciones__item'><span class='convenciones__linea convenciones__linea--dis'></span><span>Límite aproximado (respaldo)</span></div>";
-    }
-    if (L.custom.length) {
-      html += "<div class='convenciones__seccion'>Convenciones personalizadas</div>";
-      html += L.custom.map((c) =>
-        "<div class='convenciones__item'><span class='convenciones__simbolo' style='background:" + (c.color || "#5D6B7E") + "'>" +
-        escapar(c.simbolo || "■") + "</span><span>" + escapar(c.nombre) +
-        (c.nota ? " <small class='convenciones__nota'>" + escapar(c.nota) + "</small>" : "") + "</span></div>"
-      ).join("");
-    }
-    cont.innerHTML = html;
-  }
-
   function opcionesSimbolo(actual) {
     const lista = SIMBOLOS.slice();
     if (actual && lista.indexOf(actual) === -1) lista.unshift(actual);
@@ -424,7 +391,6 @@
     $("#convSimbolo").value = "";
     $("#convNota").value = "";
     pintarCustomLeyenda();
-    pintarConvenciones();
     toast("Convención agregada.");
   }
 
@@ -438,7 +404,6 @@
     aplicarLeyenda();
     guardar();
     pintarMapa();
-    pintarConvenciones();
     repintarSeccion();
     toast(o.oculta ? "Sección oculta en el mapa." : "Sección visible en el mapa.");
   }
@@ -451,7 +416,6 @@
     L.custom = L.custom.filter((x) => x.id !== id);
     guardar();
     pintarCustomLeyenda();
-    pintarConvenciones();
     toast("Convención eliminada.");
   }
 
@@ -488,7 +452,6 @@
     });
     aplicarLeyenda();
     guardar();
-    pintarConvenciones();
     pintarMapa();
     repintar();
     cerrarModal("modalLeyenda");
@@ -1961,7 +1924,6 @@
         if (estado.config.mostrarLimite === undefined) estado.config.mostrarLimite = true;
         guardar();
         aplicarLeyenda();
-        pintarConvenciones();
         fichaSeleccionada = null;
         pintarMenuTerritorio();
         mapa.setView([estado.config.centro.lat, estado.config.centro.lng], estado.config.centro.zoom);
@@ -2065,7 +2027,6 @@
     mapa.setView([estado.config.centro.lat, estado.config.centro.lng], estado.config.centro.zoom);
     dibujarLimite();
     pintarZonas();
-    pintarConvenciones();
     repintar();
     cerrarModal("modalTerritorio");
     toast("Lienzo inicial restablecido: complete las fichas base y agregue sus registros.");
@@ -2283,7 +2244,6 @@
     pintarSelects();
     pintarPaleta();
     initMapa();
-    pintarConvenciones();
     pintarMenuTerritorio();
     repintar();
     pintarEstadoGuardado();
