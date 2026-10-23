@@ -151,6 +151,7 @@
     if (f.simboloCampo === undefined) f.simboloCampo = "";
     if (f.tipo_registro === undefined) f.tipo_registro = "registro";
     if (f.territorio_padre === undefined) f.territorio_padre = "";
+    if (f.ubicaciones === undefined) f.ubicaciones = [];
     if (!ESTADOS[f.estado]) f.estado = "pendiente";
     return f;
   }
@@ -1367,6 +1368,7 @@
       v.hidden = !activa;
     });
     if (seccion === "lugares") pintarLugares();
+    else if (seccion === "ideas") pintarIdeas();
     else if (seccion === "memoria") pintarGruposSeccion("#memoriaSecciones", ["afectaciones", "memoria"]);
     else if (seccion === "actores") pintarGruposSeccion("#actoresSecciones", ["actores", "resistencia", "esperanza"]);
     else if (seccion === "reflexion") pintarReflexion();
@@ -1500,6 +1502,7 @@
 
   function repintarSeccion() {
     if (seccionActual === "lugares") pintarLugares();
+    else if (seccionActual === "ideas") pintarIdeas();
     else if (seccionActual === "memoria") pintarGruposSeccion("#memoriaSecciones", ["afectaciones", "memoria"]);
     else if (seccionActual === "actores") pintarGruposSeccion("#actoresSecciones", ["actores", "resistencia", "esperanza"]);
     else if (seccionActual === "reflexion") pintarReflexion();
@@ -1544,36 +1547,218 @@
     repintarSeccion();
   }
 
-  function pintarMenuConvenciones() {
-    const cont = $("#menuConvenciones");
-    if (!cont) return;
-    const base = fichasVisibles();
-    const cats = categoriasConMarcador();
-    let html = "";
-    cats.forEach((k) => {
-      const c = CATEGORIAS[k];
-      const n = base.filter((f) => f.categoria === k).length;
-      html +=
-        "<div class='menu__cat'>" +
-        "<span class='menu__cat__simbolo'>" + c.simbolo + "</span>" +
-        "<div class='menu__cat__info'>" +
-        "<div style='display:flex;justify-content:space-between;align-items:center'>" +
-        "<strong style='color:" + c.color + "'>" + c.seccion + ". " + escapar(c.nombre) + "</strong>" +
-        "<span class='menu__cat__n'>" + n + "</span>" +
-        "</div>" +
-        "<p style='font-size:0.64rem;color:var(--tinta-suave);margin:2px 0 0'>" + escapar(c.descripcion) + "</p>" +
-        "</div>" +
-        "<button class='menu__cat__btn' data-cat='" + k + "' title='Ver solo «" + c.nombre + "»'>▶</button>" +
-        "</div>";
+  // ==================== IDEAS / NARRATIVAS TEMÁTICAS ====================
+
+  function abrirModalUbi(ideaId) {
+    const idea = estado.ideas.find((i) => i.id === ideaId);
+    if (!idea) return;
+    $("#modalUbiTitulo").textContent = "Agregar ubicación a «" + idea.nombre + "»";
+    $("#ubiIdeaId").value = ideaId;
+    $("#ubiNombre").value = "";
+    $("#ubiDescripcion").value = "";
+    $("#ubiCategoria").value = "";
+    $("#ubiLat").value = "";
+    $("#ubiLng").value = "";
+    $("#ubiPrecision").value = "exacta";
+    abrirModal("modalUbi");
+  }
+
+  function abrirModalEditarIdea(ideaId) {
+    const idea = estado.ideas.find((i) => i.id === ideaId);
+    if (!idea) return;
+    $("#modalIdeaTitulo").textContent = "Editar idea";
+    $("#ideaId").value = idea.id;
+    $("#ideaNombre").value = idea.nombre;
+    $("#ideaDescripcion").value = idea.descripcion || "";
+    $("#ideaColor").value = idea.color || "#9B1C1C";
+    $("#ideaSimbolo").value = idea.simbolo || "✕";
+    abrirModal("modalIdea");
+  }
+
+  function verUbiEnMapa(ubiId) {
+    const allUbi = estado.ideas.flatMap((i) => (i.ubicaciones || []).map((u) => ({ ...u, ideaId: i.id, ideaNombre: i.nombre })));
+    const ubi = allUbi.find((u) => u.id === ubiId);
+    if (!ubi) return;
+    if (seccionActual !== "mapa") navegar("mapa");
+    if (ubi.lat && ubi.lng) {
+      mapa.setView([ubi.lat, ubi.lng], 15);
+      const layer = capaMarcadores.getLayers().find((l) => l.options?.ubiId === ubiId);
+      if (layer) layer.openPopup();
+    }
+  }
+
+  function abrirModalEditarUbi(ubiId) {
+    const allUbi = estado.ideas.flatMap((i) => (i.ubicaciones || []).map((u) => ({ ...u, ideaId: i.id, ideaNombre: i.nombre })));
+    const ubi = allUbi.find((u) => u.id === ubiId);
+    if (!ubi) return;
+    const idea = estado.ideas.find((i) => i.id === ubi.ideaId);
+    $("#modalUbiTitulo").textContent = "Editar ubicación en «" + (idea?.nombre || "Idea") + "»";
+    $("#ubiIdeaId").value = ubi.ideaId;
+    $("#ubiNombre").value = ubi.nombre;
+    $("#ubiDescripcion").value = ubi.descripcion || "";
+    $("#ubiCategoria").value = ubi.categoria || "";
+    $("#ubiLat").value = ubi.lat || "";
+    $("#ubiLng").value = ubi.lng || "";
+    $("#ubiPrecision").value = ubi.precision || "exacta";
+    $("#ubiId").value = ubi.id;
+    abrirModal("modalUbi");
+  }
+
+  function eliminarUbi(ubiId) {
+    if (!confirm("¿Eliminar esta ubicación?")) return;
+    estado.ideas.forEach((idea) => {
+      if (idea.ubicaciones) {
+        idea.ubicaciones = idea.ubicaciones.filter((u) => u.id !== ubiId);
+      }
     });
-    cont.innerHTML = html;
-    $$(".menu__cat__btn").forEach((b) => {
+    guardar();
+    pintarIdeas();
+    pintarMapa();
+    toast("Ubicación eliminada.");
+  }
+
+  function abrirModalEditarIdea(ideaId) {
+    const idea = estado.ideas.find((i) => i.id === ideaId);
+    if (!idea) return;
+    $("#modalIdeaTitulo").textContent = "Editar idea";
+    $("#ideaId").value = idea.id;
+    $("#ideaNombre").value = idea.nombre;
+    $("#ideaDescripcion").value = idea.descripcion || "";
+    $("#ideaColor").value = idea.color || "#9B1C1C";
+    $("#ideaSimbolo").value = idea.simbolo || "✕";
+    abrirModal("modalIdea");
+  }
+
+  function guardarIdea() {
+    const id = $("#ideaId").value;
+    const nombre = $("#ideaNombre").value.trim();
+    if (!nombre) { toast("Escriba un nombre para la idea.", "error"); return; }
+    if (id) {
+      const idea = estado.ideas.find((i) => i.id === id);
+      if (idea) {
+        idea.nombre = nombre;
+        idea.descripcion = $("#ideaDescripcion").value.trim();
+        idea.color = $("#ideaColor").value;
+        idea.simbolo = $("#ideaSimbolo").value || "✕";
+      }
+      toast("Idea actualizada.");
+    } else {
+      const nueva = {
+        id: "idea-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+        nombre: nombre,
+        descripcion: $("#ideaDescripcion").value.trim(),
+        color: $("#ideaColor").value || "#9B1C1C",
+        simbolo: $("#ideaSimbolo").value || "✕",
+        ubicaciones: [],
+        creado: new Date().toISOString()
+      };
+      if (!estado.ideas) estado.ideas = [];
+      estado.ideas.push(nueva);
+      toast("Idea creada.");
+    }
+    guardar();
+    pintarIdeas();
+    cerrarModal("modalIdea");
+  }
+
+  function eliminarIdea(ideaId) {
+    if (!confirm("¿Eliminar esta idea y todas sus ubicaciones?")) return;
+    estado.ideas = (estado.ideas || []).filter((i) => i.id !== ideaId);
+    guardar();
+    pintarIdeas();
+    pintarMapa();
+    toast("Idea eliminada.");
+  }
+
+  function eliminarUbi(ubiId) {
+    if (!confirm("¿Eliminar esta ubicación?")) return;
+    estado.ideas.forEach((idea) => {
+      if (idea.ubicaciones) {
+        idea.ubicaciones = idea.ubicaciones.filter((u) => u.id !== ubiId);
+      }
+    });
+    guardar();
+    pintarIdeas();
+    pintarMapa();
+    toast("Ubicación eliminada.");
+  }
+
+$$(".menu__cat__btn").forEach((b) => {
       b.addEventListener("click", () => {
         chipLugares = b.dataset.cat;
         chipSubtema = "todos";
         pintarLugares();
         navegar("lugares");
       });
+    });
+  }
+
+  function pintarIdeas() {
+    const cont = $("#ideasLista");
+    if (!cont) return;
+    const ideas = estado.ideas || [];
+    if (!ideas.length) {
+      cont.innerHTML = "<p class='vacio'>No hay ideas creadas. Use «＋ Nueva idea» para empezar.</p>";
+      return;
+    }
+    cont.innerHTML = ideas.map((idea) => {
+      const ubiCount = idea.ubicaciones ? idea.ubicaciones.length : 0;
+      return `
+        <article class="tarjeta idea-tarjeta" data-idea-id="${idea.id}">
+          <header class="idea-tarjeta__cabecera">
+            <span class="idea-tarjeta__simbolo" style="background:${idea.color};">${idea.simbolo}</span>
+            <div>
+              <h3>${escapar(idea.nombre)}</h3>
+              <p class="idea-tarjeta__meta">${ubiCount} ubicación${ubiCount !== 1 ? "es" : ""} · ${escapar(idea.descripcion || "Sin descripción")}</p>
+            </div>
+          </header>
+          <div class="idea-tarjeta__ubicaciones">
+            ${(idea.ubicaciones || []).map((ubi) => `
+              <div class="idea-ubicacion" data-ubi-id="${ubi.id}">
+                <span class="idea-ubicacion__simbolo" style="background:${CATEGORIAS[ubi.categoria]?.color || "#5D6B7E"}">${CATEGORIAS[ubi.categoria]?.simbolo || "•"}</span>
+                <div class="idea-ubicacion__info">
+                  <strong>${escapar(ubi.nombre)}</strong>
+                  <span class="idea-ubicacion__cat">${escapar(ubi.categoria || "")}</span>
+                  <p class="idea-ubicacion__desc">${escapar(ubi.descripcion || "")}</p>
+                </div>
+                <div class="idea-ubicacion__acciones">
+                  <button type="button" class="btn btn--mini" data-ver-ubi="${ubi.id}" title="Ver en mapa">📍</button>
+                  <button type="button" class="btn btn--mini" data-editar-ubi="${ubi.id}" title="Editar ubicación">✏️</button>
+                  <button type="button" class="btn btn--mini btn--peligro" data-eliminar-ubi="${ubi.id}" title="Eliminar ubicación">🗑️</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="idea-tarjeta__acciones">
+            <button type="button" class="btn btn--mini" data-agregar-ubi="${idea.id}">＋ Agregar ubicación</button>
+            <button type="button" class="btn btn--mini" data-editar-idea="${idea.id}">✏️ Editar idea</button>
+            <button type="button" class="btn btn--mini btn--peligro" data-eliminar-idea="${idea.id}">🗑️ Eliminar</button>
+          </div>
+        </article>
+      `;
+    }).join("");
+    
+    // Event listeners for idea actions
+    $$("#ideasLista [data-agregar-ubi]").forEach((b) => {
+      b.addEventListener("click", () => abrirModalUbi(b.dataset.agregarUbi));
+    });
+    $$("#ideasLista [data-editar-idea]").forEach((b) => {
+      b.addEventListener("click", () => abrirModalEditarIdea(b.dataset.editarIdea));
+    });
+    $$("#ideasLista [data-eliminar-idea]").forEach((b) => {
+      b.addEventListener("click", () => eliminarIdea(b.dataset.eliminarIdea));
+    });
+    $$("#ideasLista [data-agregar-ubi]").forEach((b) => {
+      b.addEventListener("click", () => abrirModalUbi(b.dataset.agregarUbi));
+    });
+    $$("#ideasLista [data-ver-ubi]").forEach((b) => {
+      b.addEventListener("click", () => verUbiEnMapa(b.dataset.verUbi));
+    });
+    $$("#ideasLista [data-editar-ubi]").forEach((b) => {
+      b.addEventListener("click", () => abrirModalEditarUbi(b.dataset.editarUbi));
+    });
+    $$("#ideasLista [data-eliminar-ubi]").forEach((b) => {
+      b.addEventListener("click", () => eliminarUbi(b.dataset.eliminarUbi));
     });
   }
 
@@ -1739,6 +1924,47 @@
   function finalizarModoUbicar() {
     modoUbicar = false;
     $("#barraUbicar").hidden = true;
+  }
+
+  function iniciarModoUbicarUbi() {
+    modoUbicar = true;
+    cerrarModal("modalUbi");
+    $("#barraUbicar").hidden = false;
+  }
+
+  function guardarUbi() {
+    const ideaId = $("#ubiIdeaId").value;
+    const id = $("#ubiId").value;
+    const idea = estado.ideas.find((i) => i.id === ideaId);
+    if (!idea) { toast("La idea no existe.", "error"); return; }
+    if (!idea.ubicaciones) idea.ubicaciones = [];
+
+    const datos = {
+      nombre: $("#ubiNombre").value.trim(),
+      descripcion: $("#ubiDescripcion").value.trim(),
+      categoria: $("#ubiCategoria").value,
+      lat: parseFloat($("#ubiLat").value),
+      lng: parseFloat($("#ubiLng").value),
+      precision: $("#ubiPrecision").value,
+      creado: new Date().toISOString()
+    };
+
+    if (!datos.nombre) { toast("Escriba un nombre para la ubicación.", "error"); return; }
+    if (isNaN(datos.lat) || isNaN(datos.lng)) { toast("Latitud y longitud son obligatorias.", "error"); return; }
+
+    if (id) {
+      const ubi = idea.ubicaciones.find((u) => u.id === id);
+      if (ubi) Object.assign(ubi, datos);
+      toast("Ubicación actualizada.");
+    } else {
+      datos.id = "ubi-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+      idea.ubicaciones.push(datos);
+      toast("Ubicación agregada a la idea.");
+    }
+    guardar();
+    pintarIdeas();
+    pintarMapa();
+    cerrarModal("modalUbi");
   }
 
   /* ==================== TERRITORIO ==================== */
@@ -2071,6 +2297,17 @@
     $("#btnGuardarReflexion").addEventListener("click", guardarReflexion);
     $("#btnExportarReflexion").addEventListener("click", descargarReflexion);
     $("#btnAyuda").addEventListener("click", () => abrirModal("modalAyuda"));
+    $("#btnNuevaIdea").addEventListener("click", () => {
+      $("#modalIdeaTitulo").textContent = "Nueva idea";
+      $("#ideaId").value = "";
+      $("#ideaNombre").value = "";
+      $("#ideaDescripcion").value = "";
+      $("#ideaColor").value = "#9B1C1C";
+      $("#ideaSimbolo").value = "✕";
+      abrirModal("modalIdea");
+    });
+    $("#btnGuardarIdea").addEventListener("click", guardarIdea);
+    $("#btnGuardarUbi").addEventListener("click", guardarUbi);
     $("#btnExportar").addEventListener("click", exportarTodo);
     $("#btnImportar").addEventListener("click", () => $("#archivoImportar").click());
     $("#archivoImportar").addEventListener("change", manejarImportacion);
@@ -2089,7 +2326,14 @@
       finalizarModoUbicar();
       abrirModal("modalFicha");
     });
-
+    // Ideas / Narrativas
+    $("#btnGuardarIdea").addEventListener("click", guardarIdea);
+    $("#btnGuardarUbi").addEventListener("click", guardarUbi);
+    $("#btnUbicarUbi").addEventListener("click", iniciarModoUbicarUbi);
+    $("#btnCancelarUbicarUbi").addEventListener("click", () => {
+      finalizarModoUbicar();
+      abrirModal("modalUbi");
+    });
     $$(".principal__btn").forEach((b) =>
       b.addEventListener("click", () => navegar(b.dataset.seccion))
     );
@@ -2197,6 +2441,7 @@
       if (accion) {
         const a = accion.dataset.accion;
         if (a === "nueva") abrirFicha(null);
+        else if (a === "nuevaIdea") { $("#modalIdeaTitulo").textContent = "Nueva idea"; $("#ideaId").value = ""; $("#ideaNombre").value = ""; $("#ideaDescripcion").value = ""; $("#ideaColor").value = "#9B1C1C"; $("#ideaSimbolo").value = "✕"; abrirModal("modalIdea"); return; }
         else if (a === "leyenda") abrirGestionLeyenda();
         else if (a === "exportar") exportarTodo();
         else if (a === "importar") $("#archivoImportar").click();

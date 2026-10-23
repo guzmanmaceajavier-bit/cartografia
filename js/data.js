@@ -140,6 +140,36 @@ Sugerencias para escribir su reflexión (borre estas líneas y escriba con sus p
   oportunidad: "Escriba aquí una oportunidad concreta (ej.: convertir la Ciudadela de la Convivencia en un espacio de formación permanente en reconciliación para las juventudes de Sahagún)."
 };
 
+};
+  // Ideas / Narrativas temáticas (mapas temáticos con múltiples ubicaciones)
+  const IDEAS_INICIALES = [
+    {
+      id: "idea-01",
+      nombre: "Sahagún: un territorio habitado por la violencia",
+      descripcion: "Narrativa sobre cómo la violencia ha marcado el territorio de Sahagún a través del tiempo.",
+      color: "#9B1C1C",
+      simbolo: "✕",
+      ubicaciones: [
+        { id: "ubi-001", nombre: "Centro del municipio", lat: 8.6100, lng: -75.4700, descripcion: "Centro histórico donde se han concentrado hechos de violencia", categoria: "afectaciones" },
+        { id: "ubi-002", nombre: "Barrio San José", lat: 8.6055, lng: -75.4755, descripcion: "Barrio receptor de desplazados por la violencia", categoria: "afectaciones" },
+        { id: "ubi-003", nombre: "Barrio Venecia", lat: 8.6085, lng: -75.4785, descripcion: "Zona con alta incidencia de violencia y desplazamiento", categoria: "afectaciones" }
+      ],
+      creado: "2026-01-01T00:00:00.000Z"
+    },
+    {
+      id: "idea-02",
+      nombre: "Sahagún: experiencias de resistencia y construcción de paz",
+      descripcion: "Narrativa sobre las iniciativas comunitarias de resistencia y construcción de paz en el territorio.",
+      color: "#15803D",
+      simbolo: "✊",
+      ubicaciones: [
+        { id: "ubi-004", nombre: "Ciudadela de la Convivencia", lat: 8.6125, lng: -75.4785, descripcion: "Espacio de reconciliación construido sobre antiguo recinto carcelario", categoria: "resistencia" },
+        { id: "ubi-005", nombre: "Escuelas de paz", lat: 8.6135, lng: -75.4685, descripcion: "Colegios con proyectos de educación para la paz", categoria: "resistencia" }
+      ],
+      creado: "2026-01-01T00:00:00.000Z"
+    }
+  ];
+
 const FICHAS_INICIALES = [
   {
     id: "semilla-00",

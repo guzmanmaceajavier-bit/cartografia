@@ -21,6 +21,7 @@
 
   <nav class="principal" aria-label="Secciones del trabajo">
     <button type="button" class="principal__btn principal__btn--activo" data-seccion="mapa">🗺️ Mapa</button>
+    <button type="button" class="principal__btn" data-seccion="ideas">📖 Ideas</button>
     <button type="button" class="principal__btn" data-seccion="lugares" title="Lugares y experiencias">📇 Lugares</button>
     <button type="button" class="principal__btn" data-seccion="memoria" title="Memoria y afectaciones">🕯️ Memoria</button>
     <button type="button" class="principal__btn" data-seccion="actores" title="Actores e iniciativas de paz">🤝 Actores</button>
@@ -144,7 +145,21 @@
   </section>
 </section>
 
-<!-- ==================== 2 · LUGARES Y EXPERIENCIAS ==================== -->
+<!-- ==================== 2 · IDEAS / NARRATIVAS TEMÁTICAS ==================== -->
+<section class="vista" id="vista-ideas" data-vista-seccion="ideas" hidden>
+  <div class="hoja">
+    <header class="hoja__cabecera">
+      <div>
+        <p class="hoja__numero">Sección 2</p>
+        <h1>Ideas y narrativas temáticas</h1>
+        <p class="hoja__intro">Mapas temáticos con múltiples ubicaciones asociadas a una narrativa. Cada idea agrupa lugares, hechos, actores y experiencias bajo una misma lectura temática.</      </div>
+      <button type="button" class="btn btn--primario" data-accion="nuevaIdea">＋ Nueva idea</button>
+    </header>
+    <div class="ideas-lista" id="ideasLista"></div>
+  </div>
+</section>
+
+<!-- ==================== 3 · LUGARES Y EXPERIENCIAS ==================== -->
 <section class="vista" id="vista-lugares" data-vista-seccion="lugares" hidden>
   <div class="hoja">
     <header class="hoja__cabecera">
@@ -160,7 +175,7 @@
   </div>
 </section>
 
-<!-- ==================== 3 · MEMORIA Y AFECTACIONES ==================== -->
+<!-- ==================== 4 · MEMORIA Y AFECTACIONES ==================== -->
 <section class="vista" id="vista-memoria" data-vista-seccion="memoria" hidden>
   <div class="hoja">
     <header class="hoja__cabecera">
@@ -176,7 +191,7 @@
   </div>
 </section>
 
-<!-- ==================== 4 · ACTORES E INICIATIVAS ==================== -->
+<!-- ==================== 5 · ACTORES E INICIATIVAS ==================== -->
 <section class="vista" id="vista-actores" data-vista-seccion="actores" hidden>
   <div class="hoja">
     <header class="hoja__cabecera">
@@ -191,7 +206,7 @@
   </div>
 </section>
 
-<!-- ==================== 5 · REFLEXIÓN FINAL ==================== -->
+<!-- ==================== 6 · REFLEXIÓN FINAL ==================== -->
 <section class="vista" id="vista-reflexion" data-vista-seccion="reflexion" hidden>
   <div class="hoja hoja--estrecha">
     <header class="hoja__cabecera">
@@ -532,6 +547,87 @@
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
 <div class="area-impresion" id="areaImpresion"></div>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="js/limite.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+
+<div class="modal" id="modalIdea" hidden>
+  <div class="modal__caja modal__caja--grande" role="dialog" aria-modal="true" aria-labelledby="modalIdeaTitulo">
+    <header class="modal__cabecera">
+      <h2 id="modalIdeaTitulo">Nueva idea</h2>
+      <button class="modal__cerrar" data-cerrar="modalIdea" aria-label="Cerrar">✕</button>
+    </header>
+    <div class="modal__cuerpo formulario">
+      <input type="hidden" id="ideaId">
+      <label>Nombre de la idea
+        <input type="text" id="ideaNombre" placeholder="Ej.: Sahagún: un territorio habitado por la violencia">
+      </label>
+      <label>Descripción de la narrativa
+        <textarea id="ideaDescripcion" rows="3" placeholder="¿Qué narrativa o lectura temática quiere construir sobre este territorio?"></textarea>
+      </label>
+      <div class="formulario__fila">
+        <label>Color de la idea
+          <input type="color" id="ideaColor" value="#9B1C1C">
+        </label>
+        <label>Símbolo de la idea
+          <input type="text" id="ideaSimbolo" maxlength="3" placeholder="✕" value="✕">
+        </label>
+      </div>
+    </div>
+    <footer class="modal__pie">
+      <button class="btn" data-cerrar="modalIdea">Cancelar</button>
+      <button class="btn btn--primario" id="btnGuardarIdea">Guardar idea</button>
+    </footer>
+  </div>
+</div>
+
+<div class="modal" id="modalUbi" hidden>
+  <div class="modal__caja modal__caja--grande" role="dialog" aria-modal="true" aria-labelledby="modalUbiTitulo">
+    <header class="modal__cabecera">
+      <h2 id="modalUbiTitulo">Nueva ubicación</h2>
+      <button class="modal__cerrar" data-cerrar="modalUbi" aria-label="Cerrar">✕</button>
+    </header>
+    <div class="modal__cuerpo formulario">
+      <input type="hidden" id="ubiIdeaId">
+      <input type="hidden" id="ubiId">
+      <label>Nombre de la ubicación
+        <input type="text" id="ubiNombre" placeholder="Ej.: Centro del municipio, Finca El Paraíso, Colegio San José…">
+      </label>
+      <label>Descripción
+        <textarea id="ubiDescripcion" rows="3" placeholder="¿Qué relación tiene este lugar con la narrativa de la idea?"></textarea>
+      </label>
+      <div class="formulario__fila">
+        <label>Categoría (02–08)
+          <select id="ubiCategoria"></select>
+        </label>
+      </div>
+      <div class="formulario__fila">
+        <label>Latitud
+          <input type="number" id="ubiLat" step="any" min="-90" max="90" placeholder="8.6100">
+        </label>
+        <label>Longitud
+          <input type="number" id="ubiLng" step="any" min="-180" max="180" placeholder="-75.4698">
+        </label>
+        <label>Precisión
+          <select id="ubiPrecision">
+            <option value="exacta">Exacta</option>
+            <option value="aproximada">Aproximada (zona general)</option>
+            <option value="sin">Sin ubicación en el mapa</option>
+          </select>
+        </label>
+      </div>
+      <div class="formulario__ayuda">
+        <button type="button" class="btn btn--suave" id="btnUbicarUbi">📍 Ubicar haciendo clic en el mapa</button>
+      </div>
+    </div>
+    <footer class="modal__pie">
+      <button class="btn" data-cerrar="modalUbi">Cancelar</button>
+      <button class="btn btn--primario" id="btnGuardarUbi">Guardar ubicación</button>
+    </footer>
+  </div>
+</div>
 
 <script src="vendor/leaflet/leaflet.js"></script>
 <script src="js/limite.js"></script>
