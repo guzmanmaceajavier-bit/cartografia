@@ -2460,7 +2460,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         $$(".formulario__pestana").forEach((b) => b.classList.remove("formulario__pestana--activa"));
         $$(".formulario__panel").forEach((p) => p.classList.remove("formulario__panel--activa"));
         btn.classList.add("formulario__pestana--activa");
-        const panel = document.querySelector(btn.dataset.panel);
+        const panel = document.getElementById(btn.dataset.panel);
         if (panel) panel.classList.add("formulario__panel--activa");
       });
     });
