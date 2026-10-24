@@ -2087,61 +2087,72 @@ body.dibujando .leaflet-container { cursor: crosshair; }
 .modal-timeline { max-height: 300px; overflow-y: auto; padding: 8px; }
 
 
-/* ============ RESPONSIVE CARTOGRAFÍA ============ */
-.menu__convenciones{display:flex;flex-direction:column;gap:6px}
-.menu__convenciones .convenciones__item{display:flex;align-items:flex-start;gap:9px;width:100%;padding:8px;border:1px solid #e1e6e2;border-radius:8px;background:#fbfcfa;font-size:.8rem;line-height:1.4}
-.menu__convenciones .convenciones__item>span:not(.filtro__simbolo):not(.convenciones__linea){flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere}
-.menu__seccion-titulo{font-size:.72rem;line-height:1.4;letter-spacing:.04em}
-.cabecera__acciones{min-width:0}
-.cabecera__acciones input[type=search]{max-width:100%}
-.hoja{width:min(100%,1200px);margin-inline:auto;padding:clamp(14px,3vw,28px)}
-.hoja__cabecera{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px}
-.ideas-lista,.catalogo,.reflexion-contenido{min-width:0}
-@media(max-width:1180px){
- .cabecera{align-items:flex-start}
- .cabecera__marca{flex:1 1 210px}
- .principal{order:3;flex:1 1 100%}
- .cabecera__acciones{flex:1 1 320px;margin-left:0}
- .cabecera__acciones input[type=search]{flex:1;width:auto}
- .aplicacion{grid-template-columns:280px minmax(0,1fr)!important}
- .panel-info{display:none}
- body.menu-oculto .aplicacion{grid-template-columns:0 minmax(0,1fr)!important}
- body.info-oculta .aplicacion{grid-template-columns:280px minmax(0,1fr)!important}
- body.menu-oculto.info-oculta .aplicacion{grid-template-columns:0 minmax(0,1fr)!important}
+
+/* ============ RESPONSIVE AJUSTADO SIN ALTERAR ESCRITORIO ============ */
+/* La vista de escritorio conserva su distribución original. */
+@media (min-width: 1181px) {
+  .aplicacion { grid-template-columns: 310px minmax(420px, 1fr) 320px; }
+  .menu { min-width: 0; }
+  .mapa-zona { min-width: 0; }
+  .panel-info { min-width: 0; }
+  .menu__convenciones { display: flex; flex-direction: column; gap: 6px; }
+  .menu__convenciones .convenciones__item {
+    display: flex; align-items: flex-start; gap: 9px; width: 100%;
+    padding: 7px 8px; border: 1px solid #e1e6e2; border-radius: 8px;
+    background: #fbfcfa; font-size: .8rem; line-height: 1.4;
+  }
+  .menu__convenciones .convenciones__item > span:not(.filtro__simbolo):not(.convenciones__linea) {
+    flex: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere;
+  }
 }
-@media(max-width:760px){
- html,body{height:auto;min-height:100%}
- body{overflow:auto}
- .cabecera{position:relative;padding:9px 10px;gap:8px}
- .cabecera__marca{flex:1 1 100%}
- .principal{order:2;flex-wrap:nowrap;width:100%;overflow-x:auto;padding-bottom:2px}
- .principal__btn{padding:8px 10px;font-size:.76rem}
- .cabecera__acciones{order:3;flex:1 1 100%;width:100%}
- .cabecera__acciones input[type=search]{min-width:0;width:100%}
- .pestanas{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid var(--borde);padding:6px;gap:6px}
- .pestanas__btn{flex:1;min-width:0;font-size:.75rem;padding:9px 5px}
- .vista--activa{min-height:calc(100dvh - 150px)}
- .aplicacion{display:flex!important;flex-direction:column;min-height:0;flex:1}
- .mapa-zona{order:1;height:58dvh;min-height:320px;flex:none}
- .menu{order:2;display:block;visibility:visible!important;max-height:none;overflow:visible;border-right:0;border-top:1px solid var(--borde);padding:12px}
- .panel-info{display:block;order:3;max-height:none;overflow:visible;border-left:0;border-top:1px solid var(--borde)}
- body.menu-oculto .menu{display:none}
- body.info-oculta .panel-info{display:none}
- .panel-toggle{display:none}
- .menu__herramientas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
- .menu__herramientas .menu__btn{min-height:42px;font-size:.75rem}
- .tira-lectura__rejilla{grid-template-columns:1fr}
- .hoja{padding:16px 12px}
- .hoja__cabecera{flex-direction:column;align-items:stretch}
- .hoja__cabecera .btn{width:100%}
- .formulario__fila,.gestion__fila{flex-direction:column;align-items:stretch}
- .formulario__campo,.gestion__campo{width:100%;min-width:0}
- .tabla-contenedor{max-width:100%;overflow-x:auto}
+@media (min-width: 761px) and (max-width: 1180px) {
+  .cabecera { align-items: center; }
+  .cabecera__marca { flex: 0 0 auto; }
+  .principal { order: 0; flex: 1 1 400px; min-width: 0; }
+  .cabecera__acciones { flex: 1 1 100%; margin-left: 0; }
+  .cabecera__acciones input[type="search"] { width: auto; flex: 1; min-width: 140px; }
+  .aplicacion { grid-template-columns: 280px minmax(0,1fr) !important; }
+  .panel-info { display: none; }
+  body.menu-oculto .aplicacion { grid-template-columns: 0 minmax(0,1fr) !important; }
+  .menu { min-width: 0; }
+  .menu__convenciones { display:flex; flex-direction:column; gap:6px; }
+  .menu__convenciones .convenciones__item { align-items:flex-start; white-space:normal; overflow-wrap:anywhere; }
 }
-@media(max-width:420px){
- .cabecera__acciones{flex-direction:column;align-items:stretch}
- .cabecera__acciones .btn{width:100%}
- .mapa-zona{height:54dvh;min-height:290px}
- .menu__herramientas{grid-template-columns:1fr}
- .hoja h1{font-size:1.45rem;line-height:1.2}
+@media (max-width: 760px) {
+  html, body { height:auto; min-height:100%; }
+  body { overflow:auto; }
+  .cabecera { position:relative; height:auto; min-height:0; padding:9px 10px; gap:8px; }
+  .cabecera__marca { flex:1 1 100%; }
+  .principal { order:2; flex:1 1 100%; flex-wrap:nowrap; width:100%; overflow-x:auto; padding-bottom:2px; }
+  .principal__btn { padding:8px 10px; font-size:.76rem; }
+  .cabecera__acciones { order:3; flex:1 1 100%; width:100%; margin-left:0; }
+  .cabecera__acciones input[type="search"] { min-width:0; width:100%; flex:1; }
+  .pestanas { position:sticky; top:0; z-index:1000; background:#fff; border-bottom:1px solid var(--borde); padding:6px; gap:6px; }
+  .pestanas__btn { flex:1; min-width:0; font-size:.75rem; padding:9px 5px; }
+  .vista--activa { min-height:calc(100dvh - 150px); }
+  .aplicacion { display:flex !important; flex-direction:column; min-height:0; flex:1; }
+  .mapa-zona { order:1; height:58dvh; min-height:320px; flex:none; }
+  .menu { order:2; display:block; visibility:visible !important; width:100%; max-height:none; overflow:visible; border-right:0; border-top:1px solid var(--borde); padding:12px; }
+  .panel-info { display:block; order:3; width:100%; max-height:none; overflow:visible; border-left:0; border-top:1px solid var(--borde); }
+  body.menu-oculto .menu { display:none; }
+  body.info-oculta .panel-info { display:none; }
+  .panel-toggle { display:none; }
+  .menu__convenciones { display:flex; flex-direction:column; gap:6px; }
+  .menu__convenciones .convenciones__item { font-size:.84rem; padding:9px; }
+  .menu__herramientas { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .menu__herramientas .menu__btn { min-height:42px; font-size:.75rem; }
+  .tira-lectura__rejilla { grid-template-columns:1fr; }
+  .hoja { width:100%; padding:16px 12px; }
+  .hoja__cabecera { flex-direction:column; align-items:stretch; }
+  .hoja__cabecera .btn { width:100%; }
+  .formulario__fila, .gestion__fila { flex-direction:column; align-items:stretch; }
+  .formulario__campo, .gestion__campo { width:100%; min-width:0; }
+  .tabla-contenedor { max-width:100%; overflow-x:auto; }
+}
+@media (max-width: 420px) {
+  .cabecera__acciones { flex-direction:column; align-items:stretch; }
+  .cabecera__acciones .btn { width:100%; }
+  .mapa-zona { height:54dvh; min-height:290px; }
+  .menu__herramientas { grid-template-columns:1fr; }
+  .hoja h1 { font-size:1.45rem; line-height:1.2; }
 }
