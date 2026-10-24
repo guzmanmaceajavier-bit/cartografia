@@ -1709,6 +1709,14 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     });
   }
 
+  function abrirConvencionesCompletas() {
+    const origen = $("#menuConvenciones");
+    const destino = $("#convencionesCompletoContenido");
+    if (!origen || !destino) return;
+    destino.innerHTML = origen.innerHTML;
+    abrirModal("modalConvencionesCompleto");
+  }
+
   function repintar() {
     pintarMapa();
     if (fichaSeleccionada && estado.fichas.some((f) => f.id === fichaSeleccionada)) {
@@ -2059,7 +2067,11 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function guardarFicha() {
     const form = $("#formFicha");
     const id = $("#fichaId").value;
-    const nombre = $("#fichaNombre").value.trim() || "Registro sin nombre";
+    const nombre = $("#fichaNombre").value.trim();
+    if (!nombre) { toast("Escriba el nombre del lugar, actor o experiencia.", "error"); $(".formulario__pestana[data-panel='panel-identificacion']").click(); $("#fichaNombre").focus(); return; }
+    if (!$("#fichaDescripcion").value.trim()) { toast("Describa qué es el registro y por qué importa para el territorio.", "error"); $(".formulario__pestana[data-panel='panel-narrativa']").click(); $("#fichaDescripcion").focus(); return; }
+    if (!$("#fichaAporte").value.trim()) { toast("Explique el aporte de este registro a la lectura de paz.", "error"); $(".formulario__pestana[data-panel='panel-narrativa']").click(); $("#fichaAporte").focus(); return; }
+    if (!$("#fichaFuente").value.trim()) { toast("Indique la fuente o escriba qué información debe verificarse.", "error"); $(".formulario__pestana[data-panel='panel-fuentes']").click(); $("#fichaFuente").focus(); return; }
     const duplicado = estado.fichas.find((f) => f.id !== id && normalizar(f.nombre) === normalizar(nombre) && f.nombre !== "Registro sin nombre");
     if (duplicado && !confirm("Ya existe un registro con el nombre «" + duplicado.nombre + "» (sección " + (CATEGORIAS[duplicado.categoria] || {}).seccion + ").\n\nSi son elementos distintos, use un nombre que los diferencie. ¿Guardar de todos modos?")) return;
 
@@ -2474,6 +2486,12 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
   function eventos() {
     $("#btnNueva").addEventListener("click", () => abrirFicha(null));
+
+    const btnVerConv = $("#btnVerConvenciones");
+    if (btnVerConv) btnVerConv.addEventListener("click", abrirConvencionesCompletas);
+    const btnPrintConv = $("#btnImprimirConvenciones");
+    if (btnPrintConv) btnPrintConv.addEventListener("click", () => window.print());
+
     $("#btnGuardarFicha").addEventListener("click", guardarFicha);
     $("#formFicha").addEventListener("submit", (e) => { e.preventDefault(); guardarFicha(); });
     $$(".formulario__pestana").forEach((btn) => {
