@@ -2483,7 +2483,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       lat: coords.lat, lng: coords.lng, precision: $("#ubiPrecision").value, creado: new Date().toISOString()
     };
     const adicionales = [];
-    for (const bloque of $("#ubiPuntosAdicionales .ubi-punto-adicional")) {
+    for (const bloque of $$("#ubiPuntosAdicionales .ubi-punto-adicional")) {
       const valor = (campo) => bloque.querySelector('[data-punto-ubi="' + campo + '"]').value.trim();
       const nombre = valor("nombre"), lugar = valor("lugar"), descripcion = valor("descripcion");
       const latTexto = valor("lat"), lngTexto = valor("lng");
