@@ -327,8 +327,6 @@ function restaurarSesion() {
 // Llamar al inicio
 restaurarSesion();
 
-const PALETA = ["#C9A227", "#102D4F", "#15803D", "#9B1C1C", "#6D28D9", "#1D4ED8", "#C2410C", "#5D6B7E"];
-
 const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
   const SIMBOLOS = ["◎", "◉", "○", "●", "✕", "✖", "✚", "▲", "■", "◆", "♦", "★", "✦", "☀", "✊", "➤", "◈", "⬟", "⬢", "♥"];
@@ -1844,6 +1842,39 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       filas.map((x) => "<div class='convenciones__item'>" + marca(x[1]) + "<span>" + escapar(x[0]) + "</span></div>").join("");
   }
 
+  function pintarMenuConvenciones() {
+    const cont = $("#menuConvenciones");
+    if (!cont) return;
+    const base = fichasVisibles();
+    const cats = categoriasConMarcador();
+    let html = "";
+    cats.forEach((k) => {
+      const c = CATEGORIAS[k];
+      const n = base.filter((f) => f.categoria === k).length;
+      html +=
+        "<div class='menu__cat'>" +
+        "<span class='menu__cat__simbolo'>" + c.simbolo + "</span>" +
+        "<div class='menu__cat__info'>" +
+        "<div style='display:flex;justify-content:space-between;align-items:center'>" +
+        "<strong style='color:" + c.color + "'>" + c.seccion + ". " + escapar(c.nombre) + "</strong>" +
+        "<span class='menu__cat__n'>" + n + "</span>" +
+        "</div>" +
+        "<p style='font-size:0.64rem;color:var(--tinta-suave);margin:2px 0 0'>" + escapar(c.descripcion) + "</p>" +
+        "</div>" +
+        "<button class='menu__cat__btn' data-cat='" + k + "' title='Ver solo «" + c.nombre + "»'>▶</button>" +
+        "</div>";
+    });
+    cont.innerHTML = html;
+    $$(".menu__cat__btn").forEach((b) => {
+      b.addEventListener("click", () => {
+        chipLugares = b.dataset.cat;
+        chipSubtema = "todos";
+        pintarLugares();
+        navegar("lugares");
+      });
+    });
+  }
+
   function repintar() {
     pintarMapa();
     if (fichaSeleccionada && estado.fichas.some((f) => f.id === fichaSeleccionada)) {
@@ -1994,16 +2025,6 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     pintarIdeas();
     pintarMapa();
     toast("Ubicación eliminada.");
-  }
-
-$$(".menu__cat__btn").forEach((b) => {
-      b.addEventListener("click", () => {
-        chipLugares = b.dataset.cat;
-        chipSubtema = "todos";
-        pintarLugares();
-        navegar("lugares");
-      });
-    });
   }
 
   function pintarIdeas() {
@@ -2530,7 +2551,6 @@ $$(".menu__cat__btn").forEach((b) => {
       }
     };
     
-    const fecha = new Date().toISOString().slice(0, 10);
     const nombre = "cartografia-paz-sahagun-" + (esPublica ? "publica" : "interna") + "-" + fecha + ".json";
     descargar("cartografia-paz-sahagun-" + (esPublica ? "publica" : "interna") + "-" + new Date().toISOString().slice(0, 10) + ".json", JSON.stringify({ ...estado, meta: { fechaExportacion: new Date().toISOString(), version: VERSION, tipo: esPublica ? "publica" : "interna", incluyeSensibles: !esPublica } }, null, 2));
     toast("Exportación " + (esPublica ? "pública" : "interna") + " generada.");
@@ -2582,6 +2602,8 @@ $$(".menu__cat__btn").forEach((b) => {
   function imprimir(vistaPrevia) {
     imprimirPaginado({ vistaPrevia: vistaPrevia || false });
   }
+
+  function restablecer() {
     if (!confirm("¿Borrar todo y empezar de cero? Se reemplazarán los registros, territorio, figuras dibujadas, convenciones y reflexión por el lienzo inicial.")) return;
     restaurarSemilla();
     aplicarLeyenda();

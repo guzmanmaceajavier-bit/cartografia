@@ -158,7 +158,6 @@ Sugerencias para escribir su reflexión (borre estas líneas y escriba con sus p
   oportunidad: "Escriba aquí una oportunidad concreta (ej.: convertir la Ciudadela de la Convivencia en un espacio de formación permanente en reconciliación para las juventudes de Sahagún)."
 };
 
-};
   // Ideas / Narrativas temáticas (mapas temáticos con múltiples ubicaciones)
   const IDEAS_INICIALES = [
     {
