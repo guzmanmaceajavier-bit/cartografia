@@ -1069,6 +1069,14 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     toast("Figura eliminada.");
   }
 
+  function enfocarDepartamentoCordoba() {
+    if (!mapa) return;
+    // Extensión geográfica aproximada del departamento de Córdoba, Colombia.
+    // El usuario dibuja después el contorno que necesita; esto no afirma ser un límite oficial.
+    mapa.fitBounds([[7.05, -76.65], [9.95, -74.55]], { padding: [24, 24], maxZoom: 8 });
+    toast("Vista general de Córdoba. Seleccione Polígono y marque el contorno con clics; doble clic para cerrar.");
+  }
+
   function mostrarBarraDibujo(mostrar) {
     const barra = $("#barraDibujo");
     const toggle = $("#btnDibujoToggle");
@@ -3007,6 +3015,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#barraDibujo").addEventListener("click", (e) => {
       const btn = e.target.closest("[data-dibujo]");
       if (!btn) return;
+      if (btn.dataset.dibujo === "cordoba") {
+        enfocarDepartamentoCordoba();
+        return;
+      }
       setHerramienta(btn.dataset.dibujo);
     });
     const btnDibujo = $("#btnDibujoToggle");
