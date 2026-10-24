@@ -2000,11 +2000,38 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           nombre: ubiNombre || "Ubicación sin nombre",
           lugar: ubiLugar || nueva.territorio || "",
           descripcion: ubiDescripcion,
+          fecha: $("#ideaUbiFecha").value.trim(),
           categoria: nueva.categoria,
           simboloCampo: $("#ideaUbiSimbolo").value || "Sin símbolo específico",
           lat: ubiLat,
           lng: ubiLng,
-          precision: ubiLat !== null && ubiLng !== null ? "exacta" : "sin",
+          precision: $("#ideaUbiPrecision").value || (ubiLat !== null && ubiLng !== null ? "exacta" : "sin"),
+          creado: new Date().toISOString()
+        });
+      }
+      const extras = Array.from($("#ideaUbicacionesAdicionales").querySelectorAll(".idea-ubicacion-extra"));
+      for (const bloque of extras) {
+        const valor = (campo) => (bloque.querySelector(`[data-ubi-extra="${campo}"]`)?.value || "").trim();
+        const latTextoExtra = valor("lat");
+        const lngTextoExtra = valor("lng");
+        const latExtra = latTextoExtra === "" ? null : Number(latTextoExtra);
+        const lngExtra = lngTextoExtra === "" ? null : Number(lngTextoExtra);
+        const tieneDatos = ["nombre", "lugar", "descripcion", "fecha", "lat", "lng"].some((campo) => valor(campo));
+        if (!tieneDatos) continue;
+        if ((latExtra === null) !== (lngExtra === null)) { toast("En cada ubicación adicional, ingresa latitud y longitud juntas o deja ambas vacías.", "error"); return; }
+        if (latExtra !== null && (!Number.isFinite(latExtra) || latExtra < -90 || latExtra > 90)) { toast("La latitud de una ubicación adicional debe estar entre -90 y 90.", "error"); return; }
+        if (lngExtra !== null && (!Number.isFinite(lngExtra) || lngExtra < -180 || lngExtra > 180)) { toast("La longitud de una ubicación adicional debe estar entre -180 y 180.", "error"); return; }
+        nueva.ubicaciones.push({
+          id: "ubi-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+          nombre: valor("nombre") || "Ubicación sin nombre",
+          lugar: valor("lugar") || nueva.territorio || "",
+          descripcion: valor("descripcion"),
+          fecha: valor("fecha"),
+          categoria: nueva.categoria,
+          simboloCampo: valor("simbolo") || "Sin símbolo específico",
+          lat: latExtra,
+          lng: lngExtra,
+          precision: valor("precision") || "exacta",
           creado: new Date().toISOString()
         });
       }
