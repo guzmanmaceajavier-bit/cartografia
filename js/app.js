@@ -1661,7 +1661,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!cont) return;
     const base = fichasVisibles();
     const cats = categoriasConMarcador();
-    let html = "<div class='leyenda-grupo-titulo'>Categoría de paz</div>";
+    let html = "<div class='leyenda-introduccion'><p><strong>¿Cómo leer este cuadro?</strong> Busca el símbolo en el mapa y consulta aquí qué representa.</p><div class='leyenda-claves'><span><i class='leyenda-clave leyenda-clave--color'></i> Color: categoría temática</span><span><i class='leyenda-clave leyenda-clave--icono'>📍</i> Icono: tipo de lugar</span><span><i class='leyenda-clave leyenda-clave--punto'>●</i> Punto: ubicación geográfica</span></div></div><div class='leyenda-grupo-titulo'>A. Categorías temáticas de la cartografía de paz</div>";
     cats.forEach((k) => {
       const c = CATEGORIAS[k];
       const n = base.filter((f) => f.categoria === k).length;
@@ -1679,19 +1679,21 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         "</div>";
     });
 
-    html += "<div class='leyenda-grupo-titulo leyenda-grupo-titulo--iconos'>Iconos de lugares del mapa</div>" +
-      "<p class='leyenda-ayuda-iconos'>El mismo icono aparece en el punto correspondiente del mapa. El color del marcador identifica la categoría.</p>" +
+    html += "<div class='leyenda-grupo-titulo leyenda-grupo-titulo--iconos'>B. Símbolos según el tipo de lugar</div>" +
+      "<p class='leyenda-ayuda-iconos'>Estos iconos identifican el tipo de sitio (por ejemplo, escuela o finca). El color del punto indica la categoría temática; icono y color comunican información diferente.</p>" +
       "<div class='leyenda-iconos-grid'>";
     const simbolos = (typeof SIMBOLOS_CAMPO !== "undefined" && SIMBOLOS_CAMPO) ? SIMBOLOS_CAMPO : {};
     const entradas = Object.entries(simbolos);
     entradas.forEach(([nombre, simbolo]) => {
       const etiqueta = nombre.charAt(0).toUpperCase() + nombre.slice(1);
-      html += "<div class='leyenda-icono-item'><span class='leyenda-icono-muestra'>" + simbolo + "</span><span>" + escapar(etiqueta) + "</span></div>";
+      const explicaciones = {"ganadería":"Fincas o zonas dedicadas a la ganadería","escuelas":"Instituciones educativas y escuelas","parques":"Parques, plazas y espacios públicos","iglesias":"Iglesias y espacios de comunidad de fe","jóvenes":"Espacios o iniciativas de jóvenes","fincas":"Fincas, predios y espacios rurales","agrícolas":"Cultivos y actividades agrícolas","salud":"Hospitales, centros y puestos de salud","comercio":"Tiendas, mercados y zonas comerciales","transporte":"Rutas, terminales y puntos de transporte"};
+      const explicacion = explicaciones[nombre] || ("Lugar clasificado como " + nombre);
+      html += "<div class='leyenda-icono-item'><span class='leyenda-icono-muestra' aria-hidden='true'>" + simbolo + "</span><span class='leyenda-icono-texto'><strong>" + escapar(etiqueta) + "</strong><small>" + escapar(explicacion) + "</small></span></div>";
     });
     const personalizados = [...new Set(base.map((f) => (f.simboloCampo || "").trim()).filter(Boolean))]
       .filter((s) => !entradas.some(([, icono]) => icono === s));
     personalizados.forEach((simbolo) => {
-      html += "<div class='leyenda-icono-item'><span class='leyenda-icono-muestra'>" + escapar(simbolo) + "</span><span>Icono personalizado</span></div>";
+      html += "<div class='leyenda-icono-item'><span class='leyenda-icono-muestra' aria-hidden='true'>" + escapar(simbolo) + "</span><span class='leyenda-icono-texto'><strong>Icono personalizado</strong><small>Símbolo definido para uno o más registros</small></span></div>";
     });
     if (!entradas.length && !personalizados.length) {
       html += "<p class='leyenda-ayuda-iconos'>Los registros sin icono específico usan el símbolo de su categoría.</p>";
@@ -1714,6 +1716,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const destino = $("#convencionesCompletoContenido");
     if (!origen || !destino) return;
     destino.innerHTML = origen.innerHTML;
+    destino.querySelectorAll(".menu__cat__btn").forEach((btn) => btn.remove());
     abrirModal("modalConvencionesCompleto");
   }
 
