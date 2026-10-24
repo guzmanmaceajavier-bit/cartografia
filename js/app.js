@@ -1376,6 +1376,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           ((u.lugar || idea.territorio) ? "<p><strong>Zona:</strong> " + escapar(u.lugar || idea.territorio) + "</p>" : "") +
           (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : ""));
         marcadores["ubi:" + u.id] = m;
+
+
       });
     });
     aplicarNombres();
@@ -1865,7 +1867,34 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiLat").value = "";
     $("#ubiLng").value = "";
     $("#ubiPrecision").value = "exacta";
+    $("#ubiPuntosAdicionales").innerHTML = "";
     abrirModal("modalUbi");
+  }
+
+  function crearPuntoAdicionalUbi(ubicacion = {}) {
+    const cont = $("#ubiPuntosAdicionales");
+    if (!cont) return;
+    const bloque = document.createElement("section");
+    bloque.className = "ubi-punto-adicional";
+    bloque.style.cssText = "border:1px solid var(--borde,#d9e0e7);border-radius:10px;padding:12px;margin:10px 0";
+    const opcionesSimbolo = Object.keys(SIMBOLOS_CAMPO).map((nombre) => '<option value="' + escapar(nombre) + '">' + escapar(SIMBOLOS_CAMPO[nombre]) + " — " + escapar(nombre) + "</option>").join("");
+    bloque.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h4 style="margin:0">Ubicación adicional</h4><button type="button" class="btn btn--suave" data-quitar-punto-ubi>Quitar ubicación</button></div>' +
+      '<label>Nombre del sitio<input type="text" data-punto-ubi="nombre" placeholder="Ej.: banco del centro, colegio, finca"></label>' +
+      '<label>Zona o dirección<input type="text" data-punto-ubi="lugar" placeholder="Ej.: barrio Centro, vereda"></label>' +
+      '<label>Descripción<textarea rows="2" data-punto-ubi="descripcion" placeholder="Relación de este sitio con el tema"></textarea></label>' +
+      '<label>Símbolo del sitio<select data-punto-ubi="simboloCampo"><option value="">Usar símbolo 📍</option>' + opcionesSimbolo + '</select></label>' +
+      '<div class="formulario__fila"><label>Latitud<input type="number" step="any" min="-90" max="90" data-punto-ubi="lat" placeholder="8.6100"></label>' +
+      '<label>Longitud<input type="number" step="any" min="-180" max="180" data-punto-ubi="lng" placeholder="-75.4698"></label>' +
+      '<label>Precisión<select data-punto-ubi="precision"><option value="exacta">Exacta</option><option value="aproximada">Aproximada</option><option value="sin">Sin ubicación en el mapa</option></select></label></div>';
+    bloque.querySelector('[data-punto-ubi="nombre"]').value = ubicacion.nombre || "";
+    bloque.querySelector('[data-punto-ubi="lugar"]').value = ubicacion.lugar || "";
+    bloque.querySelector('[data-punto-ubi="descripcion"]').value = ubicacion.descripcion || "";
+    bloque.querySelector('[data-punto-ubi="simboloCampo"]').value = ubicacion.simboloCampo || "";
+    bloque.querySelector('[data-punto-ubi="lat"]').value = ubicacion.lat ?? "";
+    bloque.querySelector('[data-punto-ubi="lng"]').value = ubicacion.lng ?? "";
+    bloque.querySelector('[data-punto-ubi="precision"]').value = ubicacion.precision || "exacta";
+    bloque.querySelector("[data-quitar-punto-ubi]").addEventListener("click", () => bloque.remove());
+    cont.appendChild(bloque);
   }
 
   function abrirModalEditarIdea(ideaId) {
@@ -1915,6 +1944,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiLng").value = ubi.lng ?? "";
     $("#ubiPrecision").value = ubi.precision || "exacta";
     $("#ubiId").value = ubi.id;
+    // Las ubicaciones adicionales se guardan como entradas independientes en idea.ubicaciones.
+    $("#ubiPuntosAdicionales").innerHTML = "";
     abrirModal("modalUbi");
   }
 
@@ -2413,24 +2444,16 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const idea = estado.ideas.find((i) => i.id === ideaId);
     if (!idea) { toast("La idea no existe.", "error"); return; }
     if (!idea.ubicaciones) idea.ubicaciones = [];
-
-    const latTexto = $("#ubiLat").value.trim();
-    const lngTexto = $("#ubiLng").value.trim();
-    const lat = latTexto === "" ? null : Number(latTexto);
-    const lng = lngTexto === "" ? null : Number(lngTexto);
-    if ((lat === null) !== (lng === null)) {
-      toast("Ingresa tanto la latitud como la longitud, o deja ambas vacías.", "error");
-      return;
-    }
-    if (lat !== null && (!Number.isFinite(lat) || lat < -90 || lat > 90)) {
-      toast("La latitud debe ser un número entre -90 y 90.", "error");
-      return;
-    }
-    if (lng !== null && (!Number.isFinite(lng) || lng < -180 || lng > 180)) {
-      toast("La longitud debe ser un número entre -180 y 180.", "error");
-      return;
-    }
-
+    const validarCoordenadas = (latTexto, lngTexto, etiqueta) => {
+      const lat = latTexto.trim() === "" ? null : Number(latTexto);
+      const lng = lngTexto.trim() === "" ? null : Number(lngTexto);
+      if ((lat === null) !== (lng === null)) { toast("En " + etiqueta + " ingresa latitud y longitud juntas, o deja ambas vacías.", "error"); return null; }
+      if (lat !== null && (!Number.isFinite(lat) || lat < -90 || lat > 90)) { toast("La latitud de " + etiqueta + " debe estar entre -90 y 90.", "error"); return null; }
+      if (lng !== null && (!Number.isFinite(lng) || lng < -180 || lng > 180)) { toast("La longitud de " + etiqueta + " debe estar entre -180 y 180.", "error"); return null; }
+      return { lat, lng };
+    };
+    const coords = validarCoordenadas($("#ubiLat").value, $("#ubiLng").value, "la ubicación principal");
+    if (!coords) return;
     const datos = {
       nombre: $("#ubiNombre").value.trim() || "Ubicación sin nombre",
       lugar: $("#ubiLugar").value.trim(),
@@ -2438,25 +2461,32 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       fecha: $("#ubiFecha").value.trim(),
       categoria: $("#ubiCategoria").value || idea.categoria || "lugares",
       simboloCampo: $("#ubiSimboloCampo").value || "Sin símbolo específico",
-      lat,
-      lng,
-      precision: $("#ubiPrecision").value,
-      creado: new Date().toISOString()
+      lat: coords.lat, lng: coords.lng, precision: $("#ubiPrecision").value, creado: new Date().toISOString()
     };
-
+    const adicionales = [];
+    for (const bloque of $("#ubiPuntosAdicionales .ubi-punto-adicional")) {
+      const valor = (campo) => bloque.querySelector('[data-punto-ubi="' + campo + '"]').value.trim();
+      const nombre = valor("nombre"), lugar = valor("lugar"), descripcion = valor("descripcion");
+      const latTexto = valor("lat"), lngTexto = valor("lng");
+      if (!nombre && !lugar && !descripcion && !latTexto && !lngTexto) continue;
+      if (!nombre) { toast("Ponle un nombre a cada ubicación adicional.", "error"); return; }
+      const c = validarCoordenadas(latTexto, lngTexto, "la ubicación «" + nombre + "»");
+      if (!c) return;
+      adicionales.push({ id: "ubi-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), nombre, lugar, descripcion, fecha: datos.fecha, categoria: datos.categoria, simboloCampo: valor("simboloCampo") || "Sin símbolo específico", lat: c.lat, lng: c.lng, precision: valor("precision") || "exacta", creado: new Date().toISOString() });
+    }
     if (id) {
       const ubi = idea.ubicaciones.find((u) => u.id === id);
-      if (ubi) Object.assign(ubi, datos);
-      toast("Ubicación actualizada.");
+      if (!ubi) { toast("No se encontró la ubicación que intentas editar.", "error"); return; }
+      Object.assign(ubi, datos);
+      toast(adicionales.length ? "Ubicación actualizada y sitios adicionales guardados por separado." : "Ubicación actualizada.");
     } else {
       datos.id = "ubi-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
       idea.ubicaciones.push(datos);
       toast("Ubicación agregada a la idea.");
     }
-    guardar();
-    pintarIdeas();
-    pintarMapa();
-    cerrarModal("modalUbi");
+    // Cada sitio adicional queda como ubicación hermana, no como punto anidado.
+    idea.ubicaciones.push(...adicionales);
+    guardar(); pintarIdeas(); pintarMapa(); cerrarModal("modalUbi");
   }
 
   /* ==================== TERRITORIO ==================== */
@@ -2784,6 +2814,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#btnGuardarIdea").addEventListener("click", guardarIdea);
     $("#btnIdeaAgregarUbicacion").addEventListener("click", agregarUbicacionAlFormularioTema);
     $("#btnGuardarUbi").addEventListener("click", guardarUbi);
+    $("#btnUbiAgregarPunto").addEventListener("click", () => crearPuntoAdicionalUbi());
     $("#ubiSimboloCampo").addEventListener("change", actualizarVistaPreviaSimbolo);
     $("#btnExportar").addEventListener("click", exportarTodo);
     $("#btnImportar").addEventListener("click", () => $("#archivoImportar").click());
