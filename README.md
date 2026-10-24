@@ -40,4 +40,4 @@ Importa el repositorio en Vercel y configura las dos variables de entorno para e
 
 ## Importante sobre privacidad
 
-La información de cartografía puede incluir testimonios o ubicaciones sensibles. Antes de publicar datos reales, configura controles de acceso y autorización en el servidor. La autenticación de la interfaz no protege por sí sola la API. Evita publicar datos identificables de víctimas o personas en riesgo sin consentimiento.
+La aplicación no requiere inicio de sesión, como corresponde a este ejercicio de cartografía. Por eso, si el sitio se publica en internet, cualquier persona que pueda acceder a él podría consultar o modificar los registros, según la configuración del servidor. No publiques testimonios, nombres de víctimas ni ubicaciones sensibles sin consentimiento. Para usarla con información privada o real de personas en riesgo, configura controles de acceso y autorización en el servidor.
