@@ -36,9 +36,9 @@
 </header>
 
 <nav class="pestanas" aria-label="Paneles del mapa">
-  <button type="button" class="pestanas__btn" data-vista="menu">☰ Menú</button>
+  <button type="button" class="pestanas__btn" data-vista="menu">☰ Leyenda y herramientas</button>
   <button type="button" class="pestanas__btn" data-vista="mapa">Mapa</button>
-  <button type="button" class="pestanas__btn" data-vista="info">Información</button>
+  <button type="button" class="pestanas__btn" data-vista="info">Detalles del registro</button>
 </nav>
 
 <!-- ==================== 1 · MAPA ==================== -->
@@ -62,12 +62,12 @@
       </div>
 
       <div class="menu__seccion">
-        <div class="menu__seccion-titulo">Convenciones del trabajo (02–08)</div>
+        <div class="menu__seccion-titulo">Leyenda del mapa · categorías 02–08</div>
         <div id="menuConvenciones" class="menu__convenciones"></div>
       </div>
 
       <div class="menu__seccion">
-        <div class="menu__seccion-titulo">Herramientas</summary>
+        <div class="menu__seccion-titulo">Herramientas</div>
         <div class="menu__herramientas">
           <button type="button" class="btn menu__btn" data-accion="leyenda">⚙️ Gestionar convenciones</button>
           <button type="button" class="btn menu__btn" id="btnExportar">⬇️ Exportar respaldo (JSON)</button>
@@ -81,7 +81,7 @@
       </div>
 
       <div class="menu__seccion">
-        <div class="menu__seccion-titulo">Guardado</summary>
+        <div class="menu__seccion-titulo">Estado del trabajo</div>
         <div class="menu__guardado" id="estadoGuardado">Guardado automático activo</div>
         <div class="menu__guardado" id="estadoNube">☁ Conectando…</div>
         <div class="menu__progreso" id="progresoEntrega"></div>
