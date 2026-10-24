@@ -1287,6 +1287,12 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#fichaCategoria").innerHTML = categoriasConMarcador()
       .map((k) => "<option value='" + k + "'>" + CATEGORIAS[k].seccion + ". " + escapar(CATEGORIAS[k].nombre) + "</option>")
       .join("");
+    const opcionesComponentes = Object.keys(CATEGORIAS)
+      .sort((a, b) => CATEGORIAS[a].seccion - CATEGORIAS[b].seccion)
+      .map((k) => "<option value='" + k + "'>" + CATEGORIAS[k].seccion + ". " + escapar(CATEGORIAS[k].nombre) + "</option>")
+      .join("");
+    $("#ideaCategoria").innerHTML = opcionesComponentes;
+    $("#ubiCategoria").innerHTML = opcionesComponentes;
     $("#fichaTipoFuente").innerHTML = "<option value=''>Sin especificar</option>" +
       Object.keys(TIPOS_FUENTE)
         .map((k) => "<option value='" + k + "'>" + escapar(TIPOS_FUENTE[k].nombre) + "</option>")
@@ -1337,6 +1343,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         m.addTo(capaMarcadores);
         m.bindTooltip(escapar(u.nombre), { permanent: true, direction: "top", offset: [0, -16], className: "etiqueta-nombre", opacity: 1 });
         m.bindPopup("<strong>" + escapar(u.nombre) + "</strong><br><span>" + escapar(idea.nombre) + "</span>" +
+          "<p><strong>Componente:</strong> " + escapar(CATEGORIAS[u.categoria]?.nombre || u.categoria || "Sin clasificar") + "</p>" +
+          ((u.lugar || idea.territorio) ? "<p><strong>Zona:</strong> " + escapar(u.lugar || idea.territorio) + "</p>" : "") +
           (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : ""));
         marcadores["ubi:" + u.id] = m;
       });
@@ -1744,9 +1752,11 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!idea) return;
     $("#modalUbiTitulo").textContent = "Agregar ubicación a «" + idea.nombre + "»";
     $("#ubiIdeaId").value = ideaId;
+    $("#ubiId").value = "";
     $("#ubiNombre").value = "";
+    $("#ubiLugar").value = idea.territorio || estado.config?.nombreTerritorio || "";
     $("#ubiDescripcion").value = "";
-    $("#ubiCategoria").value = "";
+    $("#ubiCategoria").value = idea.categoria || "lugares";
     $("#ubiLat").value = "";
     $("#ubiLng").value = "";
     $("#ubiPrecision").value = "exacta";
@@ -1760,6 +1770,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ideaId").value = idea.id;
     $("#ideaNombre").value = idea.nombre;
     $("#ideaDescripcion").value = idea.descripcion || "";
+    $("#ideaCategoria").value = idea.categoria || "afectaciones";
+    $("#ideaTerritorio").value = idea.territorio || estado.config?.nombreTerritorio || "";
     $("#ideaColor").value = idea.color || "#9B1C1C";
     $("#ideaSimbolo").value = idea.simbolo || "✕";
     abrirModal("modalIdea");
@@ -1786,8 +1798,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiIdeaId").value = ubi.ideaId;
     $("#ubiNombre").value = ubi.nombre;
     $("#ubiDescripcion").value = ubi.descripcion || "";
-    $("#ubiCategoria").value = ubi.categoria || "";
-    $("#ubiLat").value = ubi.lat || "";
+    $("#ubiLugar").value = ubi.lugar || idea?.territorio || estado.config?.nombreTerritorio || "";
+    $("#ubiCategoria").value = ubi.categoria || idea?.categoria || "lugares";
+    $("#ubiLat").value = ubi.lat ?? "";
     $("#ubiLng").value = ubi.lng || "";
     $("#ubiPrecision").value = ubi.precision || "exacta";
     $("#ubiId").value = ubi.id;
@@ -1814,6 +1827,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ideaId").value = idea.id;
     $("#ideaNombre").value = idea.nombre;
     $("#ideaDescripcion").value = idea.descripcion || "";
+    $("#ideaCategoria").value = idea.categoria || "afectaciones";
+    $("#ideaTerritorio").value = idea.territorio || estado.config?.nombreTerritorio || "";
     $("#ideaColor").value = idea.color || "#9B1C1C";
     $("#ideaSimbolo").value = idea.simbolo || "✕";
     abrirModal("modalIdea");
@@ -1827,6 +1842,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (idea) {
         idea.nombre = nombre;
         idea.descripcion = $("#ideaDescripcion").value.trim();
+        idea.categoria = $("#ideaCategoria").value || "afectaciones";
+        idea.territorio = $("#ideaTerritorio").value.trim();
         idea.color = $("#ideaColor").value;
         idea.simbolo = $("#ideaSimbolo").value || "✕";
       }
@@ -1836,6 +1853,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         id: "idea-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
         nombre: nombre,
         descripcion: $("#ideaDescripcion").value.trim(),
+        categoria: $("#ideaCategoria").value || "afectaciones",
+        territorio: $("#ideaTerritorio").value.trim(),
         color: $("#ideaColor").value || "#9B1C1C",
         simbolo: $("#ideaSimbolo").value || "✕",
         ubicaciones: [],
@@ -1886,10 +1905,12 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       return `
         <article class="tarjeta idea-tarjeta" data-idea-id="${idea.id}">
           <header class="idea-tarjeta__cabecera">
-            <span class="idea-tarjeta__simbolo" style="background:${idea.color};">${idea.simbolo}</span>
+            <span class="idea-tarjeta__simbolo" style="background:${CATEGORIAS[idea.categoria]?.color || idea.color || "#9B1C1C"};">${CATEGORIAS[idea.categoria]?.simbolo || idea.simbolo || "•"}</span>
             <div>
               <h3>${escapar(idea.nombre)}</h3>
-              <p class="idea-tarjeta__meta">${ubiCount} ubicación${ubiCount !== 1 ? "es" : ""} · ${escapar(idea.descripcion || "Sin descripción")}</p>
+              <p class="idea-tarjeta__meta">Componente ${CATEGORIAS[idea.categoria]?.seccion || "sin clasificar"} · ${escapar(CATEGORIAS[idea.categoria]?.nombre || "Sin componente seleccionado")}</p>
+              <p class="idea-tarjeta__meta">${ubiCount} sitio${ubiCount !== 1 ? "s" : ""} · ${escapar(idea.territorio || "Ámbito geográfico por definir")}</p>
+              <p class="idea-tarjeta__meta">${escapar(idea.descripcion || "Sin descripción")}</p>
             </div>
           </header>
           <div class="idea-tarjeta__ubicaciones">
@@ -1898,7 +1919,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
                 <span class="idea-ubicacion__simbolo" style="background:${CATEGORIAS[ubi.categoria]?.color || "#5D6B7E"}">${CATEGORIAS[ubi.categoria]?.simbolo || "•"}</span>
                 <div class="idea-ubicacion__info">
                   <strong>${escapar(ubi.nombre)}</strong>
-                  <span class="idea-ubicacion__cat">${escapar(ubi.categoria || "")}</span>
+                  <span class="idea-ubicacion__cat">${escapar(CATEGORIAS[ubi.categoria]?.seccion + ". " + CATEGORIAS[ubi.categoria]?.nombre || ubi.categoria || "Sin componente")}</span>
+                  <p class="idea-ubicacion__cat">${escapar(ubi.lugar || idea.territorio || "")}</p>
                   <p class="idea-ubicacion__desc">${escapar(ubi.descripcion || "")}</p>
                 </div>
                 <div class="idea-ubicacion__acciones">
@@ -2160,8 +2182,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
     const datos = {
       nombre: $("#ubiNombre").value.trim() || "Ubicación sin nombre",
+      lugar: $("#ubiLugar").value.trim(),
       descripcion: $("#ubiDescripcion").value.trim(),
-      categoria: $("#ubiCategoria").value,
+      categoria: $("#ubiCategoria").value || idea.categoria || "lugares",
       lat: parseFloat($("#ubiLat").value),
       lng: parseFloat($("#ubiLng").value),
       precision: $("#ubiPrecision").value,
@@ -2654,7 +2677,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (accion) {
         const a = accion.dataset.accion;
         if (a === "nueva") abrirFicha(null);
-        else if (a === "nuevaIdea") { $("#modalIdeaTitulo").textContent = "Nuevo tema"; $("#ideaId").value = ""; $("#ideaNombre").value = ""; $("#ideaDescripcion").value = ""; $("#ideaColor").value = "#9B1C1C"; $("#ideaSimbolo").value = "✕"; abrirModal("modalIdea"); return; }
+        else if (a === "nuevaIdea") { $("#modalIdeaTitulo").textContent = "Nuevo tema"; $("#ideaId").value = ""; $("#ideaNombre").value = ""; $("#ideaDescripcion").value = ""; $("#ideaCategoria").value = "afectaciones"; $("#ideaTerritorio").value = estado.config?.nombreTerritorio || ""; $("#ideaColor").value = "#9B1C1C"; $("#ideaSimbolo").value = "✕"; abrirModal("modalIdea"); return; }
         else if (a === "leyenda") abrirGestionLeyenda();
         else if (a === "exportar") exportarTodo();
         else if (a === "importar") $("#archivoImportar").click();
