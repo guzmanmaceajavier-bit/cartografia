@@ -2718,7 +2718,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (buscadorSimbolos) buscadorSimbolos.addEventListener("input", () => {
       const sinAcentos = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es");
       const q = sinAcentos(buscadorSimbolos.value);
-      $("#simbolosPaleta [data-sim]").forEach((b) => {
+      $$("#simbolosPaleta [data-sim]").forEach((b) => {
         b.hidden = !!q && !sinAcentos(b.dataset.busquedaSimbolo || b.dataset.sim).includes(q);
       });
     });
