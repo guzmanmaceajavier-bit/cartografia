@@ -1293,6 +1293,13 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       .join("");
     $("#ideaCategoria").innerHTML = opcionesComponentes;
     $("#ubiCategoria").innerHTML = opcionesComponentes;
+    const opcionesSimbolos = Object.entries(SIMBOLOS_CAMPO)
+      .map(([nombre, simbolo]) => "<option value='" + escapar(nombre) + "'>" + simbolo + " " + escapar(nombre) + "</option>")
+      .join("");
+    ["#ubiSimboloCampo", "#ideaUbiSimbolo"].forEach((selector) => {
+      const campo = $(selector);
+      if (campo) campo.innerHTML = opcionesSimbolos;
+    });
     $("#fichaTipoFuente").innerHTML = "<option value=''>Sin especificar</option>" +
       Object.keys(TIPOS_FUENTE)
         .map((k) => "<option value='" + k + "'>" + escapar(TIPOS_FUENTE[k].nombre) + "</option>")
@@ -1333,9 +1340,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         if (u.categoria && catOculta(u.categoria)) return;
         if (typeof u.lat !== "number" || typeof u.lng !== "number") return;
         const cat = CATEGORIAS[u.categoria] || { color: idea.color || "#9B1C1C", simbolo: idea.simbolo || "•" };
+        const simboloLugar = SIMBOLOS_CAMPO[simboloCampoDe(u)] || cat.simbolo || idea.simbolo || "•";
         const icono = L.divIcon({
           className: "marcador-narrativa",
-          html: "<span style='display:flex;align-items:center;justify-content:center;width:30px;height:30px;border:2px solid #fff;border-radius:50%;background:" + cat.color + ";color:#fff;font-size:16px;font-weight:700;box-shadow:0 1px 5px #0005'>" + escapar(cat.simbolo || idea.simbolo || "•") + "</span>",
+          html: "<span title='" + escapar(u.simboloCampo || "Lugar") + "' style='display:flex;align-items:center;justify-content:center;width:34px;height:34px;border:2px solid #fff;border-radius:50%;background:" + cat.color + ";color:#fff;font-size:18px;font-weight:700;box-shadow:0 1px 5px #0005'>" + escapar(simboloLugar) + "</span>",
           iconSize: [30, 30],
           iconAnchor: [15, 15]
         });
@@ -1747,6 +1755,37 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
   // ==================== IDEAS / NARRATIVAS TEMÁTICAS ====================
 
+  function simboloCampoDe(ubi) {
+    if (ubi?.simboloCampo && SIMBOLOS_CAMPO[ubi.simboloCampo]) return ubi.simboloCampo;
+    const texto = ((ubi?.nombre || "") + " " + (ubi?.descripcion || "")).toLocaleLowerCase("es");
+    if (/extorsi|vacuna|cobro ilegal/.test(texto)) return "Extorsión / vacunas";
+    if (/amenaz|intimidaci/.test(texto)) return "Amenazas";
+    if (/homicid|asesinat/.test(texto)) return "Homicidios";
+    if (/desaparecid/.test(texto)) return "Desaparición";
+    if (/desplazad/.test(texto)) return "Desplazamiento";
+    if (/hurto|robo/.test(texto)) return "Hurtos";
+    if (/ganader|ganado|vaca|reses/.test(texto)) return "Ganadería";
+    if (/colegio|escuela/.test(texto)) return /fútbol|futbol/.test(texto) ? "Escuela de fútbol" : "Colegio";
+    if (/iglesia|templo|parroquia/.test(texto)) return "Iglesia";
+    if (/finca|predio/.test(texto)) return "Finca";
+    if (/hospital|salud|clínica|clinica/.test(texto)) return "Hospital / salud";
+    if (/bombero/.test(texto)) return "Bomberos";
+    if (/policía|policia/.test(texto)) return "Policía";
+    if (/alcaldía|alcaldia/.test(texto)) return "Alcaldía";
+    if (/icbf|protección infantil/.test(texto)) return "ICBF / protección infantil";
+    if (/danza|arte|artístico|artistico/.test(texto)) return "Arte y danza";
+    if (/comercio|tienda|mercado/.test(texto)) return "Comercio";
+    return "Sin símbolo específico";
+  }
+
+  function actualizarVistaPreviaSimbolo() {
+    const campo = $("#ubiSimboloCampo");
+    const vista = $("#ubiSimboloVistaPrevia");
+    if (!campo || !vista) return;
+    const simbolo = SIMBOLOS_CAMPO[campo.value] || "•";
+    vista.innerHTML = "<span>" + escapar(simbolo) + "</span><strong>" + escapar(campo.value || "Símbolo del lugar") + "</strong>";
+  }
+
   function abrirModalUbi(ideaId) {
     const idea = estado.ideas.find((i) => i.id === ideaId);
     if (!idea) return;
@@ -1757,6 +1796,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiLugar").value = idea.territorio || estado.config?.nombreTerritorio || "";
     $("#ubiDescripcion").value = "";
     $("#ubiCategoria").value = idea.categoria || "lugares";
+    $("#ubiSimboloCampo").value = "Sin símbolo específico";
+    actualizarVistaPreviaSimbolo();
     $("#ubiLat").value = "";
     $("#ubiLng").value = "";
     $("#ubiPrecision").value = "exacta";
@@ -1767,6 +1808,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const idea = estado.ideas.find((i) => i.id === ideaId);
     if (!idea) return;
     $("#modalIdeaTitulo").textContent = "Editar tema";
+    $("#ideaPrimeraUbicacion").hidden = true;
     $("#ideaId").value = idea.id;
     $("#ideaNombre").value = idea.nombre;
     $("#ideaDescripcion").value = idea.descripcion || "";
@@ -1800,8 +1842,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiDescripcion").value = ubi.descripcion || "";
     $("#ubiLugar").value = ubi.lugar || idea?.territorio || estado.config?.nombreTerritorio || "";
     $("#ubiCategoria").value = ubi.categoria || idea?.categoria || "lugares";
+    $("#ubiSimboloCampo").value = simboloCampoDe(ubi);
+    actualizarVistaPreviaSimbolo();
     $("#ubiLat").value = ubi.lat ?? "";
-    $("#ubiLng").value = ubi.lng || "";
+    $("#ubiLng").value = ubi.lng ?? "";
     $("#ubiPrecision").value = ubi.precision || "exacta";
     $("#ubiId").value = ubi.id;
     abrirModal("modalUbi");
@@ -1837,6 +1881,26 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function guardarIdea() {
     const id = $("#ideaId").value;
     const nombre = $("#ideaNombre").value.trim() || "Tema sin nombre";
+    const ubiNombre = $("#ideaUbiNombre").value.trim();
+    const ubiLugar = $("#ideaUbiLugar").value.trim();
+    const ubiDescripcion = $("#ideaUbiDescripcion").value.trim();
+    const ubiLatTexto = $("#ideaUbiLat").value.trim();
+    const ubiLngTexto = $("#ideaUbiLng").value.trim();
+    const ubiLat = ubiLatTexto === "" ? null : Number(ubiLatTexto);
+    const ubiLng = ubiLngTexto === "" ? null : Number(ubiLngTexto);
+    const quierePrimeraUbicacion = !id && (ubiNombre || ubiLugar || ubiDescripcion || ubiLatTexto || ubiLngTexto);
+    if (quierePrimeraUbicacion && ((ubiLat === null) !== (ubiLng === null))) {
+      toast("Para la primera ubicación, ingresa latitud y longitud juntas o deja ambas vacías.", "error");
+      return;
+    }
+    if (quierePrimeraUbicacion && ubiLat !== null && (!Number.isFinite(ubiLat) || ubiLat < -90 || ubiLat > 90)) {
+      toast("La latitud del primer lugar debe estar entre -90 y 90.", "error");
+      return;
+    }
+    if (quierePrimeraUbicacion && ubiLng !== null && (!Number.isFinite(ubiLng) || ubiLng < -180 || ubiLng > 180)) {
+      toast("La longitud del primer lugar debe estar entre -180 y 180.", "error");
+      return;
+    }
     if (id) {
       const idea = estado.ideas.find((i) => i.id === id);
       if (idea) {
@@ -1861,8 +1925,22 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         creado: new Date().toISOString()
       };
       if (!estado.ideas) estado.ideas = [];
+      if (quierePrimeraUbicacion) {
+        nueva.ubicaciones.push({
+          id: "ubi-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+          nombre: ubiNombre || "Ubicación sin nombre",
+          lugar: ubiLugar || nueva.territorio || "",
+          descripcion: ubiDescripcion,
+          categoria: nueva.categoria,
+          simboloCampo: $("#ideaUbiSimbolo").value || "Sin símbolo específico",
+          lat: ubiLat,
+          lng: ubiLng,
+          precision: ubiLat !== null && ubiLng !== null ? "exacta" : "sin",
+          creado: new Date().toISOString()
+        });
+      }
       estado.ideas.push(nueva);
-      toast("Tema creado.");
+      toast(quierePrimeraUbicacion ? "Tema y primera ubicación creados." : "Tema creado.");
     }
     guardar();
     pintarIdeas();
@@ -1902,6 +1980,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     }
     cont.innerHTML = ideas.map((idea) => {
       const ubiCount = idea.ubicaciones ? idea.ubicaciones.length : 0;
+      const ubiConCoordenadas = (idea.ubicaciones || []).filter((u) => typeof u.lat === "number" && Number.isFinite(u.lat) && typeof u.lng === "number" && Number.isFinite(u.lng)).length;
       return `
         <article class="tarjeta idea-tarjeta" data-idea-id="${idea.id}">
           <header class="idea-tarjeta__cabecera">
@@ -1909,18 +1988,19 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
             <div>
               <h3>${escapar(idea.nombre)}</h3>
               <p class="idea-tarjeta__meta">Componente ${CATEGORIAS[idea.categoria || "afectaciones"]?.seccion || "sin clasificar"} · ${escapar(CATEGORIAS[idea.categoria || "afectaciones"]?.nombre || "Sin componente seleccionado")}</p>
-              <p class="idea-tarjeta__meta">${ubiCount} sitio${ubiCount !== 1 ? "s" : ""} · ${escapar(idea.territorio || "Ámbito geográfico por definir")}</p>
+              <p class="idea-tarjeta__meta">${ubiCount} sitio${ubiCount !== 1 ? "s" : ""} · ${ubiConCoordenadas} en el mapa · ${escapar(idea.territorio || "Ámbito geográfico por definir")}</p>
               <p class="idea-tarjeta__meta">${escapar(idea.descripcion || "Sin descripción")}</p>
             </div>
           </header>
           <div class="idea-tarjeta__ubicaciones">
             ${(idea.ubicaciones || []).map((ubi) => `
               <div class="idea-ubicacion" data-ubi-id="${ubi.id}">
-                <span class="idea-ubicacion__simbolo" style="background:${CATEGORIAS[ubi.categoria]?.color || "#5D6B7E"}">${CATEGORIAS[ubi.categoria]?.simbolo || "•"}</span>
+                <span class="idea-ubicacion__simbolo" title="${escapar(ubi.simboloCampo || "Símbolo del componente")}" style="background:${CATEGORIAS[ubi.categoria]?.color || "#5D6B7E"}">${SIMBOLOS_CAMPO[simboloCampoDe(ubi)] || CATEGORIAS[ubi.categoria]?.simbolo || "•"}</span>
                 <div class="idea-ubicacion__info">
                   <strong>${escapar(ubi.nombre)}</strong>
-                  <span class="idea-ubicacion__cat">${escapar(CATEGORIAS[ubi.categoria]?.seccion + ". " + CATEGORIAS[ubi.categoria]?.nombre || ubi.categoria || "Sin componente")}</span>
+                  <span class="idea-ubicacion__cat">${escapar(CATEGORIAS[ubi.categoria] ? CATEGORIAS[ubi.categoria].seccion + ". " + CATEGORIAS[ubi.categoria].nombre : (ubi.categoria || "Sin componente"))}</span>
                   <p class="idea-ubicacion__cat">${escapar(ubi.lugar || idea.territorio || "")}</p>
+                  <p class="idea-ubicacion__coordenadas">${typeof ubi.lat === "number" && typeof ubi.lng === "number" ? "Lat. " + ubi.lat + " · Long. " + ubi.lng : "Sin coordenadas: no aparecerá en el mapa"}</p>
                   <p class="idea-ubicacion__desc">${escapar(ubi.descripcion || "")}</p>
                 </div>
                 <div class="idea-ubicacion__acciones">
@@ -2180,19 +2260,34 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!idea) { toast("La idea no existe.", "error"); return; }
     if (!idea.ubicaciones) idea.ubicaciones = [];
 
+    const latTexto = $("#ubiLat").value.trim();
+    const lngTexto = $("#ubiLng").value.trim();
+    const lat = latTexto === "" ? null : Number(latTexto);
+    const lng = lngTexto === "" ? null : Number(lngTexto);
+    if ((lat === null) !== (lng === null)) {
+      toast("Ingresa tanto la latitud como la longitud, o deja ambas vacías.", "error");
+      return;
+    }
+    if (lat !== null && (!Number.isFinite(lat) || lat < -90 || lat > 90)) {
+      toast("La latitud debe ser un número entre -90 y 90.", "error");
+      return;
+    }
+    if (lng !== null && (!Number.isFinite(lng) || lng < -180 || lng > 180)) {
+      toast("La longitud debe ser un número entre -180 y 180.", "error");
+      return;
+    }
+
     const datos = {
       nombre: $("#ubiNombre").value.trim() || "Ubicación sin nombre",
       lugar: $("#ubiLugar").value.trim(),
       descripcion: $("#ubiDescripcion").value.trim(),
       categoria: $("#ubiCategoria").value || idea.categoria || "lugares",
-      lat: parseFloat($("#ubiLat").value),
-      lng: parseFloat($("#ubiLng").value),
+      simboloCampo: $("#ubiSimboloCampo").value || "Sin símbolo específico",
+      lat,
+      lng,
       precision: $("#ubiPrecision").value,
       creado: new Date().toISOString()
     };
-
-    if (isNaN(datos.lat)) datos.lat = null;
-    if (isNaN(datos.lng)) datos.lng = null;
 
     if (id) {
       const ubi = idea.ubicaciones.find((u) => u.id === id);
@@ -2533,6 +2628,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#btnAyuda").addEventListener("click", () => abrirModal("modalAyuda"));
     $("#btnGuardarIdea").addEventListener("click", guardarIdea);
     $("#btnGuardarUbi").addEventListener("click", guardarUbi);
+    $("#ubiSimboloCampo").addEventListener("change", actualizarVistaPreviaSimbolo);
     $("#btnExportar").addEventListener("click", exportarTodo);
     $("#btnImportar").addEventListener("click", () => $("#archivoImportar").click());
     $("#archivoImportar").addEventListener("change", manejarImportacion);
@@ -2677,7 +2773,24 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (accion) {
         const a = accion.dataset.accion;
         if (a === "nueva") abrirFicha(null);
-        else if (a === "nuevaIdea") { $("#modalIdeaTitulo").textContent = "Nuevo tema"; $("#ideaId").value = ""; $("#ideaNombre").value = ""; $("#ideaDescripcion").value = ""; $("#ideaCategoria").value = "afectaciones"; $("#ideaTerritorio").value = estado.config?.nombreTerritorio || ""; $("#ideaColor").value = "#9B1C1C"; $("#ideaSimbolo").value = "✕"; abrirModal("modalIdea"); return; }
+        else if (a === "nuevaIdea") {
+          $("#modalIdeaTitulo").textContent = "Nuevo tema";
+          $("#ideaId").value = "";
+          $("#ideaNombre").value = "";
+          $("#ideaDescripcion").value = "";
+          $("#ideaCategoria").value = "afectaciones";
+          $("#ideaTerritorio").value = estado.config?.nombreTerritorio || "";
+          $("#ideaColor").value = "#9B1C1C";
+          $("#ideaSimbolo").value = "✕";
+          $("#ideaUbiNombre").value = "";
+          $("#ideaUbiLugar").value = estado.config?.nombreTerritorio || "";
+          $("#ideaUbiDescripcion").value = "";
+          $("#ideaUbiLat").value = "";
+          $("#ideaUbiLng").value = "";
+          $("#ideaPrimeraUbicacion").hidden = false;
+          abrirModal("modalIdea");
+          return;
+        }
         else if (a === "leyenda") abrirGestionLeyenda();
         else if (a === "exportar") exportarTodo();
         else if (a === "importar") $("#archivoImportar").click();
