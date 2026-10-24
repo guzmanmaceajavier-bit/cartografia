@@ -184,6 +184,37 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (datos.config.municipio === undefined) datos.config.municipio = CONFIGURACION_INICIAL.municipio || "";
     if (datos.config.departamento === undefined) datos.config.departamento = CONFIGURACION_INICIAL.departamento || "";
     if (!Array.isArray(datos.fichas)) datos.fichas = [];
+
+    // Retirar solo fichas de ejemplo que seguían intactas de la plantilla anterior.
+    datos.fichas = datos.fichas.filter((f) => !(
+      (f.id === "semilla-33" &&
+        f.nombre === "Iglesia Cristiana Menonita en Sahagún (por completar)" &&
+        String(f.descripcion || "").startsWith("Ficha base para documentar la presencia")) ||
+      (f.id === "semilla-34" &&
+        f.nombre === "Pintando la Paz – Reconcíliate (por completar)" &&
+        String(f.descripcion || "").startsWith("Ficha base para documentar la iniciativa"))
+    ));
+    const territorioSemilla = datos.fichas.find((f) =>
+      f.id === "semilla-00" &&
+      f.nombre === "Sahagún, Córdoba" &&
+      String(f.descripcion || "").startsWith("Territorio principal de la cartografía: municipio de Sahagún")
+    );
+    if (territorioSemilla) {
+      territorioSemilla.nombre = "Municipio de Sahagún, Córdoba";
+      territorioSemilla.lat = null;
+      territorioSemilla.lng = null;
+      territorioSemilla.precision = "sin";
+      territorioSemilla.estado = "pendiente";
+      territorioSemilla.visible = false;
+      territorioSemilla.descripcion = "Territorio marco de la cartografía. Complete los registros a partir de la observación, conversaciones con habitantes, testimonios autorizados, memoria comunitaria y fuentes disponibles.";
+      territorioSemilla.historia = "";
+      territorioSemilla.actores = "";
+      territorioSemilla.fecha = "";
+      territorioSemilla.fuente = "";
+      territorioSemilla.tipoFuente = "";
+      territorioSemilla.observaciones = "Este registro sirve para vincular lugares y hechos concretos con el municipio. El límite municipal se representa por separado en el mapa.";
+    }
+
     if (!datos.leyenda || typeof datos.leyenda !== "object") datos.leyenda = {};
     if (!Array.isArray(datos.leyenda.ocultas)) datos.leyenda.ocultas = [];
     if (!Array.isArray(datos.leyenda.custom)) datos.leyenda.custom = [];
