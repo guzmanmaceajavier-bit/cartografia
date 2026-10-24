@@ -154,3 +154,38 @@
 .categoria-color-06 { color: #6D28D9; }
 .categoria-color-07 { color: #C9A227; }
 .categoria-color-08 { color: #C2410C; }
+
+
+/* ============ GUÍA DE LECTURA DE LA CARTOGRAFÍA ============ */
+.menu__guia {
+  margin: 10px 0 14px;
+  padding: 11px 12px;
+  border: 1px solid #c8d8d0;
+  border-left: 4px solid var(--verde-territorio);
+  border-radius: 9px;
+  background: #f2f7f2;
+}
+.menu__guia h4 {
+  margin: 0 0 7px;
+  color: #244a35;
+  font-size: 0.78rem;
+}
+.menu__guia p {
+  margin: 5px 0 0;
+  color: #3e5145;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+.tipo-mapa__nota {
+  margin-top: 10px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  background: #f2f7f2;
+  color: #355344;
+  font-size: 0.73rem;
+  line-height: 1.45;
+}
+@media (max-width: 520px) {
+  .menu__guia { padding: 9px 10px; }
+  .menu__guia p { font-size: 0.72rem; }
+}
