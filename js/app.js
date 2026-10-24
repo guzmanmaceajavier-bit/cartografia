@@ -1807,6 +1807,48 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     vista.innerHTML = "<span>" + escapar(simbolo) + "</span><strong>" + escapar(campo.value || "Símbolo del lugar") + "</strong>";
   }
 
+  function agregarUbicacionAlFormularioTema() {
+    const cont = $("#ideaUbicacionesAdicionales");
+    if (!cont) return;
+    const n = cont.querySelectorAll(".idea-ubicacion-extra").length + 2;
+    const bloque = document.createElement("section");
+    bloque.className = "idea-ubicacion-extra";
+    bloque.style.cssText = "border:1px solid var(--borde,#d9e0e7);border-radius:12px;padding:14px;margin-top:12px";
+    bloque.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <h4>Ubicación adicional ${n}</h4>
+        <button type="button" class="btn btn--suave" data-quitar-ubicacion-tema>Quitar</button>
+      </div>
+      <label>Nombre del lugar
+        <input type="text" data-ubi-extra="nombre" placeholder="Ej.: kiosco de otra vereda">
+      </label>
+      <label>Municipio, vereda o zona específica
+        <input type="text" data-ubi-extra="lugar" placeholder="Ej.: Sahagún, Córdoba">
+      </label>
+      <label>Descripción de este lugar
+        <textarea rows="2" data-ubi-extra="descripcion" placeholder="¿Qué relación tiene este sitio con el tema?"></textarea>
+      </label>
+      <label>Fecha o periodo relacionado
+        <input type="text" data-ubi-extra="fecha" placeholder="Ej.: desde 2018, actualidad">
+      </label>
+      <label>Símbolo del lugar
+        <select data-ubi-extra="simbolo">${Object.keys(SIMBOLOS_CAMPO).map((nombre) => `<option value="${escapar(nombre)}">${escapar(SIMBOLOS_CAMPO[nombre])} — ${escapar(nombre)}</option>`).join("")}</select>
+      </label>
+      <div class="formulario__fila">
+        <label>Latitud<input type="number" step="any" min="-90" max="90" data-ubi-extra="lat" placeholder="8.6100"></label>
+        <label>Longitud<input type="number" step="any" min="-180" max="180" data-ubi-extra="lng" placeholder="-75.4698"></label>
+        <label>Precisión
+          <select data-ubi-extra="precision">
+            <option value="exacta">Exacta</option>
+            <option value="aproximada">Aproximada (zona general)</option>
+            <option value="sin">Sin ubicación en el mapa</option>
+          </select>
+        </label>
+      </div>`;
+    cont.appendChild(bloque);
+    bloque.querySelector("[data-quitar-ubicacion-tema]").addEventListener("click", () => bloque.remove());
+  }
+
   function abrirModalUbi(ideaId) {
     const idea = estado.ideas.find((i) => i.id === ideaId);
     if (!idea) return;
@@ -1816,6 +1858,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiNombre").value = "";
     $("#ubiLugar").value = idea.territorio || estado.config?.nombreTerritorio || "";
     $("#ubiDescripcion").value = "";
+    $("#ubiFecha").value = "";
     $("#ubiCategoria").value = idea.categoria || "lugares";
     $("#ubiSimboloCampo").value = "Sin símbolo específico";
     actualizarVistaPreviaSimbolo();
@@ -1830,6 +1873,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!idea) return;
     $("#modalIdeaTitulo").textContent = "Editar tema";
     $("#ideaPrimeraUbicacion").hidden = true;
+    $("#ideaUbicacionesAdicionales").innerHTML = "";
+    $("#ideaFecha").value = idea.fecha || "";
     $("#ideaId").value = idea.id;
     $("#ideaNombre").value = idea.nombre;
     $("#ideaDescripcion").value = idea.descripcion || "";
@@ -1861,6 +1906,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiIdeaId").value = ubi.ideaId;
     $("#ubiNombre").value = ubi.nombre;
     $("#ubiDescripcion").value = ubi.descripcion || "";
+    $("#ubiFecha").value = ubi.fecha || "";
     $("#ubiLugar").value = ubi.lugar || idea?.territorio || estado.config?.nombreTerritorio || "";
     $("#ubiCategoria").value = ubi.categoria || idea?.categoria || "lugares";
     $("#ubiSimboloCampo").value = simboloCampoDe(ubi);
@@ -1927,6 +1973,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (idea) {
         idea.nombre = nombre;
         idea.descripcion = $("#ideaDescripcion").value.trim();
+        idea.fecha = $("#ideaFecha").value.trim();
         idea.categoria = $("#ideaCategoria").value || "afectaciones";
         idea.territorio = $("#ideaTerritorio").value.trim();
         idea.color = $("#ideaColor").value;
@@ -1938,6 +1985,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         id: "idea-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
         nombre: nombre,
         descripcion: $("#ideaDescripcion").value.trim(),
+        fecha: $("#ideaFecha").value.trim(),
         categoria: $("#ideaCategoria").value || "afectaciones",
         territorio: $("#ideaTerritorio").value.trim(),
         color: $("#ideaColor").value || "#9B1C1C",
@@ -2048,6 +2096,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
                 <section class="tema-card__descripcion">
                   <h4>Sobre este tema</h4>
                   ${renderDescripcion(idea.descripcion, "tema-card__texto")}
+                  ${idea.fecha ? `<p class="tema-sitio__fecha"><strong>Fecha o periodo:</strong> ${escapar(idea.fecha)}</p>` : ""}
                 </section>
                 <section class="tema-card__sitios">
                   <div class="tema-card__seccion-titulo"><div><h4>Lugares vinculados</h4><p>Los sitios conservan sus propios símbolos y coordenadas.</p></div><span>${ubiCount}</span></div>
@@ -2066,6 +2115,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
                               <p class="tema-sitio__lugar">${escapar(ubi.lugar || idea.territorio || "Territorio por definir")}</p>
                               <span class="tema-sitio__categoria">${escapar(ubi.simboloCampo || (ubiCategoria ? ubiCategoria.seccion + ". " + ubiCategoria.nombre : "Sin componente"))}</span>
                               ${renderDescripcion(ubi.descripcion, "tema-sitio__descripcion")}
+                              ${ubi.fecha ? `<p class="tema-sitio__fecha"><strong>Fecha o periodo:</strong> ${escapar(ubi.fecha)}</p>` : ""}
                               <p class="tema-sitio__coordenadas ${tieneCoords ? "" : "tema-sitio__coordenadas--pendiente"}">${tieneCoords ? "⌖ " + Number(ubi.lat).toFixed(5) + ", " + Number(ubi.lng).toFixed(5) : "○ Sin coordenadas: no aparece en el mapa"}</p>
                             </div>
                             <div class="tema-sitio__acciones">
@@ -2357,6 +2407,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       nombre: $("#ubiNombre").value.trim() || "Ubicación sin nombre",
       lugar: $("#ubiLugar").value.trim(),
       descripcion: $("#ubiDescripcion").value.trim(),
+      fecha: $("#ubiFecha").value.trim(),
       categoria: $("#ubiCategoria").value || idea.categoria || "lugares",
       simboloCampo: $("#ubiSimboloCampo").value || "Sin símbolo específico",
       lat,
@@ -2703,6 +2754,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#btnExportarReflexion").addEventListener("click", descargarReflexion);
     $("#btnAyuda").addEventListener("click", () => abrirModal("modalAyuda"));
     $("#btnGuardarIdea").addEventListener("click", guardarIdea);
+    $("#btnIdeaAgregarUbicacion").addEventListener("click", agregarUbicacionAlFormularioTema);
     $("#btnGuardarUbi").addEventListener("click", guardarUbi);
     $("#ubiSimboloCampo").addEventListener("change", actualizarVistaPreviaSimbolo);
     $("#btnExportar").addEventListener("click", exportarTodo);
@@ -2881,6 +2933,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           $("#ideaUbiLat").value = "";
           $("#ideaUbiLng").value = "";
           $("#ideaPrimeraUbicacion").hidden = false;
+    $("#ideaUbicacionesAdicionales").innerHTML = "";
+    $("#ideaFecha").value = "";
           abrirModal("modalIdea");
           return;
         }
