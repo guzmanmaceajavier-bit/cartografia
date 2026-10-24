@@ -542,3 +542,13 @@ body.menu-oculto.info-oculta .aplicacion {
 .leyenda-iconos-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
 .leyenda-icono-item { display:flex; align-items:center; gap:7px; min-width:0; padding:7px; border:1px solid #e1e8ef; border-radius:8px; background:#fff; color:#344b62; font-size:.7rem; overflow-wrap:anywhere; }
 .leyenda-icono-muestra { display:grid; place-items:center; width:30px; height:30px; border-radius:8px; background:#f0f4f8; font-size:1.2rem; flex:0 0 30px; }
+
+
+/* Controles de panel: evitar pestañas sin efecto en escritorio */
+@media (min-width: 901px) {
+  .pestanas { display: none !important; }
+}
+/* La lectura debe mostrar contenido real al desplegarse */
+#tiraLectura.plegada .tira-lectura__cuerpo { display: none; }
+#tiraLectura:not(.plegada) .tira-lectura__cuerpo { display: block; }
+#tiraLectura:not(.plegada) .tira-lectura__rejilla { padding-top: 10px; }
