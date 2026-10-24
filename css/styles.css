@@ -1981,3 +1981,69 @@ body.dibujando .leaflet-container { cursor: crosshair; }
 .menu__guardado:first-child { color: var(--azul); font-weight: 700; }
 
 .menu__progreso { margin: 8px; }
+
+/* ============ RELACIONES ============ */
+
+.relacion-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: #fff; border: 1px solid var(--borde); border-radius: 6px; margin-bottom: 4px; }
+
+.rel-checkbox { flex: none; }
+
+.rel-nombre { flex: 1; font-size: 0.78rem; }
+
+.rel-tipo { flex: none; min-width: 140px; font-size: 0.7rem; padding: 3px 6px; border: 1px solid var(--borde); border-radius: 4px; background: #fff; }
+
+/* Relaciones en detalle */
+.relacionados-lista { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
+.relacion-detalle { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #fff; border: 1px solid var(--borde); border-radius: 6px; }
+
+.rel-tipo-badge { font-size: 0.62rem; font-weight: 700; white-space: nowrap; flex: none; }
+
+.relacion-detalle .btn { flex: none; }
+
+/* Relaciones en formulario */
+.relacion-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: #fff; border: 1px solid var(--borde); border-radius: 6px; margin-bottom: 4px; }
+
+.rel-checkbox { flex: none; }
+
+.rel-nombre { flex: 1; font-size: 0.78rem; }
+
+.rel-tipo { flex: none; min-width: 140px; font-size: 0.7rem; padding: 3px 6px; border: 1px solid var(--borde); border-radius: 4px; background: #fff; }
+
+/* ============ TIMELINE / LÍNEA DE TIEMPO ============ */
+
+.timeline { position: relative; padding-left: 24px; border-left: 2px solid var(--borde); margin: 12px 0; }
+
+.timeline-item { position: relative; padding: 8px 12px; margin-bottom: 12px; background: #fff; border: 1px solid var(--borde); border-radius: 8px; }
+
+.timeline-item::before { content: ""; position: absolute; left: -26px; top: 14px; width: 10px; height: 10px; border-radius: 50%; background: var(--azul-cartografico); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--azul-cartografico); }
+
+.timeline-item:last-child { border-left: 2px solid var(--azul-cartografico); padding-bottom: 24px; }
+
+.timeline-item:last-child::before { background: var(--terracota); border-color: var(--terracota); }
+
+.timeline-fecha { font-size: 0.68rem; font-weight: 700; color: var(--azul-cartografico); margin-bottom: 4px; }
+
+.timeline-titulo { font-weight: 700; color: var(--tinta); margin-bottom: 2px; }
+
+.timeline-desc { font-size: 0.74rem; color: var(--tinta-suave); line-height: 1.4; }
+
+/* ============ FUENTES REUTILIZABLES ============ */
+
+.fuente-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px; background: #fff; border: 1px solid var(--borde); border-radius: 8px; margin-bottom: 8px; }
+
+.fuente-icono { width: 32px; height: 32px; border-radius: 50%; background: var(--azul-cartografico); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex: none; }
+
+.fuente-info { flex: 1; }
+
+.fuente-nombre { font-weight: 700; font-size: 0.8rem; color: var(--tinta); margin-bottom: 2px; }
+
+.fuente-detalle { font-size: 0.72rem; color: var(--tinta-suave); line-height: 1.4; }
+
+.fuente-tipo { font-size: 0.65rem; font-weight: 700; color: var(--azul-cartografico); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.fuente-acciones { flex: none; display: flex; gap: 4px; }
+
+/* ============ LÍNEA DE TIEMPO EN MODAL ============ */
+
+.modal-timeline { max-height: 300px; overflow-y: auto; padding: 8px; }

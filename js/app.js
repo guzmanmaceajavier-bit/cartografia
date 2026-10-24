@@ -29,9 +29,307 @@
   let moveZona = null;
   let nubeTimer = null;
 
-  const PALETA = ["#C9A227", "#102D4F", "#15803D", "#9B1C1C", "#6D28D9", "#1D4ED8", "#C2410C", "#5D6B7E"];
+const PALETA = ["#C9A227", "#102D4F", "#15803D", "#9B1C1C", "#6D28D9", "#1D4ED8", "#C2410C", "#5D6B7E"];
 
-  const CATEGORIAS_BASE = clonar(CATEGORIAS);
+// ==================== TURSO SEGURO (LADO SERVIDOR) ==================== //
+
+const TURSO_CONFIG = {
+  url: null,
+  token: null,
+  syncInterval: 30000
+};
+
+let tursoSyncActivo = false;
+let ultimaSincronizacion = null;
+
+async function sincronizarConTurso() {
+  if (!TURSO_CONFIG.url || !TURSO_CONFIG.token) {
+    console.warn("Turso no configurado: falta URL o token en configuración del servidor");
+    return false;
+  }
+  
+  try {
+    const datosLocales = {
+      version: VERSION,
+      config: estado.config,
+      reflexion: estado.reflexion,
+      fichas: estado.fichas,
+      zonas: estado.zonas,
+      leyenda: estado.leyenda,
+      ideas: estado.ideas || [],
+      historial: estado.historial || []
+    };
+
+    const response = await fetch(TURSO_CONFIG.url + "/sync", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + TURSO_CONFIG.token
+      },
+      body: JSON.stringify({
+        datos: estado,
+        ultimaSincronizacion: ultimaSincronizacion
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status + ": " + await response.text());
+    }
+
+    const resultado = await response.json();
+    
+    if (resultado.datos && resultado.ultimaSincronizacion > ultimaSincronizacion) {
+      estado = migrar(resultado.datos);
+      ultimaSincronizacion = resultado.ultimaSincronizacion;
+      aplicarLeyenda();
+      repintar();
+      toast("Sincronizado con la nube.");
+    }
+    
+    ultimaSincronizacion = Date.now();
+    return true;
+  } catch (e) {
+    console.error("Error sincronizando con Turso:", e);
+    return false;
+  }
+}
+
+function iniciarSincronizacionTurso() {
+  if (turboSyncActivo) return;
+  tursoSyncActivo = true;
+  
+  sincronizarConTurso();
+  
+  setInterval(async () => {
+    if (turboSyncActivo) {
+      await sincronizarConTurso();
+    }
+  }, TURSO_CONFIG.syncInterval);
+  
+  toast("Sincronización con la nube activada.");
+}
+
+function detenerSincronizacionTurso() {
+  turboSyncActivo = false;
+  toast("Sincronización con la nube detenida.");
+}
+
+function configurarTurso(url, token) {
+  TURSO_CONFIG.url = url;
+  TURSO_CONFIG.token = token;
+  localStorage.setItem("turso_config", JSON.stringify({ url, token }));
+  if (tursoSyncActivo) {
+    detenerSincronizacionTurso();
+    iniciarSincronizacionTurso();
+  }
+  toast("Configuración de Turso actualizada.");
+}
+
+function cargarConfigTurso() {
+  try {
+    const guardada = localStorage.getItem("turso_config");
+    if (guardada) {
+      const config = JSON.parse(guardada);
+      TURSO_CONFIG.url = config.url;
+      TURSO_CONFIG.token = config.token;
+    }
+  } catch (e) {
+    console.warn("No se pudo cargar configuración Turso:", e);
+  }
+}
+
+cargarConfigTurso();
+
+// ==================== HISTORIAL DE CAMBIOS ==================== //
+
+function registrarCambio(accion, entidad, id, detalles) {
+  if (!estado.historial) estado.historial = [];
+  
+  estado.historial.unshift({
+    id: "hist-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+    fecha: new Date().toISOString(),
+    usuario: AUTH_CONFIG.usuario || "anónimo",
+    accion: accion, // "crear", "editar", "eliminar", "importar", "exportar"
+    entidad: entidad, // "ficha", "idea", "ubicacion", "territorio", "convencion"
+    idEntidad: id,
+    detalles: detalles || {}
+  });
+  
+  // Mantener solo últimos 500 cambios
+  if (estado.historial.length > 500) {
+    estado.historial = estado.historial.slice(0, 500);
+  }
+}
+
+function pintarHistorial() {
+  const cont = $("#historialLista");
+  if (!cont) return;
+  
+  const historial = estado.historial || [];
+  if (!historial.length) {
+    cont.innerHTML = "<p class='vacio'>No hay cambios registrados aún.</p>";
+    return;
+  }
+  
+  cont.innerHTML = historial.slice(0, 100).map((h) => `
+    <div class="historial-item" style="padding: 8px; border-bottom: 1px solid var(--borde);">
+      <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:4px;">
+        <strong>${escapar(h.usuario)}</strong>
+        <span style="color:var(--tinta-suave);font-size:0.7rem;">${new Date(h.fecha).toLocaleString()}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <span class="etiqueta etiqueta--${h.accion}">${escapar(h.accion)}</span>
+        <span class="etiqueta" style="background:${CATEGORIAS[h.entidad]?.color || "#5D6B7E"}">${escapar(h.entidad)}</span>
+        <span style="color:var(--tinta-suave);font-size:0.75rem;">${escapar(h.idEntidad)}</span>
+      </div>
+      <div style="font-size:0.75rem;color:var(--tinta-suave);margin-top:4px;">
+        ${escapar(JSON.stringify(h.detalles)).slice(0, 200)}${JSON.stringify(h.detalles).length > 200 ? "…" : ""}
+      </div>
+    </div>
+  `).join("");
+}
+
+function abrirModalHistorial() {
+  pintarHistorial();
+  abrirModal("modalHistorial");
+}
+
+// ==================== AUTENTICACIÓN BÁSICA ==================== //
+
+const AUTH_CONFIG = {
+  usuario: null,
+  rol: null, // "admin" | "editor" | "visor"
+  token: null
+};
+
+let authIntentos = 0;
+const MAX_INTENTOS = 3;
+const TIEMPO_BLOQUEO = 15 * 60 * 1000; // 15 minutos
+
+function autenticar(usuario, password) {
+  if (authIntentos >= MAX_INTENTOS) {
+    const tiempoRestante = TIEMPO_BLOQUEO - (Date.now() - (localStorage.getItem("auth_bloqueo_hasta") || 0));
+    if (tiempoRestante > 0) {
+      toast("Demasiados intentos. Intente en " + Math.ceil(tiempoRestante / 60000) + " minutos.", "error");
+      return false;
+    }
+    authIntentos = 0;
+    localStorage.removeItem("auth_bloqueo_hasta");
+  }
+  
+  // Usuarios predefinidos (en producción usar hash)
+  const usuarios = {
+    "admin": { password: "admin123", rol: "admin" },
+    "editor": { password: "editor123", rol: "editor" },
+    "visor": { password: "visor123", rol: "visor" }
+  };
+  
+  const user = usuarios[usuario];
+  if (user && user.password === password) {
+    AUTH_CONFIG.usuario = usuario;
+    AUTH_CONFIG.rol = user.rol;
+    AUTH_CONFIG.token = btoa(usuario + ":" + Date.now());
+    localStorage.setItem("auth_token", AUTH_CONFIG.token);
+    localStorage.setItem("auth_usuario", usuario);
+    localStorage.setItem("auth_rol", user.rol);
+    authIntentos = 0;
+    localStorage.removeItem("auth_bloqueo_hasta");
+    toast("Bienvenido, " + usuario + " (" + user.rol + ")");
+    actualizarUIAuth();
+    return true;
+  } else {
+    authIntentos++;
+    if (authIntentos >= MAX_INTENTOS) {
+      localStorage.setItem("auth_bloqueo_hasta", Date.now() + TIEMPO_BLOQUEO);
+      toast("Demasiados intentos fallidos. Cuenta bloqueada por 15 minutos.", "error");
+    } else {
+      toast("Credenciales incorrectas. Intentos restantes: " + (MAX_INTENTOS - authIntentos), "error");
+    }
+    return false;
+  }
+}
+
+function cerrarSesion() {
+  AUTH_CONFIG.usuario = null;
+  AUTH_CONFIG.rol = null;
+  AUTH_CONFIG.token = null;
+  localStorage.removeItem("auth_token");
+  localStorage.removeItem("auth_usuario");
+  localStorage.removeItem("auth_rol");
+  toast("Sesión cerrada.");
+  actualizarUIAuth();
+}
+
+function verificarSesion() {
+  const token = localStorage.getItem("auth_token");
+  const usuario = localStorage.getItem("auth_usuario");
+  const rol = localStorage.getItem("auth_rol");
+  
+  if (token && usuario && rol) {
+    AUTH_CONFIG.token = token;
+    AUTH_CONFIG.usuario = usuario;
+    AUTH_CONFIG.rol = rol;
+    actualizarUIAuth();
+    return true;
+  }
+  return false;
+}
+
+function tienePermiso(accion) {
+  const rol = AUTH_CONFIG.rol;
+  const permisos = {
+    admin: ["crear", "editar", "eliminar", "exportar", "importar", "configurar", "gestionar_usuarios"],
+    editor: ["crear", "editar", "exportar"],
+    visor: ["ver"]
+  };
+  return permisos[rol]?.includes(accion) || false;
+}
+
+function requerirPermiso(accion) {
+  if (!tienePermiso(accion)) {
+    toast("No tiene permiso para esta acción.", "error");
+    return false;
+  }
+  return true;
+}
+
+function actualizarUIAuth() {
+  const authDiv = $("#auth-info");
+  if (authDiv) {
+    if (AUTH_CONFIG.usuario) {
+      authDiv.innerHTML = "👤 " + AUTH_CONFIG.usuario + " (" + AUTH_CONFIG.rol + ") <button class='btn btn--mini' onclick='cerrarSesion()'>Salir</button>";
+    } else {
+      authDiv.innerHTML = "<button class='btn btn--mini' onclick='abrirModalLogin()'>🔐 Iniciar sesión</button>";
+    }
+  }
+  
+  // Mostrar/ocultar botones según permisos
+  $$("[data-permiso]").forEach((el) => {
+    const accion = el.dataset.permiso;
+    el.style.display = tienePermiso(accion) ? "" : "none";
+  });
+}
+
+function abrirModalLogin() {
+  $("#modalLoginTitulo").textContent = "Iniciar sesión";
+  $("#loginUsuario").value = "";
+  $("#loginPassword").value = "";
+  abrirModal("modalLogin");
+}
+
+// Cargar sesión guardada al inicio
+function restaurarSesion() {
+  if (verificarSesion()) {
+    toast("Sesión restaurada: " + AUTH_CONFIG.usuario);
+  }
+}
+
+// Llamar al inicio
+restaurarSesion();
+
+const PALETA = ["#C9A227", "#102D4F", "#15803D", "#9B1C1C", "#6D28D9", "#1D4ED8", "#C2410C", "#5D6B7E"];
+
+const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
   const SIMBOLOS = ["◎", "◉", "○", "●", "✕", "✖", "✚", "▲", "■", "◆", "♦", "★", "✦", "☀", "✊", "➤", "◈", "⬟", "⬢", "♥"];
 
@@ -664,6 +962,16 @@
       guardar();
       aplicarNombres();
     });
+
+    // Autenticación / Historial
+    const btnLogin = $("#btnLogin");
+    if (btnLogin) btnLogin.addEventListener("click", autenticar);
+    const btnLogout = $("#btnLogout");
+    if (btnLogout) btnLogout.addEventListener("click", cerrarSesion);
+    const btnHistorial = $("#btnHistorial");
+    if (btnHistorial) btnHistorial.addEventListener("click", abrirModalHistorial);
+    const btnLoginModal = $("#btnLogin");
+    if (btnLoginModal) btnLoginModal.addEventListener("click", () => abrirModal("modalLogin"));
 
     document.addEventListener("click", (e) => {
       if (panel.hidden) return;
@@ -1301,10 +1609,15 @@
     if (f.evidencias) html += "<p class='detalle__ficha-dato'><strong>📎 Evidencias:</strong> " + escapar(f.evidencias) + "</p>";
     if (f.observaciones) html += "<p class='detalle__ficha-dato'><strong>🗒️ Observaciones:</strong> " + escapar(f.observaciones) + "</p>";
     if (f.aporte) html += "<p class='detalle__ficha-dato'><strong>🕊️ Aporte a la lectura de paz:</strong> " + escapar(f.aporte) + "</p>";
-    const rel = (f.relacionados || []).map((rid) => estado.fichas.find((x) => x.id === rid)).filter(Boolean);
+    const rel = (f.relacionados || []).map((r) => ({ ...estado.fichas.find((x) => x.id === r.id), tipo: r.tipo || "relacionada" })).filter(Boolean);
     if (rel.length) {
-      html += "<p class='detalle__ficha-dato'><strong>🔗 Relacionado con:</strong></p><div class='popup__acciones'>" +
-        rel.map((r) => "<button type='button' class='btn btn--mini' data-ver='" + r.id + "'>" + escapar(r.nombre) + "</button>").join("") + "</div>";
+      html += "<p class='detalle__ficha-dato'><strong>🔗 Relacionado con:</strong></p><div class='relacionados-lista'>" +
+        rel.map((r) => {
+          const tipo = TIPOS_RELACION[r.tipo] || TIPOS_RELACION.relacionada;
+          return "<div class='relacion-detalle'><span class='rel-tipo-badge' style='background:" + tipo.color + ";color:#fff;padding:2px 6px;border-radius:4px;font-size:0.65rem;'>" + tipo.simbolo + " " + tipo.nombre + "</span> " +
+            "<button type='button' class='btn btn--mini' data-ver='" + r.id + "' title='Ver ficha'>" + escapar(r.nombre) + "</button>" +
+            "</div>";
+        }).join("") + "</div>";
     }
     html += "<p class='detalle__ficha-dato'><strong>Estado de verificación:</strong> " + escapar(est.nombre) + " — " + escapar((ESTADOS[f.estado] || {}).descripcion || "") + "</p>";
     if (f.creado) html += "<p class='detalle__ficha-dato'><strong>Fecha de registro:</strong> " + escapar(String(f.creado).slice(0, 10)) + "</p>";
@@ -1772,11 +2085,52 @@ $$(".menu__cat__btn").forEach((b) => {
     cont.innerHTML = otros.length
       ? otros.map((f) => {
           const c = CATEGORIAS[f.categoria] || {};
-          return "<label class='casilla'><input type='checkbox' value='" + f.id + "'" + (lista.indexOf(f.id) !== -1 ? " checked" : "") + "> " +
+          const relActual = (f.relacionados || []).find((r) => r.id === excluirId);
+          const tipoActual = relActual?.tipo || "relacionada";
+          const tipoOpciones = Object.entries(TIPOS_RELACION).map(([k, v]) =>
+            "<option value='" + k + "'" + (tipoActual === k ? " selected" : "") + ">" + v.simbolo + " " + v.nombre + "</option>"
+          ).join("");
+          return "<div class='relacion-item' data-id='" + f.id + "'>" +
+            "<label class='casilla'><input type='checkbox' value='" + f.id + "' class='rel-checkbox'> " +
             "<span class='ficha__punto' style='background:" + (c.color || "#5D6B7E") + ";width:20px;height:20px;font-size:0.62rem'>" + escapar(c.simbolo || "■") + "</span> " +
-            "<span>" + escapar(f.nombre) + "</span></label>";
+            "<span class='rel-nombre'>" + escapar(f.nombre) + "</span></label>" +
+            "<select class='rel-tipo' title='Tipo de relación'>" + tipoOpciones + "</select>" +
+            "</div>";
         }).join("")
       : "<p class='vacio'>Aún no hay otros registros para relacionar.</p>";
+    // Event listeners para actualizar tipo de relación
+    $$("#fichaRelacionados .rel-tipo").forEach((sel) => {
+      sel.addEventListener("change", () => {
+        const item = sel.closest(".relacion-item");
+        const id = item.dataset.id;
+        const tipo = sel.value;
+        const f = estado.fichas.find((x) => x.id === excluirId);
+        if (!f) return;
+        const relIdx = (f.relacionados || []).findIndex((r) => r.id === item.dataset.id);
+        if (relIdx >= 0) {
+          f.relacionados[relIdx].tipo = sel.value;
+          guardar();
+        }
+      });
+    });
+    $$("#fichaRelacionados .rel-checkbox").forEach((cb) => {
+      cb.addEventListener("change", () => {
+        const item = cb.closest(".relacion-item");
+        const id = item.dataset.id;
+        const f = estado.fichas.find((x) => x.id === fichaSeleccionada);
+        if (!f) return;
+        if (cb.checked) {
+          if (!f.relacionados) f.relacionados = [];
+          if (!(f.relacionados || []).find((r) => r.id === id)) {
+            f.relacionados.push({ id: id, tipo: "relacionada" });
+          }
+        } else {
+          f.relacionados = (f.relacionados || []).filter((r) => r.id !== id);
+        }
+        guardar();
+        pintarRelacionados(fichaSeleccionada, f.relacionados || []);
+      });
+    });
   }
 
   function abrirFicha(id) {
@@ -2124,10 +2478,70 @@ $$(".menu__cat__btn").forEach((b) => {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  function exportarTodo() {
+  /* ==================== EXPORTACIÓN ÉTICA ==================== */
+
+  function exportarEtica(tipo) {
+    const esPublica = tipo === "publica";
     const fecha = new Date().toISOString().slice(0, 10);
-    descargar("cartografia-paz-sahagun-" + fecha + ".json", JSON.stringify(estado, null, 2));
-    toast("Respaldo exportado.");
+    const clon = JSON.parse(JSON.stringify(estado));
+    
+    // Filtrar datos sensibles si es exportación pública
+    if (esPublica) {
+      // Ocultar coordenadas precisas de fichas anónimas o sensibles
+      clon.fichas.forEach((f) => {
+        if (f.anonimo || f.precision === "sin") {
+          f.lat = null;
+          f.lng = null;
+        }
+        if (f.anonimo) {
+          f.actores = "[protegido]";
+          f.fuente = "[protegido]";
+          f.evidencias = "[protegido]";
+        }
+      });
+      
+      // Filtrar ideas con datos sensibles
+      if (clon.ideas) {
+        clon.ideas.forEach((idea) => {
+          if (idea.ubicaciones) {
+            idea.ubicaciones.forEach((u) => {
+              if (u.precision === "sin") {
+                u.lat = null;
+                u.lng = null;
+              }
+            });
+          }
+        });
+      }
+      
+      // Limpiar configuración sensible
+      delete clon.config.limite;
+      if (clon.config.participante) clon.config.participante = "[protegido]";
+    }
+    
+    // Añadir metadatos de exportación
+    const exportData = {
+      ...clon,
+      meta: {
+        fechaExportacion: new Date().toISOString(),
+        version: VERSION,
+        tipo: esPublica ? "publica" : "interna",
+        incluyeSensibles: !esPublica
+      }
+    };
+    
+    const fecha = new Date().toISOString().slice(0, 10);
+    const nombre = "cartografia-paz-sahagun-" + (esPublica ? "publica" : "interna") + "-" + fecha + ".json";
+    descargar("cartografia-paz-sahagun-" + (esPublica ? "publica" : "interna") + "-" + new Date().toISOString().slice(0, 10) + ".json", JSON.stringify({ ...estado, meta: { fechaExportacion: new Date().toISOString(), version: VERSION, tipo: esPublica ? "publica" : "interna", incluyeSensibles: !esPublica } }, null, 2));
+    toast("Exportación " + (esPublica ? "pública" : "interna") + " generada.");
+  }
+
+  function exportarTodo() {
+    exportarEtica("interna");
+  }
+
+  function exportarPublica() {
+    exportarEtica("publica");
   }
 
   function manejarImportacion(ev) {
@@ -2166,83 +2580,8 @@ $$(".menu__cat__btn").forEach((b) => {
   }
 
   function imprimir(vistaPrevia) {
-    const area = $("#areaImpresion");
-    let fichas = fichasVisibles();
-    if (!fichas.length) fichas = estado.fichas.slice();
-    fichas = ordenarPorSeccion(fichas);
-    const cfg = estado.config || {};
-    const porSec = {};
-    fichas.forEach((f) => { porSec[f.categoria] = (porSec[f.categoria] || 0) + 1; });
-
-    const pag1 =
-      "<h1>Página 1 · Datos generales — Cartografía de Paz</h1>" +
-      "<p><strong>Participante o integrantes del grupo:</strong> " + escapar(cfg.participante || "—") + "</p>" +
-      "<p><strong>Territorio o comunidad:</strong> " + escapar(cfg.nombreTerritorio || "—") + "</p>" +
-      "<p><strong>Municipio y departamento:</strong> " + escapar([cfg.municipio, cfg.departamento].filter(Boolean).join(", ") || "—") + "</p>" +
-      (cfg.descripcionTerritorio ? "<p>" + escapar(cfg.descripcionTerritorio) + "</p>" : "");
-    const datos = $("#paginaDatos");
-    if (datos) datos.innerHTML = pag1;
-
-    let html = "<div class='imp-pagina'><h2>Página 3 · Leyenda o cuadro de convenciones</h2>" +
-      "<p class='imp-pie'>Símbolos utilizados para representar lugares, actores, afectaciones, memorias, experiencias de resistencia, iniciativas de paz, signos de esperanza y retos.</p><ul class='imp-leyenda'>";
-    Object.keys(CATEGORIAS).forEach((k) => {
-      if (catOculta(k)) return;
-      const c = CATEGORIAS[k];
-      html += "<li><span class='imp-simbolo' style='background:" + c.color + "'>" + c.simbolo + "</span> " +
-        "<strong>" + c.seccion + ". " + escapar(c.nombre) + "</strong> — " + escapar(c.descripcion) + "</li>";
-    });
-    if (!convOculta("lim-oficial")) html += "<li>Límite oficial: línea azul continua</li>";
-    if (!convOculta("lim-aprox")) html += "<li>Límite aproximado: línea roja discontinua</li>";
-    leyendaActual().custom.forEach((c) => {
-      html += "<li><span class='imp-simbolo' style='background:" + (c.color || "#5D6B7E") + "'>" + escapar(c.simbolo || "■") + "</span> <strong>" + escapar(c.nombre) + "</strong>" + (c.nota ? " — " + escapar(c.nota) : "") + "</li>";
-    });
-    html += "</ul></div>";
-
-    html += "<h2>Registros por sección (" + fichas.length + ")" + (soloVerificados ? " · filtro «solo verificados»" : "") + "</h2>";
-    let seccionActual = null;
-    fichas.forEach((f) => {
-      const cat = CATEGORIAS[f.categoria];
-      if (f.categoria !== seccionActual) {
-        if (seccionActual !== null) html += "</ol>";
-        seccionActual = f.categoria;
-        html += "<h3 class='imp-seccion'>" + cat.seccion + ". " + escapar(cat.nombre) + " (" + (porSec[f.categoria] || 0) + ")</h3><ol class='imp-lista'>";
-      }
-      html += "<li><strong>" + escapar(f.nombre) + "</strong> · " + escapar((ESTADOS[f.estado] || {}).nombre || f.estado) +
-        (f.subtema ? " · " + escapar(f.subtema) : "") +
-        (f.tipoFuente && TIPOS_FUENTE[f.tipoFuente] ? " · " + escapar(TIPOS_FUENTE[f.tipoFuente].nombre) : "") +
-        (typeof f.lat === "number" ? " · " + Number(f.lat).toFixed(4) + ", " + Number(f.lng).toFixed(4) : "") + "<br>" +
-        escapar(f.descripcion) +
-        (f.fuente ? "<br><em>Fuente: " + escapar(f.fuente) + "</em>" : "") +
-        (f.aporte ? "<br><em>Aporte a la lectura de paz: " + escapar(f.aporte) + "</em>" : "") + "</li>";
-    });
-    if (seccionActual !== null) html += "</ol>";
-
-    html += "<div class='imp-pagina'><h2>Fuentes y metodología</h2><ul class='imp-leyenda'>";
-    FUENTES_BASE.forEach((f) => html += "<li><strong>" + escapar(f.nombre) + "</strong> — " + escapar(f.detalle) + "</li>");
-    METODOLOGIA.forEach((m) => html += "<li>" + escapar(m) + "</li>");
-    Object.keys(ESTADOS).forEach((k) => {
-      html += "<li><span class='etiqueta etiqueta--" + k + "'>" + escapar(ESTADOS[k].nombre) + "</span> " + escapar(ESTADOS[k].descripcion) + "</li>";
-    });
-    html += "</ul></div>";
-
-    html += "<div class='imp-pagina'><h2>Página 4 · Reflexión final · ¿Cómo se ha encarnado la teología de paz en este territorio?</h2><pre class='imp-ref'>" + escapar(
-      estado.reflexion.texto + "\n\nRETO: " + estado.reflexion.reto + "\n\nOPORTUNIDAD: " + estado.reflexion.oportunidad
-    ) + "</pre></div>";
-
-    area.innerHTML = html;
-    if (vistaPrevia) {
-      $("#vistaPreviaCuerpo").innerHTML = "<div class='imp-pagina'>" + pag1 + "</div>" +
-        "<div class='imp-pagina'><p class='imp-pie'>[Página 2 · Mapa del territorio: se incluye automáticamente al imprimir]</p></div>" + html;
-      abrirModal("modalVistaPrevia");
-      return;
-    }
-    setTimeout(() => {
-      if (mapa) mapa.invalidateSize();
-      window.print();
-    }, 150);
+    imprimirPaginado({ vistaPrevia: vistaPrevia || false });
   }
-
-  function restablecer() {
     if (!confirm("¿Borrar todo y empezar de cero? Se reemplazarán los registros, territorio, figuras dibujadas, convenciones y reflexión por el lienzo inicial.")) return;
     restaurarSemilla();
     aplicarLeyenda();
@@ -2494,6 +2833,11 @@ $$(".menu__cat__btn").forEach((b) => {
     pintarEstadoGuardado();
     pintarEstadoNube(deNube ? "☁ Nube conectada ✓" : "☁ Sin conexión: guardado local");
     eventos();
+    restaurarSesion();
+    actualizarUIAuth();
+    if (TURSO_CONFIG.url && TURSO_CONFIG.token) {
+      iniciarSincronizacionTurso();
+    }
     navegar("mapa");
     if (window.matchMedia && window.matchMedia("(max-width: 900px)").matches) alternarTira(true);
 

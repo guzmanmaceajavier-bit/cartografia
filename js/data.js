@@ -68,6 +68,20 @@ const ESTADOS = {
   pendiente: { nombre: "Pendiente", descripcion: "Información que aún debe confirmarse con observación o fuentes." }
 };
 
+const TIPOS_RELACION = {
+  respuesta: { nombre: "Respuesta a", descripcion: "Acción o iniciativa que responde a esta afectación", color: "#15803D", simbolo: "↪" },
+  relacionada: { nombre: "Relacionado con", descripcion: "Conexión temática o contextual", color: "#1D4ED8", simbolo: "↔" },
+  causa: { nombre: "Causa de", descripcion: "Factor que originó esta situación", color: "#9B1C1C", simbolo: "→" },
+  consecuencia: { nombre: "Consecuencia de", descripcion: "Resultado o efecto derivado", color: "#C2410C", simbolo: "←" },
+  ubicacion: { nombre: "Ubicación de", descripcion: "Lugar donde ocurre el hecho", color: "#102D4F", simbolo: "📍" },
+  parte: { nombre: "Parte de", descripcion: "Componente o componente de un todo mayor", color: "#6D28D9", simbolo: "⊂" },
+  contiene: { nombre: "Contiene a", descripcion: "Incluye o abarca este elemento", color: "#6D28D9", simbolo: "⊃" },
+  sucede: { nombre: "Sucede en", descripcion: "Evento que ocurre en este lugar", color: "#0E7490", simbolo: "📍" },
+  involucra: { nombre: "Involucra a", descripcion: "Actor o grupo que participa", color: "#1D4ED8", simbolo: "👥" },
+  documenta: { nombre: "Documenta", descripcion: "Fuente que registra este hecho", color: "#0E7490", simbolo: "📄" },
+  opone: { nombre: "Se opone a", descripcion: "Resistencia o rechazo a esta situación", color: "#C2410C", simbolo: "✊" }
+};
+
 const TIPOS_FUENTE = {
   observacion: { nombre: "Observación directa", descripcion: "Registro propio a partir de la visita o observación del territorio." },
   testimonio: { nombre: "Testimonio autorizado", descripcion: "Relato oral de personas de la comunidad, recogido con consentimiento." },
@@ -86,13 +100,17 @@ const METODOLOGIA = [
 ];
 
 const FUENTES_BASE = [
-  { nombre: "Guía «Huellas del conflicto y de la violencia» (trabajo del módulo)", detalle: "Documento de la consigna: huellas del conflicto, actores del territorio y memorias y lugares significativos, con sus subtemas (despojo, barrios de la violencia, amenazas a líderes, violencias de género, pago de vacunas, entre otros)." },
-  { nombre: "Límite municipal de Sahagún", detalle: "OpenStreetMap (relación administrativa de Sahagún, Córdoba), descargada vía Nominatim." },
-  { nombre: "Módulo Teología de la Paz en Colombia", detalle: "La Experiencia de Justapaz: marco conceptual de la cartografía." },
-  { nombre: "Alerta Temprana N.º 011 de 2024", detalle: "Defensoría del Pueblo de Colombia: riesgo por la expansión territorial del Frente Javier Yepes Cantero (AGC) en Sahagún y corredores viales a Chinú, Ciénaga de Oro y San Andrés de Sotavento." },
-  { nombre: "Verificación de hechos del conflicto", detalle: "Informes de la JEP, la Comisión de la Verdad y el Centro de Memoria Histórica (referencias regionales y nacionales por contrastar con el caso de Sahagún)." },
-  { nombre: "Datos de población y desplazamiento", detalle: "DANE y Unidad de Víctimas (por contrastar con cifras municipales)." },
-  { nombre: "Prensa regional y nacional", detalle: "Artículos sobre la Ciudadela de la Convivencia, la justicia transicional y el sur de Córdoba." }
+  { nombre: "Guía «Huellas del conflicto y de la violencia» (trabajo del módulo)", detalle: "Documento de la consigna: huellas del conflicto, actores del territorio y memorias y lugares significativos, con sus subtemas (despojo, barrios de la violencia, amenazas a líderes, violencias de género, pago de vacunas, entre otros).", tipo: "documento" },
+  { nombre: "Límite municipal de Sahagún", detalle: "OpenStreetMap (relación administrativa de Sahagún, Córdoba), descargada vía Nominatim.", tipo: "oficial" },
+  { nombre: "Módulo Teología de la Paz en Colombia", detalle: "La Experiencia de Justapaz: marco conceptual de la cartografía.", tipo: "documento" },
+  { nombre: "Alerta Temprana N.º 011 de 2024", detalle: "Defensoría del Pueblo de Colombia: riesgo por la expansión territorial del Frente Javier Yepes Cantero (AGC) en Sahagún y corredores viales a Chinú, Ciénaga de Oro y San Andrés de Sotavento.", tipo: "oficial" },
+  { nombre: "Verificación de hechos del conflicto", detalle: "Informes de la JEP, la Comisión de la Verdad y el Centro de Memoria Histórica (referencias regionales y nacionales por contrastar con el caso de Sahagún).", tipo: "documento" },
+  { nombre: "Datos de población y desplazamiento", detalle: "DANE y Unidad de Víctimas (por contrastar con cifras municipales).", tipo: "oficial" },
+  { nombre: "Prensa regional y nacional", detalle: "Artículos sobre la Ciudadela de la Convivencia, la justicia transicional y el sur de Córdoba.", tipo: "prensa" }
+];
+
+const FUENTES_PERSONALIZADAS = [
+  // Se llenan dinámicamente por el usuario
 ];
 
 const SIMBOLOS_CAMPO = {
