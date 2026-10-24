@@ -1679,8 +1679,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         "</div>";
     });
 
-    html += "<div class='leyenda-grupo-titulo leyenda-grupo-titulo--iconos'>Iconos de lugares del mapa</div>" +
-      "<p class='leyenda-ayuda-iconos'>El mismo icono aparece en el punto correspondiente del mapa. El color del marcador identifica la categoría.</p>" +
+    html += "<div class='leyenda-grupo-titulo leyenda-grupo-titulo--iconos'>B. Símbolos según el tipo de lugar</div>" +
+      "<p class='leyenda-ayuda-iconos'>Estos iconos identifican el tipo de sitio (por ejemplo, escuela o finca). El color del punto indica la categoría temática; icono y color comunican información diferente.</p>" +
       "<div class='leyenda-iconos-grid'>";
     const simbolos = (typeof SIMBOLOS_CAMPO !== "undefined" && SIMBOLOS_CAMPO) ? SIMBOLOS_CAMPO : {};
     const entradas = Object.entries(simbolos);
@@ -1693,7 +1693,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const personalizados = [...new Set(base.map((f) => (f.simboloCampo || "").trim()).filter(Boolean))]
       .filter((s) => !entradas.some(([, icono]) => icono === s));
     personalizados.forEach((simbolo) => {
-      html += "<div class='leyenda-icono-item'><span class='leyenda-icono-muestra'>" + escapar(simbolo) + "</span><span>Icono personalizado</span></div>";
+      html += "<div class='leyenda-icono-item'><span class='leyenda-icono-muestra' aria-hidden='true'>" + escapar(simbolo) + "</span><span class='leyenda-icono-texto'><strong>Icono personalizado</strong><small>Símbolo definido para uno o más registros</small></span></div>";
     });
     if (!entradas.length && !personalizados.length) {
       html += "<p class='leyenda-ayuda-iconos'>Los registros sin icono específico usan el símbolo de su categoría.</p>";
