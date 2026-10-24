@@ -1376,6 +1376,27 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           ((u.lugar || idea.territorio) ? "<p><strong>Zona:</strong> " + escapar(u.lugar || idea.territorio) + "</p>" : "") +
           (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : ""));
         marcadores["ubi:" + u.id] = m;
+
+        // Puntos secundarios asociados a una misma ubicación narrativa.
+        (u.puntos || []).forEach((p) => {
+          if (typeof p.lat !== "number" || typeof p.lng !== "number" || p.precision === "sin") return;
+          const nombrePunto = p.nombre || "Punto adicional";
+          const simboloPunto = SIMBOLOS_CAMPO[p.simboloCampo] || "📍";
+          const iconoPunto = L.divIcon({
+            className: "marcador-narrativa marcador-narrativa--secundario",
+            html: "<span title='" + escapar(nombrePunto) + "' style='display:flex;align-items:center;justify-content:center;width:30px;height:30px;border:2px solid #fff;border-radius:50%;background:" + cat.color + ";color:#fff;font-size:16px;font-weight:700;box-shadow:0 1px 5px #0005'>" + escapar(simboloPunto) + "</span>",
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+          });
+          const clavePunto = "ubi:" + u.id + ":punto:" + p.id;
+          const mp = L.marker([p.lat, p.lng], { icon: iconoPunto, ubiId: u.id, puntoId: p.id });
+          mp.addTo(capaMarcadores);
+          mp.bindTooltip(escapar(nombrePunto), { permanent: true, direction: "top", offset: [0, -16], className: "etiqueta-nombre", opacity: 1 });
+          mp.bindPopup("<strong>" + escapar(nombrePunto) + "</strong><br><span>" + escapar(idea.nombre) + " · " + escapar(u.nombre) + "</span>" +
+            ((p.lugar || u.lugar || idea.territorio) ? "<p><strong>Zona:</strong> " + escapar(p.lugar || u.lugar || idea.territorio) + "</p>" : "") +
+            (p.descripcion ? "<p>" + escapar(p.descripcion) + "</p>" : ""));
+          marcadores[clavePunto] = mp;
+        });
       });
     });
     aplicarNombres();
@@ -1865,7 +1886,57 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiLat").value = "";
     $("#ubiLng").value = "";
     $("#ubiPrecision").value = "exacta";
+    $("#ubiPuntosAdicionales").innerHTML = "";
     abrirModal("modalUbi");
+  }
+
+  function crearPuntoAdicionalUbi(punto = {}) {
+    const cont = $("#ubiPuntosAdicionales");
+    if (!cont) return;
+    const bloque = document.createElement("section");
+    bloque.className = "ubi-punto-adicional";
+    bloque.style.cssText = "border:1px solid var(--borde,#d9e0e7);border-radius:10px;padding:12px;margin:10px 0";
+    bloque.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <h4 style="margin:0">Punto adicional</h4>
+        <button type="button" class="btn btn--suave" data-quitar-punto-ubi>Quitar punto</button>
+      </div>
+      <label>Nombre del sitio
+        <input type="text" data-punto-ubi="nombre" placeholder="Ej.: banco del centro, colegio, finca">
+      </label>
+      <label>Zona o dirección
+        <input type="text" data-punto-ubi="lugar" placeholder="Ej.: barrio Centro, vereda">
+      </label>
+      <label>Descripción
+        <textarea rows="2" data-punto-ubi="descripcion" placeholder="Relación de este sitio con el tema"></textarea>
+      </label>
+      <label>Símbolo del sitio
+        <select data-punto-ubi="simboloCampo">
+          <option value="">Usar símbolo 📍</option>
+          ${Object.keys(SIMBOLOS_CAMPO).map((nombre) => `<option value="${escapar(nombre)}">${escapar(SIMBOLOS_CAMPO[nombre])} — ${escapar(nombre)}</option>`).join("")}
+        </select>
+      </label>
+      <div class="formulario__fila">
+        <label>Latitud<input type="number" step="any" min="-90" max="90" data-punto-ubi="lat" placeholder="8.6100"></label>
+        <label>Longitud<input type="number" step="any" min="-180" max="180" data-punto-ubi="lng" placeholder="-75.4698"></label>
+        <label>Precisión
+          <select data-punto-ubi="precision">
+            <option value="exacta">Exacta</option>
+            <option value="aproximada">Aproximada</option>
+            <option value="sin">Sin ubicación en el mapa</option>
+          </select>
+        </label>
+      </div>`;
+    bloque.querySelector('[data-punto-ubi="nombre"]').value = punto.nombre || "";
+    bloque.querySelector('[data-punto-ubi="lugar"]').value = punto.lugar || "";
+    bloque.querySelector('[data-punto-ubi="descripcion"]').value = punto.descripcion || "";
+    bloque.querySelector('[data-punto-ubi="simboloCampo"]').value = punto.simboloCampo || "";
+    bloque.querySelector('[data-punto-ubi="lat"]').value = punto.lat ?? "";
+    bloque.querySelector('[data-punto-ubi="lng"]').value = punto.lng ?? "";
+    bloque.querySelector('[data-punto-ubi="precision"]').value = punto.precision || "exacta";
+    if (punto.id) bloque.dataset.puntoId = punto.id;
+    bloque.querySelector("[data-quitar-punto-ubi]").addEventListener("click", () => bloque.remove());
+    cont.appendChild(bloque);
   }
 
   function abrirModalEditarIdea(ideaId) {
@@ -1915,6 +1986,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiLng").value = ubi.lng ?? "";
     $("#ubiPrecision").value = ubi.precision || "exacta";
     $("#ubiId").value = ubi.id;
+    $("#ubiPuntosAdicionales").innerHTML = "";
+    (ubi.puntos || []).forEach((p) => crearPuntoAdicionalUbi(p));
     abrirModal("modalUbi");
   }
 
@@ -2431,6 +2504,39 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       return;
     }
 
+    const puntos = [];
+    for (const bloque of $("#ubiPuntosAdicionales .ubi-punto-adicional")) {
+      const valor = (campo) => bloque.querySelector('[data-punto-ubi="' + campo + '"]').value.trim();
+      const latPTexto = valor("lat");
+      const lngPTexto = valor("lng");
+      const latP = latPTexto === "" ? null : Number(latPTexto);
+      const lngP = lngPTexto === "" ? null : Number(lngPTexto);
+      const nombreP = valor("nombre");
+      if (!nombreP && latP === null && lngP === null && !valor("lugar") && !valor("descripcion")) continue;
+      if ((latP === null) !== (lngP === null)) {
+        toast("En cada punto adicional debes ingresar latitud y longitud, o dejar ambas vacías.", "error");
+        return;
+      }
+      if (latP !== null && (!Number.isFinite(latP) || latP < -90 || latP > 90)) {
+        toast("La latitud de un punto adicional debe estar entre -90 y 90.", "error");
+        return;
+      }
+      if (lngP !== null && (!Number.isFinite(lngP) || lngP < -180 || lngP > 180)) {
+        toast("La longitud de un punto adicional debe estar entre -180 y 180.", "error");
+        return;
+      }
+      puntos.push({
+        id: bloque.dataset.puntoId || ("punto-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)),
+        nombre: nombreP || "Punto adicional",
+        lugar: valor("lugar"),
+        descripcion: valor("descripcion"),
+        simboloCampo: valor("simboloCampo"),
+        lat: latP,
+        lng: lngP,
+        precision: valor("precision") || "exacta"
+      });
+    }
+
     const datos = {
       nombre: $("#ubiNombre").value.trim() || "Ubicación sin nombre",
       lugar: $("#ubiLugar").value.trim(),
@@ -2441,6 +2547,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       lat,
       lng,
       precision: $("#ubiPrecision").value,
+      puntos,
       creado: new Date().toISOString()
     };
 
@@ -2784,6 +2891,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#btnGuardarIdea").addEventListener("click", guardarIdea);
     $("#btnIdeaAgregarUbicacion").addEventListener("click", agregarUbicacionAlFormularioTema);
     $("#btnGuardarUbi").addEventListener("click", guardarUbi);
+    $("#btnUbiAgregarPunto").addEventListener("click", () => crearPuntoAdicionalUbi());
     $("#ubiSimboloCampo").addEventListener("change", actualizarVistaPreviaSimbolo);
     $("#btnExportar").addEventListener("click", exportarTodo);
     $("#btnImportar").addEventListener("click", () => $("#archivoImportar").click());
