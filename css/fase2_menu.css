@@ -260,9 +260,8 @@
   width: clamp(170px, 20vw, 280px);
   max-width: 100%;
 }
-body:not([data-seccion="mapa"]) .pestanas { display: none; }
 .pestanas {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 6px;
   padding: 7px 12px;
@@ -341,7 +340,7 @@ body.menu-oculto.info-oculta .aplicacion {
   .cabecera__acciones #btnNueva { flex: 0 0 auto; }
   .principal { width: 100%; }
   .principal__btn { padding: 8px 10px; }
-  .pestanas { overflow-x: auto; padding: 6px 8px; }
+  body[data-seccion="mapa"] .pestanas { display: flex; overflow-x: auto; padding: 6px 8px; }
   .pestanas__btn { flex: 0 0 auto; }
   body[data-seccion="mapa"] .aplicacion { display: flex !important; flex-direction: column !important; min-height: 0; overflow-y: auto; }
   body[data-seccion="mapa"] .menu { width: 100%; max-height: 30dvh; overflow-y: auto; }
