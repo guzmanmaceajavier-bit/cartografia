@@ -1801,7 +1801,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiLugar").value = ubi.lugar || idea?.territorio || estado.config?.nombreTerritorio || "";
     $("#ubiCategoria").value = ubi.categoria || idea?.categoria || "lugares";
     $("#ubiLat").value = ubi.lat ?? "";
-    $("#ubiLng").value = ubi.lng || "";
+    $("#ubiLng").value = ubi.lng ?? "";
     $("#ubiPrecision").value = ubi.precision || "exacta";
     $("#ubiId").value = ubi.id;
     abrirModal("modalUbi");
@@ -1902,6 +1902,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     }
     cont.innerHTML = ideas.map((idea) => {
       const ubiCount = idea.ubicaciones ? idea.ubicaciones.length : 0;
+      const ubiConCoordenadas = (idea.ubicaciones || []).filter((u) => typeof u.lat === "number" && Number.isFinite(u.lat) && typeof u.lng === "number" && Number.isFinite(u.lng)).length;
       return `
         <article class="tarjeta idea-tarjeta" data-idea-id="${idea.id}">
           <header class="idea-tarjeta__cabecera">
@@ -1909,7 +1910,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
             <div>
               <h3>${escapar(idea.nombre)}</h3>
               <p class="idea-tarjeta__meta">Componente ${CATEGORIAS[idea.categoria || "afectaciones"]?.seccion || "sin clasificar"} · ${escapar(CATEGORIAS[idea.categoria || "afectaciones"]?.nombre || "Sin componente seleccionado")}</p>
-              <p class="idea-tarjeta__meta">${ubiCount} sitio${ubiCount !== 1 ? "s" : ""} · ${escapar(idea.territorio || "Ámbito geográfico por definir")}</p>
+              <p class="idea-tarjeta__meta">${ubiCount} sitio${ubiCount !== 1 ? "s" : ""} · ${ubiConCoordenadas} en el mapa · ${escapar(idea.territorio || "Ámbito geográfico por definir")}</p>
               <p class="idea-tarjeta__meta">${escapar(idea.descripcion || "Sin descripción")}</p>
             </div>
           </header>
@@ -1919,8 +1920,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
                 <span class="idea-ubicacion__simbolo" style="background:${CATEGORIAS[ubi.categoria]?.color || "#5D6B7E"}">${CATEGORIAS[ubi.categoria]?.simbolo || "•"}</span>
                 <div class="idea-ubicacion__info">
                   <strong>${escapar(ubi.nombre)}</strong>
-                  <span class="idea-ubicacion__cat">${escapar(CATEGORIAS[ubi.categoria]?.seccion + ". " + CATEGORIAS[ubi.categoria]?.nombre || ubi.categoria || "Sin componente")}</span>
+                  <span class="idea-ubicacion__cat">${escapar(CATEGORIAS[ubi.categoria] ? CATEGORIAS[ubi.categoria].seccion + ". " + CATEGORIAS[ubi.categoria].nombre : (ubi.categoria || "Sin componente"))}</span>
                   <p class="idea-ubicacion__cat">${escapar(ubi.lugar || idea.territorio || "")}</p>
+                  <p class="idea-ubicacion__coordenadas">${typeof ubi.lat === "number" && typeof ubi.lng === "number" ? "Lat. " + ubi.lat + " · Long. " + ubi.lng : "Sin coordenadas: no aparecerá en el mapa"}</p>
                   <p class="idea-ubicacion__desc">${escapar(ubi.descripcion || "")}</p>
                 </div>
                 <div class="idea-ubicacion__acciones">
@@ -2180,19 +2182,33 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!idea) { toast("La idea no existe.", "error"); return; }
     if (!idea.ubicaciones) idea.ubicaciones = [];
 
+    const latTexto = $("#ubiLat").value.trim();
+    const lngTexto = $("#ubiLng").value.trim();
+    const lat = latTexto === "" ? null : Number(latTexto);
+    const lng = lngTexto === "" ? null : Number(lngTexto);
+    if ((lat === null) !== (lng === null)) {
+      toast("Ingresa tanto la latitud como la longitud, o deja ambas vacías.", "error");
+      return;
+    }
+    if (lat !== null && (!Number.isFinite(lat) || lat < -90 || lat > 90)) {
+      toast("La latitud debe ser un número entre -90 y 90.", "error");
+      return;
+    }
+    if (lng !== null && (!Number.isFinite(lng) || lng < -180 || lng > 180)) {
+      toast("La longitud debe ser un número entre -180 y 180.", "error");
+      return;
+    }
+
     const datos = {
       nombre: $("#ubiNombre").value.trim() || "Ubicación sin nombre",
       lugar: $("#ubiLugar").value.trim(),
       descripcion: $("#ubiDescripcion").value.trim(),
       categoria: $("#ubiCategoria").value || idea.categoria || "lugares",
-      lat: parseFloat($("#ubiLat").value),
-      lng: parseFloat($("#ubiLng").value),
+      lat,
+      lng,
       precision: $("#ubiPrecision").value,
       creado: new Date().toISOString()
     };
-
-    if (isNaN(datos.lat)) datos.lat = null;
-    if (isNaN(datos.lng)) datos.lng = null;
 
     if (id) {
       const ubi = idea.ubicaciones.find((u) => u.id === id);
