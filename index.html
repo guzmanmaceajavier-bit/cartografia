@@ -87,6 +87,7 @@
         <div class="menu__acordeon-cuerpo" id="cuerpoConvenciones" hidden>
         <p class="menu__convenciones-ayuda">Símbolos y colores usados en los registros. Seleccione una categoría para mostrar u ocultar sus puntos en el mapa.</p>
         <div id="menuConvenciones" class="menu__convenciones"></div>
+        <button type="button" class="btn btn--suave menu__btn" id="btnVerConvenciones">▦ Ver cuadro de convenciones completo</button>
         </div>
       </div>
 
@@ -294,12 +295,27 @@
       </div>
 
       <div class="formulario__panel formulario__panel--activa" id="panel-identificacion">
+        <aside class="formulario__guia-academica" aria-label="Guía de los contenidos de la cartografía">
+          <strong>Guía de diligenciamiento según los pasos de la cartografía</strong>
+          <p>Complete la ficha según el componente al que pertenece. No invente datos: si algo no está confirmado, indíquelo como pendiente de verificación y proteja identidades y ubicaciones sensibles.</p>
+          <ol>
+            <li><b>01. Territorio:</b> nombre, comunidad, municipio/departamento y límites se completan en «Territorios y capas».</li>
+            <li><b>02. Lugares significativos:</b> lugar concreto y por qué es importante para la comunidad.</li>
+            <li><b>03. Afectaciones de violencia:</b> hecho o huella, periodo, consecuencias y fuente.</li>
+            <li><b>04. Actores:</b> personas, organizaciones, instituciones o comunidades relacionadas, sin exponer datos protegidos.</li>
+            <li><b>05. Resistencia y construcción de paz:</b> acciones, iniciativas, respuestas comunitarias y sus aportes.</li>
+            <li><b>06. Memoria:</b> relatos, testimonios, conmemoraciones y cómo se conserva la memoria.</li>
+            <li><b>07. Esperanza y reconciliación:</b> prácticas de cuidado, reparación, encuentro y transformación.</li>
+            <li><b>08. Retos actuales:</b> problema pendiente, a quién afecta y qué acción concreta podría fortalecer la paz.</li>
+          </ol>
+          <p><b>Reflexión final:</b> en «Reflexión final» explique cómo se encarna la teología de paz en Sahagún e incluya un reto y una oportunidad concretos.</p>
+        </aside>
         <div class="formulario__fila">
           <label class="formulario__ancho">Nombre del lugar, actor o experiencia
-            <input type="text" id="fichaNombre" placeholder="Ej.: Parque principal de la cabecera">
+            <input type="text" id="fichaNombre" placeholder="Ej.: Parque principal de la cabecera" required>
           </label>
           <label>Categoría principal (02–08)
-            <select id="fichaCategoria"></select>
+            <select id="fichaCategoria" required></select>
           </label>
           <label>Tipo de registro
             <select id="fichaTipoRegistro">
@@ -360,7 +376,7 @@
 
       <div class="formulario__panel" id="panel-narrativa">
         <label>Descripción
-          <textarea id="fichaDescripcion" rows="3" placeholder="¿Qué es este lugar o experiencia y por qué es importante para el territorio?"></textarea>
+          <textarea id="fichaDescripcion" rows="3" placeholder="¿Qué es este lugar o experiencia y por qué es importante para el territorio?" required></textarea>
         </label>
         <label>Historia o relato
           <textarea id="fichaHistoria" rows="3" placeholder="Qué ocurrió, cómo lo vive la comunidad, testimonios, fechas, consecuencias…"></textarea>
@@ -374,13 +390,13 @@
           </label>
         </div>
         <label>Aporte a la lectura de paz
-          <textarea id="fichaAporte" rows="2" placeholder="¿Qué permite comprender este registro sobre la violencia, la resistencia, la memoria o la esperanza?"></textarea>
+          <textarea id="fichaAporte" rows="2" placeholder="¿Qué permite comprender este registro sobre la violencia, la resistencia, la memoria o la esperanza?" required></textarea>
         </label>
       </div>
 
       <div class="formulario__panel" id="panel-fuentes">
         <label>Fuente
-          <input type="text" id="fichaFuente" placeholder="Testimonio oral (fecha), informe, prensa, conversación con habitantes…">
+          <input type="text" id="fichaFuente" placeholder="Testimonio oral (fecha), informe, prensa, conversación con habitantes…" required>
         </label>
         <div class="formulario__fila">
           <label>Tipo de fuente
@@ -534,6 +550,18 @@
       <button class="btn" data-cerrar="modalLeyenda">Cancelar</button>
       <button class="btn btn--primario" id="btnGuardarLeyenda">Guardar convenciones</button>
     </footer>
+  </div>
+</div>
+
+
+<div class="modal modal--convenciones" id="modalConvencionesCompleto" hidden>
+  <div class="modal__caja modal__caja--convenciones" role="dialog" aria-modal="true" aria-labelledby="tituloConvencionesCompleto">
+    <header class="modal__cabecera">
+      <div><h2 id="tituloConvencionesCompleto">Cuadro de convenciones del mapa</h2><p class="convenciones-completo__subtitulo">Símbolos, colores y categorías utilizadas en la cartografía de paz de Sahagún</p></div>
+      <button class="modal__cerrar" data-cerrar="modalConvencionesCompleto" aria-label="Cerrar">✕</button>
+    </header>
+    <div class="modal__cuerpo convenciones-completo__cuerpo"><div id="convencionesCompletoContenido"></div></div>
+    <footer class="modal__pie"><span class="convenciones-completo__nota">Para la captura, maximice la ventana del navegador y use Ctrl + 0 si necesita ajustar el zoom.</span><button type="button" class="btn" id="btnImprimirConvenciones">Imprimir / guardar como PDF</button><button type="button" class="btn btn--primario" data-cerrar="modalConvencionesCompleto">Cerrar</button></footer>
   </div>
 </div>
 
