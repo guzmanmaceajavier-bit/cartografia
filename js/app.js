@@ -1767,6 +1767,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const idea = estado.ideas.find((i) => i.id === ideaId);
     if (!idea) return;
     $("#modalIdeaTitulo").textContent = "Editar tema";
+    $("#ideaPrimeraUbicacion").hidden = true;
     $("#ideaId").value = idea.id;
     $("#ideaNombre").value = idea.nombre;
     $("#ideaDescripcion").value = idea.descripcion || "";
@@ -1837,6 +1838,26 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function guardarIdea() {
     const id = $("#ideaId").value;
     const nombre = $("#ideaNombre").value.trim() || "Tema sin nombre";
+    const ubiNombre = $("#ideaUbiNombre").value.trim();
+    const ubiLugar = $("#ideaUbiLugar").value.trim();
+    const ubiDescripcion = $("#ideaUbiDescripcion").value.trim();
+    const ubiLatTexto = $("#ideaUbiLat").value.trim();
+    const ubiLngTexto = $("#ideaUbiLng").value.trim();
+    const ubiLat = ubiLatTexto === "" ? null : Number(ubiLatTexto);
+    const ubiLng = ubiLngTexto === "" ? null : Number(ubiLngTexto);
+    const quierePrimeraUbicacion = !id && (ubiNombre || ubiLugar || ubiDescripcion || ubiLatTexto || ubiLngTexto);
+    if (quierePrimeraUbicacion && ((ubiLat === null) !== (ubiLng === null))) {
+      toast("Para la primera ubicación, ingresa latitud y longitud juntas o deja ambas vacías.", "error");
+      return;
+    }
+    if (quierePrimeraUbicacion && ubiLat !== null && (!Number.isFinite(ubiLat) || ubiLat < -90 || ubiLat > 90)) {
+      toast("La latitud del primer lugar debe estar entre -90 y 90.", "error");
+      return;
+    }
+    if (quierePrimeraUbicacion && ubiLng !== null && (!Number.isFinite(ubiLng) || ubiLng < -180 || ubiLng > 180)) {
+      toast("La longitud del primer lugar debe estar entre -180 y 180.", "error");
+      return;
+    }
     if (id) {
       const idea = estado.ideas.find((i) => i.id === id);
       if (idea) {
@@ -1861,8 +1882,21 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         creado: new Date().toISOString()
       };
       if (!estado.ideas) estado.ideas = [];
+      if (quierePrimeraUbicacion) {
+        nueva.ubicaciones.push({
+          id: "ubi-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+          nombre: ubiNombre || "Ubicación sin nombre",
+          lugar: ubiLugar || nueva.territorio || "",
+          descripcion: ubiDescripcion,
+          categoria: nueva.categoria,
+          lat: ubiLat,
+          lng: ubiLng,
+          precision: ubiLat !== null && ubiLng !== null ? "exacta" : "sin",
+          creado: new Date().toISOString()
+        });
+      }
       estado.ideas.push(nueva);
-      toast("Tema creado.");
+      toast(quierePrimeraUbicacion ? "Tema y primera ubicación creados." : "Tema creado.");
     }
     guardar();
     pintarIdeas();
@@ -2693,7 +2727,24 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (accion) {
         const a = accion.dataset.accion;
         if (a === "nueva") abrirFicha(null);
-        else if (a === "nuevaIdea") { $("#modalIdeaTitulo").textContent = "Nuevo tema"; $("#ideaId").value = ""; $("#ideaNombre").value = ""; $("#ideaDescripcion").value = ""; $("#ideaCategoria").value = "afectaciones"; $("#ideaTerritorio").value = estado.config?.nombreTerritorio || ""; $("#ideaColor").value = "#9B1C1C"; $("#ideaSimbolo").value = "✕"; abrirModal("modalIdea"); return; }
+        else if (a === "nuevaIdea") {
+          $("#modalIdeaTitulo").textContent = "Nuevo tema";
+          $("#ideaId").value = "";
+          $("#ideaNombre").value = "";
+          $("#ideaDescripcion").value = "";
+          $("#ideaCategoria").value = "afectaciones";
+          $("#ideaTerritorio").value = estado.config?.nombreTerritorio || "";
+          $("#ideaColor").value = "#9B1C1C";
+          $("#ideaSimbolo").value = "✕";
+          $("#ideaUbiNombre").value = "";
+          $("#ideaUbiLugar").value = estado.config?.nombreTerritorio || "";
+          $("#ideaUbiDescripcion").value = "";
+          $("#ideaUbiLat").value = "";
+          $("#ideaUbiLng").value = "";
+          $("#ideaPrimeraUbicacion").hidden = false;
+          abrirModal("modalIdea");
+          return;
+        }
         else if (a === "leyenda") abrirGestionLeyenda();
         else if (a === "exportar") exportarTodo();
         else if (a === "importar") $("#archivoImportar").click();
