@@ -1661,25 +1661,45 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!cont) return;
     const base = fichasVisibles();
     const cats = categoriasConMarcador();
-    let html = "";
+    let html = "<div class='leyenda-grupo-titulo'>Categoría de paz</div>";
     cats.forEach((k) => {
       const c = CATEGORIAS[k];
       const n = base.filter((f) => f.categoria === k).length;
       html +=
         "<div class='menu__cat'>" +
-        "<span class='menu__cat__simbolo'>" + c.simbolo + "</span>" +
+        "<span class='menu__cat__simbolo' style='--cat-color:" + c.color + "'>" + c.simbolo + "</span>" +
         "<div class='menu__cat__info'>" +
-        "<div style='display:flex;justify-content:space-between;align-items:center'>" +
+        "<div class='menu__cat__encabezado'>" +
         "<strong style='color:" + c.color + "'>" + c.seccion + ". " + escapar(c.nombre) + "</strong>" +
-        "<span class='menu__cat__n'>" + n + "</span>" +
+        "<span class='menu__cat__n' style='--cat-color:" + c.color + "'>" + n + "</span>" +
         "</div>" +
-        "<p style='font-size:0.64rem;color:var(--tinta-suave);margin:2px 0 0'>" + escapar(c.descripcion) + "</p>" +
+        "<p>" + escapar(c.descripcion) + "</p>" +
         "</div>" +
-        "<button class='menu__cat__btn' data-cat='" + k + "' title='Ver solo «" + c.nombre + "»'>▶</button>" +
+        "<button class='menu__cat__btn' data-cat='" + k + "' title='Consultar registros de «" + escapar(c.nombre) + "»' aria-label='Consultar registros de " + escapar(c.nombre) + "'>↗</button>" +
         "</div>";
     });
+
+    html += "<div class='leyenda-grupo-titulo leyenda-grupo-titulo--iconos'>Iconos de lugares del mapa</div>" +
+      "<p class='leyenda-ayuda-iconos'>El mismo icono aparece en el punto correspondiente del mapa. El color del marcador identifica la categoría.</p>" +
+      "<div class='leyenda-iconos-grid'>";
+    const simbolos = (typeof SIMBOLOS_CAMPO !== "undefined" && SIMBOLOS_CAMPO) ? SIMBOLOS_CAMPO : {};
+    const entradas = Object.entries(simbolos);
+    entradas.forEach(([nombre, simbolo]) => {
+      const etiqueta = nombre.charAt(0).toUpperCase() + nombre.slice(1);
+      html += "<div class='leyenda-icono-item'><span class='leyenda-icono-muestra'>" + simbolo + "</span><span>" + escapar(etiqueta) + "</span></div>";
+    });
+    const personalizados = [...new Set(base.map((f) => (f.simboloCampo || "").trim()).filter(Boolean))]
+      .filter((s) => !entradas.some(([, icono]) => icono === s));
+    personalizados.forEach((simbolo) => {
+      html += "<div class='leyenda-icono-item'><span class='leyenda-icono-muestra'>" + escapar(simbolo) + "</span><span>Icono personalizado</span></div>";
+    });
+    if (!entradas.length && !personalizados.length) {
+      html += "<p class='leyenda-ayuda-iconos'>Los registros sin icono específico usan el símbolo de su categoría.</p>";
+    }
+    html += "</div>";
+
     cont.innerHTML = html;
-    $$(".menu__cat__btn").forEach((b) => {
+    $(".menu__cat__btn").forEach((b) => {
       b.addEventListener("click", () => {
         chipLugares = b.dataset.cat;
         chipSubtema = "todos";
