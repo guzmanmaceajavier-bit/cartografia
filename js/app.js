@@ -1722,6 +1722,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     }
     pintarProgreso();
     pintarMenuConvenciones();
+    pintarTiraLectura();
     repintarSeccion();
   }
 
