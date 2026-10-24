@@ -1370,6 +1370,31 @@ body.info-oculta .panel-info { border: none; visibility: hidden; }
 }
 
 @media print {
+  /* Si se solicita exportar el informe, imprimir solamente el informe generado,
+     no el mapa interactivo ni los paneles de la aplicación. */
+  body.imprimiendo-informe > * { display: none !important; }
+  body.imprimiendo-informe #areaImpresion {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    visibility: visible !important;
+    color: #172b40 !important;
+    background: #fff !important;
+  }
+  body.imprimiendo-informe #areaImpresion * { visibility: visible !important; }
+  body.imprimiendo-informe #areaImpresion .imp-portada {
+    display: flex !important;
+    min-height: 65vh;
+    flex-direction: column;
+    justify-content: center;
+    page-break-after: always;
+  }
+  body.imprimiendo-informe #areaImpresion .imp-pagina {
+    display: block !important;
+    page-break-before: always;
+  }
   body { overflow: visible; height: auto; display: block; }
   body > *:not(.vista--activa):not(.area-impresion):not(.cabecera) { display: none !important; }
 
@@ -2340,4 +2365,25 @@ body.dibujando .leaflet-container { cursor: crosshair; }
   .imp-lista li { page-break-inside:avoid; }
   .imp-leyenda { list-style:none; padding:0; }
   .imp-leyenda li { display:flex; gap:6pt; align-items:baseline; margin-bottom:4pt; }
+}
+
+/* Vista previa del informe con páginas legibles */
+.vista-previa { background: #edf1f5; }
+.vista-previa .imp-portada,
+.vista-previa .imp-pagina {
+  box-sizing: border-box;
+  max-width: 820px;
+  margin: 0 auto 18px;
+  padding: 30px 36px;
+  background: #fff;
+  color: #172b40;
+  border: 1px solid #d7e0e9;
+  box-shadow: 0 3px 12px rgba(16,45,79,.08);
+  line-height: 1.5;
+}
+.vista-previa .imp-portada { min-height: 300px; display: flex; flex-direction: column; justify-content: center; }
+.vista-previa .imp-portada h1 { display: block; font-size: 2rem; color: #102d4f; }
+.vista-previa .imp-pagina h2 { border-bottom: 2px solid #c9a227; padding-bottom: 7px; }
+@media (max-width: 700px) {
+  .vista-previa .imp-portada, .vista-previa .imp-pagina { padding: 18px; }
 }

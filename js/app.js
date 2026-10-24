@@ -2814,13 +2814,26 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       "<p class='imp-pie'>Informe generado desde la Cartografía de paz. Verifique las fuentes y proteja datos sensibles antes de compartir.</p></section>";
     if (vistaPrevia) {
       const cuerpo = $("#vistaPreviaCuerpo");
-      if (cuerpo) cuerpo.innerHTML = area.innerHTML;
+      if (!cuerpo) { toast("No se encontró el panel de vista previa.", "error"); return; }
+      cuerpo.innerHTML = area.innerHTML;
+      if (!cuerpo.innerHTML.trim()) { toast("No se pudo construir el informe para la vista previa.", "error"); return; }
       const titulo = $("#tituloVistaPrevia");
       if (titulo) titulo.textContent = "Vista previa del informe PDF";
       abrirModal("modalVistaPrevia");
+      cuerpo.scrollTop = 0;
     } else {
       cerrarModal("modalVistaPrevia");
-      window.print();
+      // En modo impresión se oculta la aplicación completa y se imprime únicamente el informe.
+      document.body.classList.add("imprimiendo-informe");
+      const limpiarModoImpresion = () => document.body.classList.remove("imprimiendo-informe");
+      window.addEventListener("afterprint", limpiarModoImpresion, { once: true });
+      window.setTimeout(() => {
+        try { window.print(); }
+        catch (error) {
+          limpiarModoImpresion();
+          toast("El navegador no pudo abrir la impresión. Intenta de nuevo o revisa el bloqueador de ventanas.", "error");
+        }
+      }, 120);
     }
   }
 
