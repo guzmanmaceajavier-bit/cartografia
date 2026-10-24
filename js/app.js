@@ -1821,8 +1821,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
   function guardarIdea() {
     const id = $("#ideaId").value;
-    const nombre = $("#ideaNombre").value.trim();
-    if (!nombre) { toast("Escriba un nombre para el tema.", "error"); return; }
+    const nombre = $("#ideaNombre").value.trim() || "Tema sin nombre";
     if (id) {
       const idea = estado.ideas.find((i) => i.id === id);
       if (idea) {
@@ -2070,11 +2069,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function guardarFicha() {
     const form = $("#formFicha");
     const id = $("#fichaId").value;
-    const nombre = $("#fichaNombre").value.trim();
-    if (!nombre) { toast("Escriba el nombre del lugar, actor o experiencia.", "error"); $(".formulario__pestana[data-panel='panel-identificacion']").click(); $("#fichaNombre").focus(); return; }
-    if (!$("#fichaDescripcion").value.trim()) { toast("Describa qué es el registro y por qué importa para el territorio.", "error"); $(".formulario__pestana[data-panel='panel-narrativa']").click(); $("#fichaDescripcion").focus(); return; }
-    if (!$("#fichaAporte").value.trim()) { toast("Explique el aporte de este registro a la lectura de paz.", "error"); $(".formulario__pestana[data-panel='panel-narrativa']").click(); $("#fichaAporte").focus(); return; }
-    if (!$("#fichaFuente").value.trim()) { toast("Indique la fuente o escriba qué información debe verificarse.", "error"); $(".formulario__pestana[data-panel='panel-fuentes']").click(); $("#fichaFuente").focus(); return; }
+    const nombre = $("#fichaNombre").value.trim() || "Registro sin nombre";
     const duplicado = estado.fichas.find((f) => f.id !== id && normalizar(f.nombre) === normalizar(nombre) && f.nombre !== "Registro sin nombre");
     if (duplicado && !confirm("Ya existe un registro con el nombre «" + duplicado.nombre + "» (sección " + (CATEGORIAS[duplicado.categoria] || {}).seccion + ").\n\nSi son elementos distintos, use un nombre que los diferencie. ¿Guardar de todos modos?")) return;
 
@@ -2164,7 +2159,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!idea.ubicaciones) idea.ubicaciones = [];
 
     const datos = {
-      nombre: $("#ubiNombre").value.trim(),
+      nombre: $("#ubiNombre").value.trim() || "Ubicación sin nombre",
       descripcion: $("#ubiDescripcion").value.trim(),
       categoria: $("#ubiCategoria").value,
       lat: parseFloat($("#ubiLat").value),
@@ -2173,8 +2168,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       creado: new Date().toISOString()
     };
 
-    if (!datos.nombre) { toast("Escriba un nombre para la ubicación.", "error"); return; }
-    if (isNaN(datos.lat) || isNaN(datos.lng)) { toast("Latitud y longitud son obligatorias.", "error"); return; }
+    if (isNaN(datos.lat)) datos.lat = null;
+    if (isNaN(datos.lng)) datos.lng = null;
 
     if (id) {
       const ubi = idea.ubicaciones.find((u) => u.id === id);
