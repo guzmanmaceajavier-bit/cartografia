@@ -666,3 +666,34 @@ body.menu-oculto.info-oculta .aplicacion {
   #convencionesCompletoContenido { grid-template-columns:1fr 1fr; }
   #convencionesCompletoContenido .leyenda-iconos-grid { grid-template-columns:repeat(5,minmax(0,1fr)); }
 }
+
+/* Cuadro de convenciones: jerarquía visual y significado explícito */
+#convencionesCompletoContenido { display:block; }
+#convencionesCompletoContenido .leyenda-introduccion { padding:10px 12px; margin-bottom:8px; border:1px solid #d5e1eb; border-radius:9px; background:#f5f8fb; color:#233f56; }
+#convencionesCompletoContenido .leyenda-introduccion p { margin:0 0 8px; font-size:.78rem; line-height:1.4; }
+#convencionesCompletoContenido .leyenda-claves { display:flex; flex-wrap:wrap; gap:8px 16px; }
+#convencionesCompletoContenido .leyenda-claves span { display:inline-flex; align-items:center; gap:6px; font-size:.7rem; font-weight:600; }
+#convencionesCompletoContenido .leyenda-clave { display:inline-grid; place-items:center; width:23px; height:23px; border-radius:5px; font-style:normal; border:1px solid #b9c9d8; background:#fff; }
+#convencionesCompletoContenido .leyenda-clave--color { background:linear-gradient(135deg,#1d4ed8 0 50%,#15803d 50%); }
+#convencionesCompletoContenido .leyenda-clave--punto { color:#24547b; font-size:1.2rem; border:0; }
+#convencionesCompletoContenido .leyenda-grupo-titulo { padding:8px 10px; margin:12px 0 8px; border-left:4px solid #315f83; background:#eaf1f7; color:#183a56; font-size:.79rem; font-weight:800; }
+#convencionesCompletoContenido .menu__cat { display:flex; align-items:center; min-height:65px; padding:8px 9px; border:1px solid #e0e7ed; border-radius:8px; background:#fff; break-inside:avoid; }
+#convencionesCompletoContenido .menu__cat__info { flex:1; min-width:0; }
+#convencionesCompletoContenido .menu__cat__info p { display:block; margin:4px 0 0; color:#4b5e70; font-size:.71rem; line-height:1.35; }
+#convencionesCompletoContenido .menu__cat__encabezado { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+#convencionesCompletoContenido .menu__cat__encabezado strong { font-size:.76rem; line-height:1.25; }
+#convencionesCompletoContenido .menu__cat__n { white-space:nowrap; font-size:.62rem; }
+#convencionesCompletoContenido .leyenda-iconos-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
+#convencionesCompletoContenido .leyenda-icono-item { box-sizing:border-box; display:flex; align-items:center; justify-content:flex-start; min-width:0; min-height:56px; padding:7px 9px; border:1px solid #e0e7ed; border-radius:8px; background:#fff; text-align:left; gap:9px; break-inside:avoid; }
+#convencionesCompletoContenido .leyenda-icono-muestra { display:grid; place-items:center; flex:0 0 34px; width:34px; height:34px; border-radius:8px; background:#f1f5f9; font-size:1.2rem; }
+#convencionesCompletoContenido .leyenda-icono-texto { display:flex; flex-direction:column; gap:3px; min-width:0; }
+#convencionesCompletoContenido .leyenda-icono-texto strong { color:#233e55; font-size:.73rem; line-height:1.2; }
+#convencionesCompletoContenido .leyenda-icono-texto small { color:#56697a; font-size:.65rem; line-height:1.3; }
+#convencionesCompletoContenido .leyenda-ayuda-iconos { margin:0 0 8px; color:#455b6e; font-size:.73rem; line-height:1.45; }
+@media (min-width:760px) { #convencionesCompletoContenido .menu__cat { min-height:72px; } }
+@media (max-width:600px) { #convencionesCompletoContenido .leyenda-iconos-grid { grid-template-columns:1fr; } #convencionesCompletoContenido .leyenda-claves { gap:7px; } }
+@media print {
+ #convencionesCompletoContenido .leyenda-iconos-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ #convencionesCompletoContenido .menu__cat, #convencionesCompletoContenido .leyenda-icono-item { page-break-inside:avoid; }
+ #convencionesCompletoContenido .leyenda-introduccion, #convencionesCompletoContenido .leyenda-grupo-titulo { print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+}
