@@ -739,7 +739,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       ).join("") +
       "<label class='tipo-mapa__etiquetas' id='tipoEtiquetas' hidden><input type='checkbox' id='chkEtiquetas'> Etiquetas</label>" +
       "<label class='tipo-mapa__etiquetas' id='tipoNombres' title='Mostrar los nombres de los lugares sobre el mapa'><input type='checkbox' id='chkNombres' checked> Nombres</label>" +
-      "<div class='tipo-mapa__nota'>La leyenda de colores y símbolos está en el menú lateral, en ‘Leyenda del mapa’.</div>" +
+      "<div class='tipo-mapa__nota'>Activa o desactiva categorías para elegir qué registros aparecen en el mapa.</div>" +
+      "<div class='tipo-mapa__sec'>Categorías visibles</div>" +
+      "<div class='filtros-categorias-mapa' id='filtrosCategoriasMapa'>" + Object.keys(CATEGORIAS).filter((k) => k !== "delimitacion").sort((a,b) => CATEGORIAS[a].seccion-CATEGORIAS[b].seccion).map((k) => "<label class='tipo-mapa__etiquetas'><input type='checkbox' data-filtro-categoria='" + escapar(k) + "' " + (catOculta(k) ? "" : "checked") + "> <span style='color:" + escapar(CATEGORIAS[k].color) + "'>" + escapar(CATEGORIAS[k].simbolo) + "</span> " + escapar(CATEGORIAS[k].seccion + ". " + CATEGORIAS[k].nombre) + "</label>").join("") + "</div>" +
       "</div>" +
       "<button type='button' class='tipo-mapa__btn' id='tipoMapaBtn' title='Cambiar la vista cartográfica' aria-haspopup='true' aria-expanded='false'>" +
       "<span class='tipo-mapa__icono' aria-hidden='true'>▦</span><span class='tipo-mapa__etiqueta'>Mapa base</span><span class='tipo-mapa__separador' aria-hidden='true'></span><span id='tipoMapaNombre'></span><span class='tipo-mapa__caret' aria-hidden='true'>⌄</span>" +
@@ -764,6 +766,23 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       cambiarVistaBase(item.dataset.tipo);
       pintarTipoMapa();
     });
+
+    cont.querySelectorAll("[data-filtro-categoria]").forEach((chk) => chk.addEventListener("change", (e) => {
+      const k = e.target.dataset.filtroCategoria;
+      const L = leyendaActual();
+      const o = L.cats[k] || {};
+      if (e.target.checked) {
+        if (!o.nombre && !o.color && !o.simbolo) delete L.cats[k];
+        else { o.oculta = false; L.cats[k] = o; }
+      } else {
+        o.oculta = true;
+        L.cats[k] = o;
+      }
+      aplicarLeyenda();
+      guardar();
+      pintarMapa();
+      repintarSeccion();
+    }));
 
     cont.querySelector("#chkEtiquetas").addEventListener("change", (e) => {
       estado.config.etiquetas = e.target.checked;
