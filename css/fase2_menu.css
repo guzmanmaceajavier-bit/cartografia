@@ -594,3 +594,30 @@ body.menu-oculto.info-oculta .aplicacion {
 #tiraLectura.plegada .tira-lectura__cuerpo { display:none; }
 #tiraLectura:not(.plegada) .tira-lectura__cuerpo { display:block; max-height:35vh; overflow:auto; }
 #tiraLectura:not(.plegada) .tira-lectura__rejilla { padding:10px; }
+
+
+/* Acordeones del panel lateral: información bajo demanda */
+.menu__acordeon { margin: 0 0 8px; border: 1px solid #e0e7ee; border-radius: 10px; background: #fff; overflow: hidden; }
+.menu__acordeon .menu__seccion-titulo {
+  box-sizing: border-box; display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; width: 100%; min-height: 42px; margin: 0; padding: 10px 12px;
+  border: 0; background: #f5f8fb; color: #29465f; text-align: left;
+  font: inherit; font-size: .72rem; font-weight: 800; letter-spacing: .045em;
+  text-transform: uppercase; cursor: pointer;
+}
+.menu__acordeon .menu__seccion-titulo:hover { background: #edf3f8; }
+.menu__acordeon .menu__seccion-titulo:focus-visible { outline: 3px solid #d3a928; outline-offset: -3px; }
+.menu__acordeon-icono { display: grid; place-items: center; flex: 0 0 23px; width: 23px; height: 23px; border: 1px solid #d5e0e9; border-radius: 7px; background: #fff; color: #365a78; font-size: 1rem; letter-spacing: 0; transition: transform .18s ease; }
+.menu__acordeon-btn[aria-expanded="true"] .menu__acordeon-icono { transform: rotate(45deg); }
+.menu__acordeon-cuerpo { padding: 10px; min-width: 0; }
+.menu__acordeon-cuerpo[hidden] { display: none !important; }
+.menu__guia.menu__acordeon { padding: 0; }
+.menu__guia .menu__acordeon-cuerpo { padding: 10px 13px; }
+.menu__guia .menu__acordeon-cuerpo p { margin: 0 0 9px; font-size: .76rem; line-height: 1.5; }
+.menu__guia .menu__acordeon-cuerpo p:last-child { margin-bottom: 0; }
+.menu__acordeon-cuerpo .menu__convenciones-ayuda { margin: 0 0 8px; }
+.menu__acordeon-cuerpo #menuConvenciones { max-height: min(52vh, 430px); }
+@media (max-width: 900px) {
+  .menu__acordeon .menu__seccion-titulo { min-height: 46px; }
+  .menu__acordeon-cuerpo #menuConvenciones { max-height: 44vh; }
+}

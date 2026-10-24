@@ -2551,6 +2551,17 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         tLista.textContent = plegado ? "▸" : "▾";
       });
     }
+    // Paneles laterales plegables: permiten leer el contenido completo sin saturar la pantalla.
+    $$("#menuLateral [data-panel-plegable]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const cuerpo = document.getElementById(btn.getAttribute("aria-controls"));
+        if (!cuerpo) return;
+        const abierto = btn.getAttribute("aria-expanded") !== "true";
+        btn.setAttribute("aria-expanded", String(abierto));
+        cuerpo.hidden = !abierto;
+      });
+    });
+
     const btnTira = $("#btnTiraLectura");
     if (btnTira) btnTira.addEventListener("click", () => alternarTira());
 
