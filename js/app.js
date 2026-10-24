@@ -97,7 +97,7 @@ function abrirModalHistorial() {
 
 const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
-  const SIMBOLOS = ["◎", "◉", "○", "●", "✕", "✖", "✚", "▲", "■", "◆", "♦", "★", "✦", "☀", "✊", "➤", "◈", "⬟", "⬢", "♥"];
+  const SIMBOLOS = ["◎", "◉", "○", "●", "✕", "✖", "✚", "▲", "■", "◆", "♦", "★", "✦", "☀", "✊", "➤", "◈", "⬟", "⬢", "♥", "📍", "🏛️", "🏘️", "🏠", "🏡", "🏫", "🎓", "⛪", "🕌", "🏥", "🚒", "👮", "🛡️", "⚠️", "💸", "🔫", "🕯️", "❓", "🏃", "🔓", "🌾", "🐄", "⚽", "🪶", "🧑‍🤝‍🧑", "🤝", "💃", "🏞️", "🚌", "☀️", "🕊️", "🌱", "❤️", "📖", "✝️", "👥", "🧒", "🗣️", "💧", "🌳", "🚩", "🧭", "📌"];
 
   const BASES = [
     {
@@ -399,7 +399,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function pintarPaletaSimbolos() {
     const cont = $("#simbolosPaleta");
     if (!cont) return;
-    cont.innerHTML = SIMBOLOS.map((s) => "<button type='button' class='simbolos-paleta__btn' data-sim='" + escapar(s) + "' title='Usar este símbolo'>" + escapar(s) + "</button>").join("");
+    cont.innerHTML = SIMBOLOS.map((s) => "<button type='button' class='simbolos-paleta__btn' data-sim='" + escapar(s) + "' data-busqueda-simbolo='" + escapar((s + " " + (NOMBRES_SIMBOLOS[s] || "")).toLocaleLowerCase("es")) + "' title='Usar este símbolo'>" + escapar(s) + "</button>").join("");
   }
 
   function pintarPaletaColores() {
@@ -426,7 +426,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         "<div class='gestion__fila' data-cat='" + k + "'>" +
         "<span class='gestion__preview' style='background:" + c.color + "'>" + escapar(c.simbolo) + "</span>" +
         "<label class='gestion__campo gestion__campo--ancho'>Nombre<input type='text' data-campo='nombre' value='" + escapar(c.nombre) + "'></label>" +
-        "<label class='gestion__campo'>Símbolo<select data-campo='simbolo'>" + opcionesSimbolo(c.simbolo) + "</select></label>" +
+        "<label class='gestion__campo'>Símbolo<input type='text' data-campo='simbolo' maxlength='8' list='catalogoSimbolos' value='" + escapar(c.simbolo) + "' aria-label='Símbolo de " + escapar(c.nombre) + "'></label>" +
         "<label class='gestion__campo'>Color<input type='color' data-campo='color' value='" + c.color + "'></label>" +
         "<label class='gestion__check'><input type='checkbox' data-campo='oculta'" + (o.oculta ? " checked" : "") + "> Oculta en la leyenda</label>" +
         "</div>"
