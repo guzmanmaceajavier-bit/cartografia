@@ -184,7 +184,7 @@
       <div>
         <p class="hoja__numero">Etapa 2 · Organización temática</p>
         <h1>Temas y ubicaciones del territorio</h1>
-        <p class="hoja__intro">Cree un tema, indique a cuál de los ocho componentes de la cartografía pertenece y escriba el territorio o zona que abarca. Después agregue tantos sitios como necesite. Los sitios pueden estar en Sahagún o en otros municipios del departamento de Córdoba; cada uno guarda su propia ubicación y aparece en el mapa cuando tenga coordenadas.</p>
+        <p class="hoja__intro">Cree una idea central, clasifíquela en uno de los ocho componentes y agregue todos los sitios relacionados. Para cada sitio, copie manualmente la latitud y la longitud que consulte en Internet: no necesita marcar el punto con el ratón ni que la aplicación encuentre la dirección. Cada ubicación queda asociada a su tema y aparece en el mapa cuando las coordenadas son válidas.</p>
       </div>
       <button type="button" class="btn btn--primario" data-accion="nuevaIdea">＋ Nuevo tema</button>
     </header>
@@ -687,6 +687,15 @@
           <select id="ubiCategoria"></select>
         </label>
       </div>
+      <div class="ayuda-coordenadas">
+        <strong>¿Cómo encontrar las coordenadas?</strong>
+        <ol>
+          <li>Abra <a href="https://maps.google.com/" target="_blank" rel="noopener noreferrer">Google Maps</a> y busque el lugar.</li>
+          <li>Haga clic derecho sobre el punto exacto del mapa.</li>
+          <li>Copie el primer número como <strong>latitud</strong> y el segundo como <strong>longitud</strong>.</li>
+        </ol>
+        <p>Use números decimales; en Colombia la latitud suele ser positiva y la longitud occidental negativa. Ejemplo ilustrativo: 8.6100, -75.4698.</p>
+      </div>
       <div class="formulario__fila">
         <label>Latitud
           <input type="number" id="ubiLat" step="any" min="-90" max="90" placeholder="8.6100">
@@ -703,7 +712,8 @@
         </label>
       </div>
       <div class="formulario__ayuda">
-        <button type="button" class="btn btn--suave" id="btnUbicarUbi">📍 Ubicar haciendo clic en el mapa</button>
+        <button type="button" class="btn btn--suave" id="btnUbicarUbi">📍 Ubicar haciendo clic en el mapa (opcional)</button>
+        <p class="formulario__nota">Si ya tienes latitud y longitud, no necesitas usar esta herramienta. Guarda las coordenadas y el punto aparecerá automáticamente en el mapa.</p>
       </div>
     </div>
     <footer class="modal__pie">
