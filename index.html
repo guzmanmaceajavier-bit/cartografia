@@ -634,11 +634,19 @@
     </header>
     <div class="modal__cuerpo formulario">
       <input type="hidden" id="ideaId">
-      <label>Nombre del tema
-        <input type="text" id="ideaNombre" placeholder="Ej.: Sahagún: un territorio habitado por la violencia">
+      <div class="formulario__fila">
+        <label>Nombre del tema
+          <input type="text" id="ideaNombre" placeholder="Ej.: Huellas de violencia en Sahagún">
+        </label>
+        <label>¿A cuál componente de la cartografía pertenece?
+          <select id="ideaCategoria"></select>
+        </label>
+      </div>
+      <label>Territorio o zona que abarca este tema
+        <input type="text" id="ideaTerritorio" placeholder="Ej.: Sahagún, Córdoba; o varios municipios de Córdoba">
       </label>
       <label>Descripción de la narrativa
-        <textarea id="ideaDescripcion" rows="3" placeholder="¿Qué narrativa o lectura temática quiere construir sobre este territorio?"></textarea>
+        <textarea id="ideaDescripcion" rows="3" placeholder="¿Qué quiere comprender o documentar con este tema?"></textarea>
       </label>
       <div class="formulario__fila">
         <label>Color del tema
@@ -665,14 +673,17 @@
     <div class="modal__cuerpo formulario">
       <input type="hidden" id="ubiIdeaId">
       <input type="hidden" id="ubiId">
-      <label>Nombre de la ubicación
-        <input type="text" id="ubiNombre" placeholder="Ej.: Centro del municipio, Finca El Paraíso, Colegio San José…">
+      <label>Nombre del sitio o acontecimiento
+        <input type="text" id="ubiNombre" placeholder="Ej.: parque central, finca, colegio, vía o sector">
+      </label>
+      <label>Municipio, departamento o zona donde está ubicado
+        <input type="text" id="ubiLugar" placeholder="Ej.: Sahagún, Córdoba; Chinú, Córdoba">
       </label>
       <label>Descripción
         <textarea id="ubiDescripcion" rows="3" placeholder="¿Qué ocurrió o qué importancia tiene este lugar dentro del tema?"></textarea>
       </label>
       <div class="formulario__fila">
-        <label>Categoría (02–08)
+        <label>Componente de la cartografía (01–08)
           <select id="ubiCategoria"></select>
         </label>
       </div>
