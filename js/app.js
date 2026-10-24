@@ -2365,7 +2365,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     };
     
     const nombre = "cartografia-paz-sahagun-" + (esPublica ? "publica" : "interna") + "-" + fecha + ".json";
-    descargar("cartografia-paz-sahagun-" + (esPublica ? "publica" : "interna") + "-" + new Date().toISOString().slice(0, 10) + ".json", JSON.stringify({ ...estado, meta: { fechaExportacion: new Date().toISOString(), version: VERSION, tipo: esPublica ? "publica" : "interna", incluyeSensibles: !esPublica } }, null, 2));
+    descargar(nombre, JSON.stringify(exportData, null, 2));
     toast("Exportación " + (esPublica ? "pública" : "interna") + " generada.");
   }
 
