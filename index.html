@@ -519,6 +519,7 @@
     <div class="modal__cuerpo formulario">
       <p class="formulario__nota">Las convenciones aparecen en la leyenda del menú, en «Fuentes y metodología» y en el informe impreso. Edite nombres, símbolos y colores, oculte las que no quiera ver o elimine las personalizadas. La estructura 01–08 corresponde al trabajo: se recomienda conservar sus nombres.</p>
       <h3 class="fuentes__subtitulo">Categorías del trabajo (01–08)</h3>
+      <p class="formulario__nota">Puedes escribir o pegar un símbolo directamente en cada categoría, o buscarlo por nombre en el catálogo inferior. El cuadro de convenciones se sincroniza al cambiar el símbolo.</p>
       <div id="leyendaCategorias" class="gestion__lista"></div>
       <h3 class="fuentes__subtitulo">Líneas del territorio</h3>
       <div id="leyendaBase" class="gestion__lista"></div>
@@ -537,7 +538,10 @@
             <input type="color" id="convColor" value="#15803D">
           </label>
         </div>
-        <p class="formulario__nota">Toque un símbolo y un color para usarlos en la convención nueva:</p>
+        <p class="formulario__nota">Busca un símbolo por nombre o concepto (iglesia, finca, paz, violencia, salud, memoria) y selecciónalo. También puedes pegar un emoji directamente en el campo Símbolo de una categoría.</p>
+        <label>Buscar símbolo
+          <input type="search" id="buscarSimbolos" placeholder="Ej.: iglesia, finca, paz, extorsión…">
+        </label>
         <div class="simbolos-paleta" id="simbolosPaleta"></div>
         <div class="colores-paleta" id="coloresPaleta"></div>
         <label>Nota (qué representa)
