@@ -370,3 +370,76 @@ body.menu-oculto.info-oculta .aplicacion {
 .btn-dibujo:hover { transform:translateY(-2px); background:#fff; box-shadow:0 8px 22px rgba(16,45,79,.22); }
 @media (max-width:1180px) { .nav-etapa__titulo { padding:0 4px; } .nav-etapa .principal__btn { padding:8px; font-size:.72rem; } .principal { gap:5px; } }
 @media (max-width:760px) { .cabecera { grid-template-columns:minmax(0,1fr); grid-template-areas:"marca" "acciones" "nav"; } .nav-etapa { flex-direction:column; align-items:stretch; } .nav-etapa__titulo { text-align:left; } .nav-etapa .principal__btn { white-space:nowrap; } .menu__seccion { margin:8px 0; } }
+
+
+/* Ajuste final: selector cartográfico, cabecera compacta y lectura plegable */
+.tipo-mapa { max-width: min(310px, calc(100vw - 28px)); }
+.tipo-mapa__btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 13px;
+  background: rgba(255,255,255,.96);
+  color: #173653;
+  box-shadow: 0 5px 20px rgba(20,45,70,.2);
+  backdrop-filter: blur(8px);
+  font-size: .78rem;
+  font-weight: 750;
+  transition: transform .16s, box-shadow .16s, border-color .16s;
+}
+.tipo-mapa__btn:hover {
+  transform: translateY(-1px);
+  border-color: #c9a227;
+  box-shadow: 0 8px 24px rgba(20,45,70,.24);
+}
+.tipo-mapa__btn--abierto { border-color: #c9a227; box-shadow: 0 0 0 3px rgba(201,162,39,.16), 0 7px 22px rgba(20,45,70,.18); }
+.tipo-mapa__icono {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #eaf1f8;
+  color: #183e63;
+  font-size: 1rem;
+}
+.tipo-mapa__etiqueta { color: #68798a; font-weight: 600; white-space: nowrap; }
+.tipo-mapa__separador { height: 22px; width: 1px; background: #dce4ec; }
+#tipoMapaNombre { color: #102d4f; white-space: nowrap; }
+.tipo-mapa__caret { font-size: 1rem; color: #6b7c8f; transition: transform .18s; }
+.tipo-mapa__btn--abierto .tipo-mapa__caret { transform: rotate(180deg); }
+.tipo-mapa__panel {
+  width: min(320px, calc(100vw - 28px));
+  padding: 10px;
+  border: 1px solid #d8e1eb;
+  border-radius: 15px;
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 16px 40px rgba(16,45,79,.22);
+  backdrop-filter: blur(10px);
+}
+.tipo-mapa__item { border-radius: 10px; }
+.tipo-mapa__item--activo { background: #eef5fb; border-color: #aac3da; }
+.tipo-mapa__sec { padding: 3px 3px 9px; font-size: .72rem; letter-spacing: .7px; }
+.tira-lectura { flex: 0 0 auto; }
+.tira-lectura.plegada .tira-lectura__cuerpo { display: none; }
+.tira-lectura__cabecera { min-height: 30px; padding: 5px 12px; }
+.tira-lectura__cabecera strong { font-size: .76rem; }
+.tira-lectura.plegada .tira-lectura__caret { transform: rotate(-90deg); }
+@media (min-width: 1181px) {
+  .aplicacion { grid-template-columns: minmax(245px, 270px) minmax(420px, 1fr) minmax(265px, 295px); }
+  body.menu-oculto .aplicacion { grid-template-columns: 0 minmax(0,1fr) minmax(265px,295px); }
+  body.info-oculta .aplicacion { grid-template-columns: minmax(245px,270px) minmax(420px,1fr) 0; }
+  body.menu-oculto.info-oculta .aplicacion { grid-template-columns: 0 minmax(0,1fr) 0; }
+  .cabecera__acciones { gap: 6px; }
+  .cabecera__acciones input[type="search"] { width: clamp(160px, 17vw, 230px); padding: 7px 10px; }
+  #btnNueva { padding: 8px 11px; white-space: nowrap; }
+}
+@media (max-width: 760px) {
+  .tipo-mapa__btn { min-height: 40px; padding: 6px 9px; gap: 6px; }
+  .tipo-mapa__etiqueta { display: none; }
+  .tipo-mapa__separador { display: none; }
+  .tipo-mapa__panel { max-height: min(70dvh, 520px); overflow-y: auto; }
+}
