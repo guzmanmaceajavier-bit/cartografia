@@ -693,7 +693,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const id = vistaActualId();
     const def = BASES.find((b) => b.id === id) || BASES[0];
     const nombre = $("#tipoMapaNombre");
-    if (nombre) nombre.textContent = "Capas · " + def.nombre;
+    if (nombre) nombre.textContent = def.nombre;
     $$("#tipoMapaPanel .tipo-mapa__item").forEach((it) => it.classList.toggle("tipo-mapa__item--activo", it.dataset.tipo === id));
     const et = $("#tipoEtiquetas");
     if (et) et.hidden = id !== "satelite";
@@ -720,8 +720,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       "<label class='tipo-mapa__etiquetas' id='tipoNombres' title='Mostrar los nombres de los lugares sobre el mapa'><input type='checkbox' id='chkNombres' checked> Nombres</label>" +
       "<div class='tipo-mapa__nota'>La leyenda de colores y símbolos está en el menú lateral, en ‘Leyenda del mapa’.</div>" +
       "</div>" +
-      "<button type='button' class='tipo-mapa__btn' id='tipoMapaBtn' title='Cambiar el mapa base y las etiquetas' aria-haspopup='true' aria-expanded='false'>"
-      "<span aria-hidden='true'>▦</span><span id='tipoMapaNombre'></span><span class='tipo-mapa__caret' aria-hidden='true'>▲</span>" +
+      "<button type='button' class='tipo-mapa__btn' id='tipoMapaBtn' title='Cambiar la vista cartográfica' aria-haspopup='true' aria-expanded='false'>" +
+      "<span class='tipo-mapa__icono' aria-hidden='true'>▦</span><span class='tipo-mapa__etiqueta'>Mapa base</span><span class='tipo-mapa__separador' aria-hidden='true'></span><span id='tipoMapaNombre'></span><span class='tipo-mapa__caret' aria-hidden='true'>⌄</span>" +
       "</button>";
     if (barra) barra.appendChild(cont);
     else zona.appendChild(cont);
