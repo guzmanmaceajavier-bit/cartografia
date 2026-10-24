@@ -139,53 +139,12 @@ const CONFIGURACION_INICIAL = {
 };
 
 const REFLEXION_INICIAL = {
-  texto: `¿Cómo se ha encarnado la teología de paz en este territorio o comunidad?
-
-Sugerencias para escribir su reflexión (borre estas líneas y escriba con sus propias palabras):
-
-1. Territorio y personas: describa brevemente Sahagún como espacio de vida, trabajo, fe y convivencia, y explique por qué lo seleccionó.
-
-2. Huellas de la violencia: reconozca cómo la violencia marcó el territorio (desplazamiento, amenazas, pérdida de seres queridos, exclusión, disputa de la tierra) desde una fe que profesa la dignidad de toda persona y la defensa de la vida.
-
-3. Memoria como ministerio: relate cómo la comunidad recuerda a sus víctimas y qué nos enseña la memoria bíblica (Dt 6,21-23: «recuerda que fuiste esclavo») sobre el deber de no olvidar.
-
-4. Resistencia y reconciliación: señale las experiencias de resistencia no violenta, el trabajo de las iglesias, las organizaciones de víctimas, las iniciativas juveniles y los proyectos que humanizan las relaciones. Pregúntese: ¿dónde aparece el perdón, la verdad y la reparación practicados, no solo proclamados?
-
-5. Esperanza encarnada: destaque los signos de esperanza que encontró en el mapa (por ejemplo, experiencias de convivencia construidas sobre lugares de dolor) y vincúlelos con las bienaventuranzas: «Bienaventurados los que trabajan por la paz, porque serán llamados hijos de Dios» (Mt 5,9), palabra que da nombre y corazón a Justapaz.
-
-6. Compromiso: concluya con un reto y una oportunidad concretos para la comunidad.`,
-  reto: "Escriba aquí un reto concreto (ej.: recuperar el archivo de memoria comunitaria y el relato de los mayores antes de que se pierda).",
-  oportunidad: "Escriba aquí una oportunidad concreta (ej.: convertir la Ciudadela de la Convivencia en un espacio de formación permanente en reconciliación para las juventudes de Sahagún)."
+  texto: "¿Cómo se ha encarnado la teología de paz en este territorio o comunidad? Relacione lo observado con la dignidad humana, la defensa de la vida, la memoria, la reconciliación y la paz.",
+  reto: "",
+  oportunidad: ""
 };
 
-  // Ideas / Narrativas temáticas (mapas temáticos con múltiples ubicaciones)
-  const IDEAS_INICIALES = [
-    {
-      id: "idea-01",
-      nombre: "Sahagún: un territorio habitado por la violencia",
-      descripcion: "Narrativa sobre cómo la violencia ha marcado el territorio de Sahagún a través del tiempo.",
-      color: "#9B1C1C",
-      simbolo: "✕",
-      ubicaciones: [
-        { id: "ubi-001", nombre: "Centro del municipio", lat: 8.6100, lng: -75.4700, descripcion: "Centro histórico donde se han concentrado hechos de violencia", categoria: "afectaciones" },
-        { id: "ubi-002", nombre: "Barrio San José", lat: 8.6055, lng: -75.4755, descripcion: "Barrio receptor de desplazados por la violencia", categoria: "afectaciones" },
-        { id: "ubi-003", nombre: "Barrio Venecia", lat: 8.6085, lng: -75.4785, descripcion: "Zona con alta incidencia de violencia y desplazamiento", categoria: "afectaciones" }
-      ],
-      creado: "2026-01-01T00:00:00.000Z"
-    },
-    {
-      id: "idea-02",
-      nombre: "Sahagún: experiencias de resistencia y construcción de paz",
-      descripcion: "Narrativa sobre las iniciativas comunitarias de resistencia y construcción de paz en el territorio.",
-      color: "#15803D",
-      simbolo: "✊",
-      ubicaciones: [
-        { id: "ubi-004", nombre: "Ciudadela de la Convivencia", lat: 8.6125, lng: -75.4785, descripcion: "Espacio de reconciliación construido sobre antiguo recinto carcelario", categoria: "resistencia" },
-        { id: "ubi-005", nombre: "Escuelas de paz", lat: 8.6135, lng: -75.4685, descripcion: "Colegios con proyectos de educación para la paz", categoria: "resistencia" }
-      ],
-      creado: "2026-01-01T00:00:00.000Z"
-    }
-  ];
+  // Los temas y sus ubicaciones se crean a partir de la indagación real del territorio.
 
 const FICHAS_INICIALES = [
   {
