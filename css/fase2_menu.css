@@ -552,3 +552,45 @@ body.menu-oculto.info-oculta .aplicacion {
 #tiraLectura.plegada .tira-lectura__cuerpo { display: none; }
 #tiraLectura:not(.plegada) .tira-lectura__cuerpo { display: block; }
 #tiraLectura:not(.plegada) .tira-lectura__rejilla { padding-top: 10px; }
+
+
+/* Convenciones compactas para consulta y captura de pantalla */
+.menu__convenciones-ayuda { margin: 0 0 7px; font-size: .68rem; line-height: 1.35; }
+#menuConvenciones {
+  max-height: min(46vh, 390px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 3px 4px 0;
+  scrollbar-width: thin;
+}
+#menuConvenciones .leyenda-grupo-titulo {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 5px 0;
+  padding: 6px 8px;
+}
+#menuConvenciones .menu__cat {
+  gap: 6px;
+  margin: 3px 0;
+  padding: 5px 6px;
+  border-radius: 7px;
+}
+#menuConvenciones .menu__cat__simbolo { width: 28px; height: 28px; flex-basis: 28px; font-size: .95rem; border-radius: 7px; }
+#menuConvenciones .menu__cat__info strong { font-size: .68rem; }
+#menuConvenciones .menu__cat__info p { display: none; }
+#menuConvenciones .menu__cat__btn { padding: 3px 6px; }
+#menuConvenciones .leyenda-iconos-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; }
+#menuConvenciones .leyenda-icono-item { flex-direction: column; justify-content: center; gap: 3px; padding: 5px 3px; text-align: center; font-size: .64rem; }
+#menuConvenciones .leyenda-icono-muestra { width: 25px; height: 25px; flex-basis: 25px; font-size: 1.05rem; }
+#menuConvenciones .leyenda-ayuda-iconos { font-size: .63rem; }
+#tiraLectura { position: relative; margin-top: 8px; border: 1px solid #d7e1eb; border-radius: 12px; overflow: hidden; background: #fff; }
+#btnTiraLectura { display:flex; align-items:center; gap:10px; width:100%; min-height:46px; padding:10px 14px; border:0; background:#f4f7fb; color:#173d62; cursor:pointer; text-align:left; font:inherit; }
+#btnTiraLectura strong { display:flex; align-items:center; gap:8px; flex:1; font-size:.85rem; }
+#btnTiraLectura:focus-visible { outline:3px solid #d5a91e; outline-offset:-3px; }
+.tira-lectura__estado { color:#63768b; font-size:.7rem; white-space:nowrap; }
+.tira-lectura__caret { display:grid; place-items:center; width:26px; height:26px; border:1px solid #d4dfeb; border-radius:7px; background:#fff; font-size:1rem; transition:transform .18s; }
+#tiraLectura:not(.plegada) .tira-lectura__caret { transform:rotate(180deg); }
+#tiraLectura.plegada .tira-lectura__cuerpo { display:none; }
+#tiraLectura:not(.plegada) .tira-lectura__cuerpo { display:block; max-height:35vh; overflow:auto; }
+#tiraLectura:not(.plegada) .tira-lectura__rejilla { padding:10px; }
