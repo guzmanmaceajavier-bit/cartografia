@@ -2144,6 +2144,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
                               ${renderDescripcion(ubi.descripcion, "tema-sitio__descripcion")}
                               ${ubi.fecha ? `<p class="tema-sitio__fecha"><strong>Fecha o periodo:</strong> ${escapar(ubi.fecha)}</p>` : ""}
                               <p class="tema-sitio__coordenadas ${tieneCoords ? "" : "tema-sitio__coordenadas--pendiente"}">${tieneCoords ? "⌖ " + Number(ubi.lat).toFixed(5) + ", " + Number(ubi.lng).toFixed(5) : "○ Sin coordenadas: no aparece en el mapa"}</p>
+                              <p class="tema-sitio__precision"><strong>Precisión:</strong> ${ubi.precision === "aproximada" ? "Aproximada (zona general)" : ubi.precision === "sin" || !tieneCoords ? "Sin ubicación en el mapa" : "Exacta"}</p>
                             </div>
                             <div class="tema-sitio__acciones">
                               <button type="button" class="tema-icono-btn" data-ver-ubi="${escapar(ubi.id)}" title="Ver en el mapa" aria-label="Ver en el mapa">⌖</button>
