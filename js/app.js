@@ -99,6 +99,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
   const SIMBOLOS = ["◎", "◉", "○", "●", "✕", "✖", "✚", "▲", "■", "◆", "♦", "★", "✦", "☀", "✊", "➤", "◈", "⬟", "⬢", "♥", "📍", "🏛️", "🏘️", "🏠", "🏡", "🏫", "🎓", "⛪", "🕌", "🏥", "🚒", "👮", "🛡️", "⚠️", "💸", "🔫", "🕯️", "❓", "🏃", "🔓", "🌾", "🐄", "⚽", "🪶", "🧑‍🤝‍🧑", "🤝", "💃", "🏞️", "🚌", "☀️", "🕊️", "🌱", "❤️", "📖", "✝️", "👥", "🧒", "🗣️", "💧", "🌳", "🚩", "🧭", "📌"];
 
+  const NOMBRES_SIMBOLOS = {"◎":"territorio delimitación ubicación","◉":"actores comunidad","✕":"violencia afectación","▲":"retos alertas","✦":"memoria","☀":"esperanza","✊":"resistencia paz","📍":"ubicación punto","🏛️":"alcaldía institución","🏘️":"barrio comunidad","🏠":"vivienda","🏡":"finca","🏫":"colegio escuela","🎓":"educación","⛪":"iglesia templo","🕌":"templo","🏥":"hospital salud","🚒":"bomberos","👮":"policía","🛡️":"protección conflicto","⚠️":"amenaza riesgo","💸":"extorsión vacunas","🔫":"violencia armada","🕯️":"memoria víctimas","❓":"desaparición","🏃":"desplazamiento","🔓":"hurto robo","🌾":"cultivos agricultura","🐄":"ganadería","⚽":"fútbol deporte","🪶":"comunidad indígena","🧑‍🤝‍🧑":"jóvenes personas","🤝":"organización comunitaria","💃":"arte danza","🏞️":"parque plaza","🚌":"transporte vías","☀️":"esperanza reconciliación","🕊️":"paz","🌱":"vida renovación","❤️":"cuidado","📖":"documento testimonio","✝️":"iglesia fe","👥":"actores comunidad","🧒":"infancia protección","🗣️":"diálogo","💧":"agua","🌳":"naturaleza territorio","🚩":"alerta","🧭":"orientación","📌":"punto de interés"};
+
   const BASES = [
     {
       id: "calles",
@@ -449,7 +451,22 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       const row = e.target.closest(".gestion__fila");
       if (!row) return;
       if (e.target.type === "color") row.querySelector(".gestion__preview").style.background = e.target.value;
-      if (e.target.dataset.campo === "simbolo") row.querySelector(".gestion__preview").textContent = e.target.value || "■";
+      if (e.target.dataset.campo === "simbolo") {
+        row.querySelector(".gestion__preview").textContent = e.target.value || "■";
+        if (row.dataset.cat && e.type === "change") {
+          const k = row.dataset.cat;
+          const L = leyendaActual();
+          const base = CATEGORIAS_BASE[k];
+          const actual = L.cats[k] || {};
+          actual.simbolo = e.target.value.trim() || base.simbolo;
+          L.cats[k] = actual;
+          aplicarLeyenda();
+          guardar();
+          pintarMapa();
+          pintarMenuConvenciones();
+          if ($("#modalConvencionesCompleto") && !$("#modalConvencionesCompleto").hidden) abrirConvencionesCompletas();
+        }
+      }
     };
     $$("#leyendaCategorias .gestion__fila, #leyendaCustom .gestion__fila").forEach((row) => {
       row.addEventListener("input", vistaPrevia);
@@ -2693,6 +2710,18 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#archivoImportar").addEventListener("change", manejarImportacion);
     $("#btnAgregarConvencion").addEventListener("click", agregarConvencion);
     $("#btnGuardarLeyenda").addEventListener("click", guardarLeyenda);
+    let campoSimboloActivo = null;
+    document.addEventListener("focusin", (e) => {
+      if (e.target.matches && e.target.matches("#leyendaCategorias [data-campo='simbolo']")) campoSimboloActivo = e.target;
+    });
+    const buscadorSimbolos = $("#buscarSimbolos");
+    if (buscadorSimbolos) buscadorSimbolos.addEventListener("input", () => {
+      const sinAcentos = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es");
+      const q = sinAcentos(buscadorSimbolos.value);
+      $("#simbolosPaleta [data-sim]").forEach((b) => {
+        b.hidden = !!q && !sinAcentos(b.dataset.busquedaSimbolo || b.dataset.sim).includes(q);
+      });
+    });
     $("#btnImprimir").addEventListener("click", () => imprimir(false));
     $("#btnVistaPrevia").addEventListener("click", () => imprimir(true));
     $("#btnImprimirDesdePrevia").addEventListener("click", () => { cerrarModal("modalVistaPrevia"); imprimir(false); });
@@ -2784,8 +2813,13 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (volver) { pintarInfo(); return; }
       const sim = e.target.closest("[data-sim]");
       if (sim) {
-        const inp = $("#convSimbolo");
-        if (inp) { inp.value = sim.dataset.sim; inp.focus(); }
+        const inp = campoSimboloActivo && campoSimboloActivo.isConnected ? campoSimboloActivo : $("#convSimbolo");
+        if (inp) {
+          inp.value = sim.dataset.sim;
+          inp.focus();
+          inp.dispatchEvent(new Event("input", { bubbles: true }));
+          inp.dispatchEvent(new Event("change", { bubbles: true }));
+        }
         $$("#simbolosPaleta .simbolos-paleta__btn").forEach((b) => b.classList.toggle("simbolos-paleta__btn--activo", b === sim));
         return;
       }
