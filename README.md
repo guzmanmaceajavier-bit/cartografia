@@ -8,6 +8,9 @@ Aplicación web para documentar lugares, actores, afectaciones, memorias y exper
 - Búsqueda de símbolos por concepto (por ejemplo, iglesia, finca, violencia, salud, memoria y paz).
 - Posibilidad de escribir o pegar un emoji o símbolo personalizado.
 - Sincronización de los símbolos de las ocho categorías con el cuadro de convenciones y su representación en el mapa, sin alterar los símbolos específicos asignados a cada lugar.
+- Un mismo tema puede contener múltiples ubicaciones, cada una con nombre, municipio/vereda, descripción, categoría, símbolo y coordenadas independientes.
+- Botón «Agregar ubicación» en cada tarjeta de tema para añadir nuevos puntos sin crear otro tema; los puntos aparecen en el mapa cuando sus coordenadas son válidas.
+- Posibilidad de desplegar la lista completa de ubicaciones asociadas a un tema y editar o eliminar cada sitio individualmente.
 
 ## Tecnologías
 
