@@ -2552,7 +2552,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       });
     }
     // Paneles laterales plegables: permiten leer el contenido completo sin saturar la pantalla.
-    $("#menuLateral [data-panel-plegable]").forEach((btn) => {
+    $$("#menuLateral [data-panel-plegable]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const cuerpo = document.getElementById(btn.getAttribute("aria-controls"));
         if (!cuerpo) return;
