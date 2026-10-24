@@ -15,9 +15,11 @@
 }
 
 .menu__convenciones {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 7px;
+  width: 100%;
+  min-width: 0;
 }
 
 .menu__cat {
@@ -188,4 +190,32 @@
 @media (max-width: 520px) {
   .menu__guia { padding: 9px 10px; }
   .menu__guia p { font-size: 0.72rem; }
+}
+
+
+/* Corrección de superposición: menú, mapa y paneles deben respetar sus columnas. */
+.menu, .mapa-zona, .panel-info { min-width: 0; }
+.menu { position: relative; z-index: 3; overflow-x: hidden; }
+.mapa-zona { position: relative; z-index: 1; overflow: hidden; }
+#mapa { position: absolute; inset: 0; width: 100%; height: 100%; }
+.menu__cat { width: 100%; min-width: 0; align-items: flex-start; }
+.menu__cat__info { min-width: 0; overflow-wrap: anywhere; }
+.menu__cat__info strong, .menu__cat p { white-space: normal; overflow-wrap: anywhere; }
+.menu__cat__btn { align-self: center; }
+@media (min-width: 1181px) {
+  .aplicacion { grid-template-columns: minmax(285px, 310px) minmax(400px, 1fr) minmax(280px, 320px); }
+  .menu { max-width: none; }
+  .panel-info { position: relative; z-index: 2; }
+}
+@media (min-width: 761px) and (max-width: 1180px) {
+  .aplicacion { grid-template-columns: minmax(260px, 290px) minmax(0, 1fr) !important; }
+  .menu { display: block; width: auto; }
+  .mapa-zona { width: 100%; }
+}
+@media (max-width: 760px) {
+  .aplicacion { display: flex !important; flex-direction: column !important; }
+  .menu { width: 100%; max-width: none; overflow: visible; }
+  .mapa-zona { width: 100%; height: 55dvh; min-height: 290px; }
+  #mapa { position: absolute; inset: 0; }
+  .menu__cat { padding: 10px; }
 }
