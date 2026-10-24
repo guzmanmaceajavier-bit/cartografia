@@ -669,6 +669,10 @@
         <label>Descripción del lugar
           <textarea id="ideaUbiDescripcion" rows="2" placeholder="¿Qué relación tiene este lugar con el tema?"></textarea>
         </label>
+        <label>Símbolo del lugar
+          <select id="ideaUbiSimbolo"></select>
+          <small>Elige un símbolo específico para este sitio. No cambia el componente temático del tema.</small>
+        </label>
         <div class="tema-coordenadas__ayuda">
           <strong><span aria-hidden="true">↗</span> ¿Dónde encuentro las coordenadas?</strong>
           <p>Busca el lugar en <a href="https://maps.google.com/" target="_blank" rel="noopener noreferrer">Google Maps</a>, haz clic derecho en el punto exacto y copia los dos números: primero la latitud y después la longitud.</p>
@@ -726,6 +730,12 @@
           <select id="ubiCategoria"></select>
         </label>
       </div>
+      <section class="selector-simbolo-lugar">
+        <label for="ubiSimboloCampo">Símbolo específico del lugar</label>
+        <select id="ubiSimboloCampo"></select>
+        <p>Este símbolo identifica qué hay en el sitio (por ejemplo, comercio, iglesia, colegio o un hecho de violencia). Es independiente del componente de la cartografía.</p>
+        <div id="ubiSimboloVistaPrevia" class="selector-simbolo-lugar__preview" aria-live="polite"><span>✕</span><strong>Vista previa del símbolo</strong></div>
+      </section>
       <div class="ayuda-coordenadas">
         <strong>¿Cómo encontrar las coordenadas?</strong>
         <ol>
