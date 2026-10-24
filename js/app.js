@@ -43,7 +43,7 @@ function registrarCambio(accion, entidad, id, detalles) {
   estado.historial.unshift({
     id: "hist-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
     fecha: new Date().toISOString(),
-    usuario: AUTH_CONFIG.usuario || "anónimo",
+    usuario: "participante",
     accion: accion, // "crear", "editar", "eliminar", "importar", "exportar"
     entidad: entidad, // "ficha", "idea", "ubicacion", "territorio", "convencion"
     idEntidad: id,
@@ -89,138 +89,7 @@ function abrirModalHistorial() {
   abrirModal("modalHistorial");
 }
 
-// ==================== AUTENTICACIÓN BÁSICA ==================== //
-
-const AUTH_CONFIG = {
-  usuario: null,
-  rol: null, // "admin" | "editor" | "visor"
-  token: null
-};
-
-let authIntentos = 0;
-const MAX_INTENTOS = 3;
-const TIEMPO_BLOQUEO = 15 * 60 * 1000; // 15 minutos
-
-function autenticar(usuario, password) {
-  if (authIntentos >= MAX_INTENTOS) {
-    const tiempoRestante = TIEMPO_BLOQUEO - (Date.now() - (localStorage.getItem("auth_bloqueo_hasta") || 0));
-    if (tiempoRestante > 0) {
-      toast("Demasiados intentos. Intente en " + Math.ceil(tiempoRestante / 60000) + " minutos.", "error");
-      return false;
-    }
-    authIntentos = 0;
-    localStorage.removeItem("auth_bloqueo_hasta");
-  }
-  
-  // Usuarios predefinidos (en producción usar hash)
-  const usuarios = {
-    "admin": { password: "admin123", rol: "admin" },
-    "editor": { password: "editor123", rol: "editor" },
-    "visor": { password: "visor123", rol: "visor" }
-  };
-  
-  const user = usuarios[usuario];
-  if (user && user.password === password) {
-    AUTH_CONFIG.usuario = usuario;
-    AUTH_CONFIG.rol = user.rol;
-    AUTH_CONFIG.token = btoa(usuario + ":" + Date.now());
-    localStorage.setItem("auth_token", AUTH_CONFIG.token);
-    localStorage.setItem("auth_usuario", usuario);
-    localStorage.setItem("auth_rol", user.rol);
-    authIntentos = 0;
-    localStorage.removeItem("auth_bloqueo_hasta");
-    toast("Bienvenido, " + usuario + " (" + user.rol + ")");
-    actualizarUIAuth();
-    return true;
-  } else {
-    authIntentos++;
-    if (authIntentos >= MAX_INTENTOS) {
-      localStorage.setItem("auth_bloqueo_hasta", Date.now() + TIEMPO_BLOQUEO);
-      toast("Demasiados intentos fallidos. Cuenta bloqueada por 15 minutos.", "error");
-    } else {
-      toast("Credenciales incorrectas. Intentos restantes: " + (MAX_INTENTOS - authIntentos), "error");
-    }
-    return false;
-  }
-}
-
-function cerrarSesion() {
-  AUTH_CONFIG.usuario = null;
-  AUTH_CONFIG.rol = null;
-  AUTH_CONFIG.token = null;
-  localStorage.removeItem("auth_token");
-  localStorage.removeItem("auth_usuario");
-  localStorage.removeItem("auth_rol");
-  toast("Sesión cerrada.");
-  actualizarUIAuth();
-}
-
-function verificarSesion() {
-  const token = localStorage.getItem("auth_token");
-  const usuario = localStorage.getItem("auth_usuario");
-  const rol = localStorage.getItem("auth_rol");
-  
-  if (token && usuario && rol) {
-    AUTH_CONFIG.token = token;
-    AUTH_CONFIG.usuario = usuario;
-    AUTH_CONFIG.rol = rol;
-    actualizarUIAuth();
-    return true;
-  }
-  return false;
-}
-
-function tienePermiso(accion) {
-  const rol = AUTH_CONFIG.rol;
-  const permisos = {
-    admin: ["crear", "editar", "eliminar", "exportar", "importar", "configurar", "gestionar_usuarios"],
-    editor: ["crear", "editar", "exportar"],
-    visor: ["ver"]
-  };
-  return permisos[rol]?.includes(accion) || false;
-}
-
-function requerirPermiso(accion) {
-  if (!tienePermiso(accion)) {
-    toast("No tiene permiso para esta acción.", "error");
-    return false;
-  }
-  return true;
-}
-
-function actualizarUIAuth() {
-  const authDiv = $("#auth-info");
-  if (authDiv) {
-    if (AUTH_CONFIG.usuario) {
-      authDiv.innerHTML = "👤 " + AUTH_CONFIG.usuario + " (" + AUTH_CONFIG.rol + ") <button class='btn btn--mini' onclick='cerrarSesion()'>Salir</button>";
-    } else {
-      authDiv.innerHTML = "<button class='btn btn--mini' onclick='abrirModalLogin()'>🔐 Iniciar sesión</button>";
-    }
-  }
-  
-  // Mostrar/ocultar botones según permisos
-  $$("[data-permiso]").forEach((el) => {
-    const accion = el.dataset.permiso;
-    el.style.display = tienePermiso(accion) ? "" : "none";
-  });
-}
-
-function abrirModalLogin() {
-  $("#modalLoginTitulo").textContent = "Iniciar sesión";
-  $("#loginUsuario").value = "";
-  $("#loginPassword").value = "";
-  abrirModal("modalLogin");
-}
-
-// Cargar sesión guardada al inicio
-function restaurarSesion() {
-  if (verificarSesion()) {
-    toast("Sesión restaurada: " + AUTH_CONFIG.usuario);
-  }
-}
-
-// Llamar al inicio
-restaurarSesion();
+// La cartografía se puede consultar y editar sin inicio de sesión.
 
 const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
@@ -309,6 +178,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function migrar(datos) {
     datos.version = VERSION;
     datos.zonas = Array.isArray(datos.zonas) ? datos.zonas : [];
+    datos.ideas = Array.isArray(datos.ideas) ? datos.ideas : [];
     if (!datos.config || typeof datos.config !== "object") datos.config = {};
     if (datos.config.participante === undefined) datos.config.participante = CONFIGURACION_INICIAL.participante || "";
     if (datos.config.municipio === undefined) datos.config.municipio = CONFIGURACION_INICIAL.municipio || "";
@@ -419,6 +289,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       config: clonar(CONFIGURACION_INICIAL),
       reflexion: clonar(REFLEXION_INICIAL),
       fichas: clonar(FICHAS_INICIALES).map((f) => normalizarFicha(f)),
+      ideas: [],
       zonas: [],
       leyenda: { ocultas: [], cats: {}, custom: [] }
     };
@@ -855,15 +726,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       aplicarNombres();
     });
 
-    // Autenticación / Historial
-    const btnLogin = $("#btnLogin");
-    if (btnLogin) btnLogin.addEventListener("click", autenticar);
-    const btnLogout = $("#btnLogout");
-    if (btnLogout) btnLogout.addEventListener("click", cerrarSesion);
+    // Historial de cambios (sin cuentas ni inicio de sesión).
     const btnHistorial = $("#btnHistorial");
     if (btnHistorial) btnHistorial.addEventListener("click", abrirModalHistorial);
-    const btnLoginModal = $("#btnLogin");
-    if (btnLoginModal) btnLoginModal.addEventListener("click", () => abrirModal("modalLogin"));
 
     document.addEventListener("click", (e) => {
       if (panel.hidden) return;
@@ -1410,16 +1275,39 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function pintarMapa() {
     capaMarcadores.clearLayers();
     marcadores = {};
+
+    // Registros principales de la cartografía.
     fichasVisibles().forEach((f) => {
       if (catOculta(f.categoria)) return;
-      if (f.visible === false) return;
-      if (f.precision === "sin") return;
+      if (f.visible === false || f.precision === "sin") return;
       if (typeof f.lat !== "number" || typeof f.lng !== "number") return;
       const m = L.marker([f.lat, f.lng], { icon: iconoDe(f) });
       m.on("click", () => seleccionarFicha(f.id, false));
       m.addTo(capaMarcadores);
-      m.bindTooltip(escapar(f.nombre), { permanent: true, direction: "top", offset: [0, -18], className: "etiqueta-nombre", opacity: 1 });
+      const padre = estado.fichas.find((t) => t.id === f.territorio_padre);
+      const etiqueta = padre ? f.nombre + " · " + padre.nombre : f.nombre;
+      m.bindTooltip(escapar(etiqueta), { permanent: true, direction: "top", offset: [0, -18], className: "etiqueta-nombre", opacity: 1 });
       marcadores[f.id] = m;
+    });
+
+    // Las ubicaciones de cada narrativa también se muestran en el mapa.
+    (estado.ideas || []).forEach((idea) => {
+      (idea.ubicaciones || []).forEach((u) => {
+        if (typeof u.lat !== "number" || typeof u.lng !== "number") return;
+        const cat = CATEGORIAS[u.categoria] || { color: idea.color || "#9B1C1C", simbolo: idea.simbolo || "•" };
+        const icono = L.divIcon({
+          className: "marcador-narrativa",
+          html: "<span style='display:flex;align-items:center;justify-content:center;width:30px;height:30px;border:2px solid #fff;border-radius:50%;background:" + cat.color + ";color:#fff;font-size:16px;font-weight:700;box-shadow:0 1px 5px #0005'>" + escapar(cat.simbolo || idea.simbolo || "•") + "</span>",
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        });
+        const m = L.marker([u.lat, u.lng], { icon: icono, ubiId: u.id });
+        m.addTo(capaMarcadores);
+        m.bindTooltip(escapar(u.nombre), { permanent: true, direction: "top", offset: [0, -16], className: "etiqueta-nombre", opacity: 1 });
+        m.bindPopup("<strong>" + escapar(u.nombre) + "</strong><br><span>" + escapar(idea.nombre) + "</span>" +
+          (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : ""));
+        marcadores["ubi:" + u.id] = m;
+      });
     });
     aplicarNombres();
   }
@@ -2740,8 +2628,6 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     pintarEstadoGuardado();
     pintarEstadoNube(deNube ? "☁ Nube conectada ✓" : "☁ Sin conexión: guardado local");
     eventos();
-    restaurarSesion();
-    actualizarUIAuth();
     navegar("mapa");
     if (window.matchMedia && window.matchMedia("(max-width: 900px)").matches) alternarTira(true);
 
