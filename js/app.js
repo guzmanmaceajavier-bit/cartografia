@@ -1293,6 +1293,13 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       .join("");
     $("#ideaCategoria").innerHTML = opcionesComponentes;
     $("#ubiCategoria").innerHTML = opcionesComponentes;
+    const opcionesSimbolos = Object.entries(SIMBOLOS_CAMPO)
+      .map(([nombre, simbolo]) => "<option value='" + escapar(nombre) + "'>" + simbolo + " " + escapar(nombre) + "</option>")
+      .join("");
+    ["#ubiSimboloCampo", "#ideaUbiSimbolo"].forEach((selector) => {
+      const campo = $(selector);
+      if (campo) campo.innerHTML = opcionesSimbolos;
+    });
     $("#fichaTipoFuente").innerHTML = "<option value=''>Sin especificar</option>" +
       Object.keys(TIPOS_FUENTE)
         .map((k) => "<option value='" + k + "'>" + escapar(TIPOS_FUENTE[k].nombre) + "</option>")
@@ -1333,9 +1340,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         if (u.categoria && catOculta(u.categoria)) return;
         if (typeof u.lat !== "number" || typeof u.lng !== "number") return;
         const cat = CATEGORIAS[u.categoria] || { color: idea.color || "#9B1C1C", simbolo: idea.simbolo || "•" };
+        const simboloLugar = SIMBOLOS_CAMPO[u.simboloCampo] || cat.simbolo || idea.simbolo || "•";
         const icono = L.divIcon({
           className: "marcador-narrativa",
-          html: "<span style='display:flex;align-items:center;justify-content:center;width:30px;height:30px;border:2px solid #fff;border-radius:50%;background:" + cat.color + ";color:#fff;font-size:16px;font-weight:700;box-shadow:0 1px 5px #0005'>" + escapar(cat.simbolo || idea.simbolo || "•") + "</span>",
+          html: "<span title='" + escapar(u.simboloCampo || "Lugar") + "' style='display:flex;align-items:center;justify-content:center;width:34px;height:34px;border:2px solid #fff;border-radius:50%;background:" + cat.color + ";color:#fff;font-size:18px;font-weight:700;box-shadow:0 1px 5px #0005'>" + escapar(simboloLugar) + "</span>",
           iconSize: [30, 30],
           iconAnchor: [15, 15]
         });
@@ -1747,6 +1755,14 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
   // ==================== IDEAS / NARRATIVAS TEMÁTICAS ====================
 
+  function actualizarVistaPreviaSimbolo() {
+    const campo = $("#ubiSimboloCampo");
+    const vista = $("#ubiSimboloVistaPrevia");
+    if (!campo || !vista) return;
+    const simbolo = SIMBOLOS_CAMPO[campo.value] || "•";
+    vista.innerHTML = "<span>" + escapar(simbolo) + "</span><strong>" + escapar(campo.value || "Símbolo del lugar") + "</strong>";
+  }
+
   function abrirModalUbi(ideaId) {
     const idea = estado.ideas.find((i) => i.id === ideaId);
     if (!idea) return;
@@ -1757,6 +1773,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiLugar").value = idea.territorio || estado.config?.nombreTerritorio || "";
     $("#ubiDescripcion").value = "";
     $("#ubiCategoria").value = idea.categoria || "lugares";
+    $("#ubiSimboloCampo").value = "Sin símbolo específico";
+    actualizarVistaPreviaSimbolo();
     $("#ubiLat").value = "";
     $("#ubiLng").value = "";
     $("#ubiPrecision").value = "exacta";
@@ -1801,6 +1819,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiDescripcion").value = ubi.descripcion || "";
     $("#ubiLugar").value = ubi.lugar || idea?.territorio || estado.config?.nombreTerritorio || "";
     $("#ubiCategoria").value = ubi.categoria || idea?.categoria || "lugares";
+    $("#ubiSimboloCampo").value = ubi.simboloCampo || "Sin símbolo específico";
+    actualizarVistaPreviaSimbolo();
     $("#ubiLat").value = ubi.lat ?? "";
     $("#ubiLng").value = ubi.lng ?? "";
     $("#ubiPrecision").value = ubi.precision || "exacta";
@@ -1889,6 +1909,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           lugar: ubiLugar || nueva.territorio || "",
           descripcion: ubiDescripcion,
           categoria: nueva.categoria,
+          simboloCampo: $("#ideaUbiSimbolo").value || "Sin símbolo específico",
           lat: ubiLat,
           lng: ubiLng,
           precision: ubiLat !== null && ubiLng !== null ? "exacta" : "sin",
@@ -1951,7 +1972,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           <div class="idea-tarjeta__ubicaciones">
             ${(idea.ubicaciones || []).map((ubi) => `
               <div class="idea-ubicacion" data-ubi-id="${ubi.id}">
-                <span class="idea-ubicacion__simbolo" style="background:${CATEGORIAS[ubi.categoria]?.color || "#5D6B7E"}">${CATEGORIAS[ubi.categoria]?.simbolo || "•"}</span>
+                <span class="idea-ubicacion__simbolo" title="${escapar(ubi.simboloCampo || "Símbolo del componente")}" style="background:${CATEGORIAS[ubi.categoria]?.color || "#5D6B7E"}">${SIMBOLOS_CAMPO[ubi.simboloCampo] || CATEGORIAS[ubi.categoria]?.simbolo || "•"}</span>
                 <div class="idea-ubicacion__info">
                   <strong>${escapar(ubi.nombre)}</strong>
                   <span class="idea-ubicacion__cat">${escapar(CATEGORIAS[ubi.categoria] ? CATEGORIAS[ubi.categoria].seccion + ". " + CATEGORIAS[ubi.categoria].nombre : (ubi.categoria || "Sin componente"))}</span>
@@ -2238,6 +2259,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       lugar: $("#ubiLugar").value.trim(),
       descripcion: $("#ubiDescripcion").value.trim(),
       categoria: $("#ubiCategoria").value || idea.categoria || "lugares",
+      simboloCampo: $("#ubiSimboloCampo").value || "Sin símbolo específico",
       lat,
       lng,
       precision: $("#ubiPrecision").value,
@@ -2583,6 +2605,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#btnAyuda").addEventListener("click", () => abrirModal("modalAyuda"));
     $("#btnGuardarIdea").addEventListener("click", guardarIdea);
     $("#btnGuardarUbi").addEventListener("click", guardarUbi);
+    $("#ubiSimboloCampo").addEventListener("change", actualizarVistaPreviaSimbolo);
     $("#btnExportar").addEventListener("click", exportarTodo);
     $("#btnImportar").addEventListener("click", () => $("#archivoImportar").click());
     $("#archivoImportar").addEventListener("change", manejarImportacion);
