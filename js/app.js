@@ -816,10 +816,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       ).join("") +
       "<label class='tipo-mapa__etiquetas' id='tipoEtiquetas' hidden><input type='checkbox' id='chkEtiquetas'> Etiquetas</label>" +
       "<label class='tipo-mapa__etiquetas' id='tipoNombres' title='Mostrar los nombres de los lugares sobre el mapa'><input type='checkbox' id='chkNombres' checked> Nombres</label>" +
-      "<div class='tipo-mapa__sec'>Convenciones <button type='button' class='tipo-mapa__editar' data-accion='leyenda' title='Gestionar convenciones'>⚙️</button></div>" +
-      "<div id='convencionesExtra' class='convenciones__lista'></div>" +
+      "<div class='tipo-mapa__nota'>La leyenda de colores y símbolos está en el menú lateral, en ‘Leyenda del mapa’.</div>" +
       "</div>" +
-      "<button type='button' class='tipo-mapa__btn' id='tipoMapaBtn' title='Capas: tipo de mapa y convenciones' aria-haspopup='true' aria-expanded='false'>" +
+      "<button type='button' class='tipo-mapa__btn' id='tipoMapaBtn' title='Cambiar el mapa base y las etiquetas' aria-haspopup='true' aria-expanded='false'>"
       "<span aria-hidden='true'>▦</span><span id='tipoMapaNombre'></span><span class='tipo-mapa__caret' aria-hidden='true'>▲</span>" +
       "</button>";
     if (barra) barra.appendChild(cont);
@@ -2553,15 +2552,6 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#btnGuardarReflexion").addEventListener("click", guardarReflexion);
     $("#btnExportarReflexion").addEventListener("click", descargarReflexion);
     $("#btnAyuda").addEventListener("click", () => abrirModal("modalAyuda"));
-    $("#btnNuevaIdea").addEventListener("click", () => {
-      $("#modalIdeaTitulo").textContent = "Nueva idea";
-      $("#ideaId").value = "";
-      $("#ideaNombre").value = "";
-      $("#ideaDescripcion").value = "";
-      $("#ideaColor").value = "#9B1C1C";
-      $("#ideaSimbolo").value = "✕";
-      abrirModal("modalIdea");
-    });
     $("#btnGuardarIdea").addEventListener("click", guardarIdea);
     $("#btnGuardarUbi").addEventListener("click", guardarUbi);
     $("#btnExportar").addEventListener("click", exportarTodo);
@@ -2582,11 +2572,11 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       finalizarModoUbicar();
       abrirModal("modalFicha");
     });
-    // Ideas / Narrativas
-    $("#btnGuardarIdea").addEventListener("click", guardarIdea);
-    $("#btnGuardarUbi").addEventListener("click", guardarUbi);
-    $("#btnUbicarUbi").addEventListener("click", iniciarModoUbicarUbi);
-    $("#btnCancelarUbicarUbi").addEventListener("click", () => {
+    // Ideas / narrativas: los botones de guardado se enlazan una sola vez arriba.
+    const btnUbicarUbi = $("#btnUbicarUbi");
+    if (btnUbicarUbi) btnUbicarUbi.addEventListener("click", iniciarModoUbicarUbi);
+    const btnCancelarUbicarUbi = $("#btnCancelarUbicarUbi");
+    if (btnCancelarUbicarUbi) btnCancelarUbicarUbi.addEventListener("click", () => {
       finalizarModoUbicar();
       abrirModal("modalUbi");
     });
