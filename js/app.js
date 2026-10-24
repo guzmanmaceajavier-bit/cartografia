@@ -1283,14 +1283,18 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   /* ==================== FICHAS Y FILTROS ==================== */
 
   function iconoDe(ficha) {
-    const cat = CATEGORIAS[ficha.categoria] || CATEGORIAS.territorio;
+    const cat = CATEGORIAS[ficha.categoria] || CATEGORIAS.lugares;
     const activo = fichaSeleccionada === ficha.id;
-    const simbolo = ficha.simboloCampo || cat.simbolo;
+    // Priorizar el símbolo del componente para que cada categoría se reconozca a simple vista.
+    const simbolo = cat.simbolo || "•";
+    const sombra = activo
+      ? "box-shadow:0 0 0 4px rgba(16,45,79,.35),0 2px 7px rgba(0,0,0,.4);"
+      : "box-shadow:0 2px 7px rgba(0,0,0,.35);";
     return L.divIcon({
-      className: "marcador" + (activo ? " marcador--activo" : ""),
-      html: "<span class='marcador__nodo' style='background:" + cat.color + (activo ? ";box-shadow:0 0 0 4px rgba(16,45,79,.35),0 2px 6px rgba(0,0,0,.35)" : "") + "'>" + simbolo + "</span>",
-      iconSize: [34, 34],
-      iconAnchor: [17, 17]
+      className: "marcador marcador-componente" + (activo ? " marcador--activo" : ""),
+      html: "<span class='marcador__nodo' role='img' aria-label='" + escapar(cat.nombre) + "' title='" + escapar(cat.nombre) + "' style='display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:3px solid #fff;border-radius:50%;background:" + cat.color + ";color:#fff;font-size:20px;font-weight:800;line-height:1;" + sombra + "text-shadow:0 1px 2px #0008'>" + escapar(simbolo) + "</span>",
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
     });
   }
 
@@ -1379,13 +1383,15 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       (idea.ubicaciones || []).forEach((u) => {
         if (u.categoria && catOculta(u.categoria)) return;
         if (typeof u.lat !== "number" || typeof u.lng !== "number") return;
-        const cat = CATEGORIAS[u.categoria] || { color: idea.color || "#9B1C1C", simbolo: idea.simbolo || "•" };
-        const simboloLugar = SIMBOLOS_CAMPO[simboloCampoDe(u)] || cat.simbolo || idea.simbolo || "•";
+        const cat = CATEGORIAS[u.categoria] || { color: idea.color || "#9B1C1C", simbolo: idea.simbolo || "•", nombre: "Sin clasificar" };
+        // El símbolo principal identifica el componente cartográfico; el color coincide con la leyenda.
+        // El símbolo del tipo de lugar se conserva en la ficha emergente, sin reemplazar el componente.
+        const simboloComponente = cat.simbolo || "•";
         const icono = L.divIcon({
-          className: "marcador-narrativa",
-          html: "<span title='" + escapar(u.simboloCampo || "Lugar") + "' style='display:flex;align-items:center;justify-content:center;width:34px;height:34px;border:2px solid #fff;border-radius:50%;background:" + cat.color + ";color:#fff;font-size:18px;font-weight:700;box-shadow:0 1px 5px #0005'>" + escapar(simboloLugar) + "</span>",
-          iconSize: [30, 30],
-          iconAnchor: [15, 15]
+          className: "marcador-narrativa marcador-componente",
+          html: "<span role='img' aria-label='" + escapar(cat.nombre || "Componente cartográfico") + "' title='" + escapar(cat.nombre || "Componente cartográfico") + "' style='display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:3px solid #fff;border-radius:50%;background:" + cat.color + ";color:#fff;font-size:20px;font-weight:800;line-height:1;box-shadow:0 2px 7px #0006;text-shadow:0 1px 2px #0008'>" + escapar(simboloComponente) + "</span>",
+          iconSize: [36, 36],
+          iconAnchor: [18, 18]
         });
         const m = L.marker([u.lat, u.lng], { icon: icono, ubiId: u.id });
         m.addTo(capaMarcadores);
