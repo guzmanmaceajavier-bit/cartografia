@@ -1905,10 +1905,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       return `
         <article class="tarjeta idea-tarjeta" data-idea-id="${idea.id}">
           <header class="idea-tarjeta__cabecera">
-            <span class="idea-tarjeta__simbolo" style="background:${CATEGORIAS[idea.categoria]?.color || idea.color || "#9B1C1C"};">${CATEGORIAS[idea.categoria]?.simbolo || idea.simbolo || "•"}</span>
+            <span class="idea-tarjeta__simbolo" style="background:${CATEGORIAS[idea.categoria || "afectaciones"]?.color || idea.color || "#9B1C1C"};">${CATEGORIAS[idea.categoria || "afectaciones"]?.simbolo || idea.simbolo || "•"}</span>
             <div>
               <h3>${escapar(idea.nombre)}</h3>
-              <p class="idea-tarjeta__meta">Componente ${CATEGORIAS[idea.categoria]?.seccion || "sin clasificar"} · ${escapar(CATEGORIAS[idea.categoria]?.nombre || "Sin componente seleccionado")}</p>
+              <p class="idea-tarjeta__meta">Componente ${CATEGORIAS[idea.categoria || "afectaciones"]?.seccion || "sin clasificar"} · ${escapar(CATEGORIAS[idea.categoria || "afectaciones"]?.nombre || "Sin componente seleccionado")}</p>
               <p class="idea-tarjeta__meta">${ubiCount} sitio${ubiCount !== 1 ? "s" : ""} · ${escapar(idea.territorio || "Ámbito geográfico por definir")}</p>
               <p class="idea-tarjeta__meta">${escapar(idea.descripcion || "Sin descripción")}</p>
             </div>
