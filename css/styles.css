@@ -2156,3 +2156,147 @@ body.dibujando .leaflet-container { cursor: crosshair; }
   .menu__herramientas { grid-template-columns:1fr; }
   .hoja h1 { font-size:1.45rem; line-height:1.2; }
 }
+
+
+/* Rediseño de navegación por etapas y panel lateral */
+.cabecera {
+  grid-template-columns: minmax(190px, auto) minmax(0, 1fr);
+  grid-template-areas: "marca acciones" "nav nav";
+  gap: 8px 16px;
+  padding: 9px 14px 8px;
+}
+.principal {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding-top: 5px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201,162,39,.65) transparent;
+}
+.nav-etapa {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: 0 0 auto;
+  padding: 3px 5px;
+  border: 1px solid rgba(190,211,232,.18);
+  border-radius: 10px;
+  background: rgba(255,255,255,.045);
+}
+.nav-etapa__titulo {
+  align-self: center;
+  padding: 0 7px;
+  color: #a9c1d9;
+  font-size: .61rem;
+  font-weight: 800;
+  letter-spacing: .7px;
+  white-space: nowrap;
+}
+.nav-etapa .principal__btn {
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: .76rem;
+}
+.nav-etapa .principal__btn--activo {
+  background: #e3bd3d;
+  color: #152d46;
+  box-shadow: 0 2px 7px rgba(0,0,0,.18);
+}
+.nav-etapa .principal__btn:focus-visible {
+  outline: 2px solid #f7d86a;
+  outline-offset: 1px;
+}
+.menu {
+  padding: 12px 10px 16px;
+  background: linear-gradient(180deg, #fff 0%, #fbfcfe 100%);
+  scrollbar-width: thin;
+  scrollbar-color: #c5d2df transparent;
+}
+.menu__titulo {
+  border-radius: 10px;
+  padding: 13px 12px;
+  box-shadow: 0 4px 12px rgba(16,45,79,.12);
+}
+.menu__seccion {
+  padding: 11px 9px;
+  margin: 10px 0;
+  border: 1px solid #e2e8ef;
+  border-radius: 11px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 2px 7px rgba(16,45,79,.035);
+}
+.menu__seccion-titulo {
+  padding: 0 2px 7px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #e9eef4;
+  color: #53667a;
+  font-size: .68rem;
+  letter-spacing: .8px;
+}
+.menu__guia {
+  border-radius: 10px;
+  box-shadow: 0 2px 7px rgba(16,45,79,.04);
+}
+.menu__herramientas {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  gap: 7px;
+}
+.menu__btn {
+  min-height: 35px;
+  text-align: left;
+  border-color: #dbe3ec;
+  border-radius: 8px;
+  background: #f9fbfd;
+  color: #193b5d;
+}
+.menu__btn:hover {
+  background: #edf4fa;
+  border-color: #b7cadd;
+}
+.panel-toggle {
+  width: 34px;
+  height: 68px;
+  border: 1px solid #c7d5e3;
+  background: linear-gradient(180deg,#fff 0%,#edf3f9 100%);
+  color: #173d62;
+  font-size: 1.2rem;
+  border-radius: 0 12px 12px 0;
+  box-shadow: 0 5px 18px rgba(16,45,79,.18);
+  transition: width .18s, background .18s, box-shadow .18s;
+}
+.panel-toggle:hover {
+  width: 40px;
+  background: #e4eef7;
+  box-shadow: 0 7px 20px rgba(16,45,79,.22);
+}
+.panel-toggle--der { border-radius: 12px 0 0 12px; }
+.btn-dibujo {
+  border: 1px solid #c7d5e3;
+  border-radius: 12px;
+  background: linear-gradient(135deg,#fff 0%,#f0f5fa 100%);
+  color: #153b60;
+  padding: 10px 17px;
+  font-weight: 750;
+  box-shadow: 0 5px 18px rgba(16,45,79,.18);
+  transition: transform .15s, box-shadow .15s, background .15s;
+}
+.btn-dibujo:hover {
+  transform: translateY(-2px);
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(16,45,79,.22);
+}
+@media (max-width: 1180px) {
+  .nav-etapa__titulo { padding: 0 4px; }
+  .nav-etapa .principal__btn { padding: 8px; font-size: .72rem; }
+  .principal { gap: 5px; }
+}
+@media (max-width: 760px) {
+  .cabecera { grid-template-columns: minmax(0,1fr); grid-template-areas: "marca" "acciones" "nav"; }
+  .principal { align-items: stretch; }
+  .nav-etapa { flex-direction: column; align-items: stretch; }
+  .nav-etapa__titulo { text-align: left; }
+  .nav-etapa .principal__btn { white-space: nowrap; }
+  .menu__seccion { margin: 8px 0; }
+}
