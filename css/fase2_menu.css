@@ -697,3 +697,14 @@ body.menu-oculto.info-oculta .aplicacion {
  #convencionesCompletoContenido .menu__cat, #convencionesCompletoContenido .leyenda-icono-item { page-break-inside:avoid; }
  #convencionesCompletoContenido .leyenda-introduccion, #convencionesCompletoContenido .leyenda-grupo-titulo { print-color-adjust:exact; -webkit-print-color-adjust:exact; }
 }
+
+
+/* Ayuda clara para introducir coordenadas consultadas manualmente */
+.ayuda-coordenadas { margin: 2px 0 14px; padding: 12px 14px; border: 1px solid #cbddea; border-left: 4px solid #3976a5; border-radius: 9px; background: #f2f7fb; color: #29445b; }
+.ayuda-coordenadas strong { display: block; margin-bottom: 5px; font-size: .82rem; }
+.ayuda-coordenadas ol { margin: 6px 0 7px 20px; padding: 0; }
+.ayuda-coordenadas li, .ayuda-coordenadas p { font-size: .76rem; line-height: 1.5; }
+.ayuda-coordenadas p { margin: 7px 0 0; color: #526a7e; }
+.ayuda-coordenadas a { color: #145b91; font-weight: 750; text-decoration: underline; }
+.formulario__nota { margin: 6px 0 0; color: #607387; font-size: .74rem; line-height: 1.45; }
+.idea-ubicacion__coordenadas { margin: 4px 0 0; color: #365c79; font-size: .72rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
