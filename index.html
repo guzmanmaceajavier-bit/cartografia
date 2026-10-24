@@ -657,6 +657,10 @@
         <label>Descripción y propósito
           <textarea id="ideaDescripcion" rows="3" placeholder="¿Qué quieres documentar, comprender o mostrar con este tema?"></textarea>
         </label>
+        <label>Fecha o periodo de la experiencia
+          <input type="text" id="ideaFecha" placeholder="Ej.: 1997-2005, desde 2010, actualidad">
+          <small>Indica cuándo ocurrió o desde cuándo existe esta experiencia; no es la fecha en que la registras.</small>
+        </label>
       </section>
 
       <section class="tema-formulario__seccion tema-formulario__seccion--ubicacion" id="ideaPrimeraUbicacion">
@@ -673,6 +677,9 @@
         <label>Descripción del lugar
           <textarea id="ideaUbiDescripcion" rows="2" placeholder="¿Qué relación tiene este lugar con el tema?"></textarea>
         </label>
+        <label>Fecha o periodo relacionado con este lugar
+          <input type="text" id="ideaUbiFecha" placeholder="Ej.: desde 2018, 2002, actualidad">
+        </label>
         <label>Símbolo del lugar
           <select id="ideaUbiSimbolo"></select>
           <small>Elige un símbolo específico para este sitio. No cambia el componente temático del tema.</small>
@@ -688,8 +695,17 @@
           <label>Longitud
             <input type="number" id="ideaUbiLng" step="any" min="-180" max="180" placeholder="Ej.: -75.4698">
           </label>
+          <label>Precisión
+            <select id="ideaUbiPrecision">
+              <option value="exacta">Exacta</option>
+              <option value="aproximada">Aproximada (zona general)</option>
+              <option value="sin">Sin ubicación en el mapa</option>
+            </select>
+          </label>
         </div>
-        <p class="tema-formulario__nota">La ubicación se guardará con el tema solo si completas el nombre del lugar o alguna coordenada. Debes introducir latitud y longitud juntas para mostrar el punto en el mapa.</p>
+        <div id="ideaUbicacionesAdicionales" class="idea-ubicaciones-adicionales"></div>
+        <button type="button" class="btn btn--suave" id="btnIdeaAgregarUbicacion">＋ Agregar otra ubicación a este tema</button>
+        <p class="tema-formulario__nota">Puedes registrar varios sitios dentro de un mismo tema. Cada sitio tendrá su propio nombre, descripción, fecha o periodo, símbolo, coordenadas y precisión. Para mostrarlo en el mapa se necesitan latitud y longitud juntas.</p>
       </section>
 
       <details class="tema-formulario__apariencia">
@@ -728,6 +744,9 @@
       </label>
       <label>Descripción
         <textarea id="ubiDescripcion" rows="3" placeholder="¿Qué ocurrió o qué importancia tiene este lugar dentro del tema?"></textarea>
+      </label>
+      <label>Fecha o periodo relacionado con este lugar
+        <input type="text" id="ubiFecha" placeholder="Ej.: 2002, desde 2018, actualidad">
       </label>
       <div class="formulario__fila">
         <label>Componente de la cartografía (01–08)
