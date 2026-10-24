@@ -2,6 +2,13 @@
 
 Aplicación web para documentar lugares, actores, afectaciones, memorias y experiencias de construcción de paz en el territorio. Incluye mapa interactivo basado en Leaflet, fichas, figuras, filtros, exportación/importación de respaldos e impresión.
 
+## Actualización funcional — 24 de octubre de 2026
+
+- Catálogo ampliado de símbolos para lugares y categorías temáticas.
+- Búsqueda de símbolos por concepto (por ejemplo, iglesia, finca, violencia, salud, memoria y paz).
+- Posibilidad de escribir o pegar un emoji o símbolo personalizado.
+- Sincronización de los símbolos de las ocho categorías con el cuadro de convenciones y su representación en el mapa, sin alterar los símbolos específicos asignados a cada lugar.
+
 ## Tecnologías
 
 - HTML, CSS y JavaScript sin framework de compilación.
