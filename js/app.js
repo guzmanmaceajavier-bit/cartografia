@@ -1100,6 +1100,27 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       mostrarBarraDibujo(false);
       return;
     }
+    // Al pulsar de nuevo la herramienta o cambiar a otra, guardar el trazo en curso
+    // en vez de quitarlo del mapa como si fuera un borrador.
+    if (dibujoTmp && (dibujoTmp.tipo === "linea" || dibujoTmp.tipo === "flecha")) {
+      const tipoPendiente = dibujoTmp.tipo;
+      if (dibujoTmp.pts && dibujoTmp.pts.length >= 2) {
+        terminarLinea(tipoPendiente);
+        toast("Trazo guardado en el mapa. Puedes seguir dibujando.");
+      } else {
+        toast("Marca al menos dos puntos para guardar la línea; pulsa Esc si quieres cancelarla.", "error");
+      }
+      return;
+    }
+    if (dibujoTmp && dibujoTmp.tipo === "poligono") {
+      if (dibujoTmp.pts && dibujoTmp.pts.length >= 3) {
+        terminarPoligono();
+        toast("Polígono guardado en el mapa. Puedes seguir dibujando.");
+      } else {
+        toast("Marca al menos tres vértices para guardar el polígono; pulsa Esc si quieres cancelarlo.", "error");
+      }
+      return;
+    }
     cancelarDibujoTmp();
     dibujoTool = dibujoTool === tool ? null : tool;
     $$("#barraDibujo [data-dibujo]").forEach((b) => {
