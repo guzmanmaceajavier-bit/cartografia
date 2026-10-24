@@ -1722,7 +1722,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     let html = "<div class='leyenda-introduccion'><p><strong>¿Cómo leer este cuadro?</strong> Busca el símbolo en el mapa y consulta aquí qué representa.</p><div class='leyenda-claves'><span><i class='leyenda-clave leyenda-clave--color'></i> Color: categoría temática</span><span><i class='leyenda-clave leyenda-clave--icono'>📍</i> Icono: tipo de lugar</span><span><i class='leyenda-clave leyenda-clave--punto'>●</i> Punto: ubicación geográfica</span></div></div><div class='leyenda-grupo-titulo'>A. Categorías temáticas de la cartografía de paz</div>";
     cats.forEach((k) => {
       const c = CATEGORIAS[k];
-      const n = base.filter((f) => f.categoria === k).length;
+      const n = base.filter((f) => f.categoria === k).length + (estado.ideas || []).reduce((total, idea) => total + (idea.ubicaciones || []).filter((u) => u.categoria === k).length, 0);
       html +=
         "<div class='menu__cat'>" +
         "<span class='menu__cat__simbolo' style='--cat-color:" + c.color + "'>" + c.simbolo + "</span>" +
