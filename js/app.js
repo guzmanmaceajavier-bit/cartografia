@@ -1340,7 +1340,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         if (u.categoria && catOculta(u.categoria)) return;
         if (typeof u.lat !== "number" || typeof u.lng !== "number") return;
         const cat = CATEGORIAS[u.categoria] || { color: idea.color || "#9B1C1C", simbolo: idea.simbolo || "•" };
-        const simboloLugar = SIMBOLOS_CAMPO[u.simboloCampo] || cat.simbolo || idea.simbolo || "•";
+        const simboloLugar = SIMBOLOS_CAMPO[simboloCampoDe(u)] || cat.simbolo || idea.simbolo || "•";
         const icono = L.divIcon({
           className: "marcador-narrativa",
           html: "<span title='" + escapar(u.simboloCampo || "Lugar") + "' style='display:flex;align-items:center;justify-content:center;width:34px;height:34px;border:2px solid #fff;border-radius:50%;background:" + cat.color + ";color:#fff;font-size:18px;font-weight:700;box-shadow:0 1px 5px #0005'>" + escapar(simboloLugar) + "</span>",
@@ -1755,6 +1755,29 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
   // ==================== IDEAS / NARRATIVAS TEMÁTICAS ====================
 
+  function simboloCampoDe(ubi) {
+    if (ubi?.simboloCampo && SIMBOLOS_CAMPO[ubi.simboloCampo]) return ubi.simboloCampo;
+    const texto = ((ubi?.nombre || "") + " " + (ubi?.descripcion || "")).toLocaleLowerCase("es");
+    if (/extorsi|vacuna|cobro ilegal/.test(texto)) return "Extorsión / vacunas";
+    if (/amenaz|intimidaci/.test(texto)) return "Amenazas";
+    if (/homicid|asesinat/.test(texto)) return "Homicidios";
+    if (/desaparecid/.test(texto)) return "Desaparición";
+    if (/desplazad/.test(texto)) return "Desplazamiento";
+    if (/hurto|robo/.test(texto)) return "Hurtos";
+    if (/ganader|ganado|vaca|reses/.test(texto)) return "Ganadería";
+    if (/colegio|escuela/.test(texto)) return /fútbol|futbol/.test(texto) ? "Escuela de fútbol" : "Colegio";
+    if (/iglesia|templo|parroquia/.test(texto)) return "Iglesia";
+    if (/finca|predio/.test(texto)) return "Finca";
+    if (/hospital|salud|clínica|clinica/.test(texto)) return "Hospital / salud";
+    if (/bombero/.test(texto)) return "Bomberos";
+    if (/policía|policia/.test(texto)) return "Policía";
+    if (/alcaldía|alcaldia/.test(texto)) return "Alcaldía";
+    if (/icbf|protección infantil/.test(texto)) return "ICBF / protección infantil";
+    if (/danza|arte|artístico|artistico/.test(texto)) return "Arte y danza";
+    if (/comercio|tienda|mercado/.test(texto)) return "Comercio";
+    return "Sin símbolo específico";
+  }
+
   function actualizarVistaPreviaSimbolo() {
     const campo = $("#ubiSimboloCampo");
     const vista = $("#ubiSimboloVistaPrevia");
@@ -1819,7 +1842,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiDescripcion").value = ubi.descripcion || "";
     $("#ubiLugar").value = ubi.lugar || idea?.territorio || estado.config?.nombreTerritorio || "";
     $("#ubiCategoria").value = ubi.categoria || idea?.categoria || "lugares";
-    $("#ubiSimboloCampo").value = ubi.simboloCampo || "Sin símbolo específico";
+    $("#ubiSimboloCampo").value = simboloCampoDe(ubi);
     actualizarVistaPreviaSimbolo();
     $("#ubiLat").value = ubi.lat ?? "";
     $("#ubiLng").value = ubi.lng ?? "";
@@ -1972,7 +1995,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           <div class="idea-tarjeta__ubicaciones">
             ${(idea.ubicaciones || []).map((ubi) => `
               <div class="idea-ubicacion" data-ubi-id="${ubi.id}">
-                <span class="idea-ubicacion__simbolo" title="${escapar(ubi.simboloCampo || "Símbolo del componente")}" style="background:${CATEGORIAS[ubi.categoria]?.color || "#5D6B7E"}">${SIMBOLOS_CAMPO[ubi.simboloCampo] || CATEGORIAS[ubi.categoria]?.simbolo || "•"}</span>
+                <span class="idea-ubicacion__simbolo" title="${escapar(ubi.simboloCampo || "Símbolo del componente")}" style="background:${CATEGORIAS[ubi.categoria]?.color || "#5D6B7E"}">${SIMBOLOS_CAMPO[simboloCampoDe(ubi)] || CATEGORIAS[ubi.categoria]?.simbolo || "•"}</span>
                 <div class="idea-ubicacion__info">
                   <strong>${escapar(ubi.nombre)}</strong>
                   <span class="idea-ubicacion__cat">${escapar(CATEGORIAS[ubi.categoria] ? CATEGORIAS[ubi.categoria].seccion + ". " + CATEGORIAS[ubi.categoria].nombre : (ubi.categoria || "Sin componente"))}</span>
