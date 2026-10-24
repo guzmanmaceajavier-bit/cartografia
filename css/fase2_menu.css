@@ -708,3 +708,32 @@ body.menu-oculto.info-oculta .aplicacion {
 .ayuda-coordenadas a { color: #145b91; font-weight: 750; text-decoration: underline; }
 .formulario__nota { margin: 6px 0 0; color: #607387; font-size: .74rem; line-height: 1.45; }
 .idea-ubicacion__coordenadas { margin: 4px 0 0; color: #365c79; font-size: .72rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+
+/* Formulario de creación de temas: secciones claras y campos de ubicación */
+.formulario-tema { display: grid; gap: 18px; padding: 20px 22px; }
+.tema-formulario__seccion { min-width: 0; padding: 18px; border: 1px solid #dce5ec; border-radius: 14px; background: #fff; display: grid; gap: 13px; }
+.tema-formulario__seccion--ubicacion { background: #f7fafc; border-color: #d2e1eb; }
+.tema-formulario__encabezado { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #e4ebf0; margin-bottom: 2px; }
+.tema-formulario__paso { display: inline-flex; flex: 0 0 34px; height: 34px; align-items: center; justify-content: center; border-radius: 10px; background: #e4eef5; color: #245578; font-size: .78rem; font-weight: 800; }
+.tema-formulario__encabezado h3 { margin: 0 0 4px; color: #20394b; font-size: 1rem; }
+.tema-formulario__encabezado p { margin: 0; color: #66798a; font-size: .8rem; line-height: 1.45; }
+.formulario-tema label { display: grid; align-content: start; gap: 6px; color: #34495a; font-size: .82rem; font-weight: 700; }
+.formulario-tema input:not([type="color"]), .formulario-tema select, .formulario-tema textarea { box-sizing: border-box; width: 100%; min-width: 0; border: 1px solid #cbd7e0; border-radius: 9px; padding: 10px 12px; background: #fff; color: #243746; font: inherit; font-size: .9rem; }
+.formulario-tema input:focus, .formulario-tema select:focus, .formulario-tema textarea:focus { outline: 3px solid #d8eaf7; border-color: #5187ad; }
+.formulario-tema label small { color: #728494; font-size: .73rem; font-weight: 400; line-height: 1.4; }
+.campo-opcional { color: #718293; font-size: .7rem; font-weight: 500; }
+.tema-coordenadas__ayuda { padding: 12px 14px; border-radius: 10px; background: #eaf3f9; color: #34556d; }
+.tema-coordenadas__ayuda strong { display: block; margin-bottom: 5px; font-size: .8rem; }
+.tema-coordenadas__ayuda p { margin: 0; font-size: .78rem; line-height: 1.5; }
+.tema-coordenadas__ayuda a { color: #145b91; font-weight: 800; text-decoration: underline; }
+.tema-formulario__nota { margin: -2px 0 0; color: #718293; font-size: .75rem; line-height: 1.5; }
+.tema-formulario__apariencia { border: 1px solid #e0e6eb; border-radius: 10px; padding: 12px 15px; background: #fafcfd; }
+.tema-formulario__apariencia summary { cursor: pointer; color: #3b5366; font-size: .82rem; font-weight: 750; }
+.tema-formulario__apariencia .formulario__fila { margin-top: 14px; }
+.formulario-tema [type="color"] { width: 100%; min-height: 40px; border: 1px solid #cbd7e0; border-radius: 9px; background: #fff; padding: 4px; }
+@media (max-width: 620px) {
+  .formulario-tema { padding: 14px; gap: 12px; }
+  .tema-formulario__seccion { padding: 13px; gap: 11px; }
+  .tema-formulario__seccion .formulario__fila { grid-template-columns: 1fr; }
+}
