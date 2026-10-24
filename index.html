@@ -60,32 +60,39 @@
         <p style="font-size:0.72rem;color:var(--tinta-suave);margin:4px 0 0">Sahagún · Córdoba, Colombia</p>
       </div>
 
-      <section class="menu__guia" aria-labelledby="tituloGuiaCartografia">
-        <h4 id="tituloGuiaCartografia">Etapa 1 · Reconocer el territorio</h4>
-        <p>Comience por identificar la comunidad, delimitar el territorio y reconocer sus memorias, afectaciones, actores e iniciativas de paz.</p>
-        <p><strong>Cada punto</strong> representa un lugar, actor o experiencia registrada. Registre solo información que pueda documentar o atribuir claramente a una fuente.</p>
-        <p><strong>El color y el símbolo</strong> indican su categoría. El número junto a cada categoría muestra cuántos registros tiene.</p>
-        <p><strong>El contorno del territorio</strong> señala el límite municipal disponible; no representa por sí solo un hecho de violencia.</p>
-        <p>Pulse la flecha de una categoría para consultar sus registros. Use <strong>＋ Agregar registro</strong> para documentar uno nuevo.</p>
+      <section class="menu__guia menu__acordeon" aria-labelledby="tituloGuiaCartografia">
+        <button type="button" class="menu__seccion-titulo menu__acordeon-btn" id="tituloGuiaCartografia" data-panel-plegable aria-expanded="false" aria-controls="cuerpoGuiaCartografia"><span>Etapa 1 · Reconocer el territorio</span><span class="menu__acordeon-icono" aria-hidden="true">＋</span></button>
+        <div class="menu__acordeon-cuerpo" id="cuerpoGuiaCartografia" hidden>
+          <p>Comience por identificar la comunidad, delimitar el territorio y reconocer sus memorias, afectaciones, actores e iniciativas de paz.</p>
+          <p><strong>Cada punto</strong> representa un lugar, actor o experiencia registrada. Registre solo información que pueda documentar o atribuir claramente a una fuente.</p>
+          <p><strong>El color y el símbolo</strong> indican su categoría. El número junto a cada categoría muestra cuántos registros tiene.</p>
+          <p><strong>El contorno del territorio</strong> señala el límite municipal disponible; no representa por sí solo un hecho de violencia.</p>
+          <p>Pulse la flecha de una categoría para consultar sus registros. Use <strong>＋ Agregar registro</strong> para documentar uno nuevo.</p>
+        </div>
       </section>
 
-      <div class="menu__seccion">
-        <div class="menu__seccion-titulo">Territorios y capas</div>
+      <div class="menu__seccion menu__acordeon">
+        <button type="button" class="menu__seccion-titulo menu__acordeon-btn" data-panel-plegable aria-expanded="false" aria-controls="cuerpoTerritorios"><span>Territorios y capas</span><span class="menu__acordeon-icono" aria-hidden="true">＋</span></button>
+        <div class="menu__acordeon-cuerpo" id="cuerpoTerritorios" hidden>
         <div class="menu__territorio">
           <p class="menu__territorio-nombre" id="terrMenuNombre"></p>
           <p class="menu__territorio-desc" id="terrMenuDesc"></p>
           <button type="button" class="btn menu__btn" id="btnTerritorio">✏️ Editar delimitación y límites</button>
         </div>
+        </div>
       </div>
 
-      <div class="menu__seccion">
-        <div class="menu__seccion-titulo">Convenciones del mapa</div>
+      <div class="menu__seccion menu__acordeon">
+        <button type="button" class="menu__seccion-titulo menu__acordeon-btn" data-panel-plegable aria-expanded="false" aria-controls="cuerpoConvenciones"><span>Convenciones del mapa</span><span class="menu__acordeon-icono" aria-hidden="true">＋</span></button>
+        <div class="menu__acordeon-cuerpo" id="cuerpoConvenciones">
         <p class="menu__convenciones-ayuda">Símbolos y colores usados en los registros. Seleccione una categoría para mostrar u ocultar sus puntos en el mapa.</p>
         <div id="menuConvenciones" class="menu__convenciones"></div>
+        </div>
       </div>
 
-      <div class="menu__seccion">
-        <div class="menu__seccion-titulo">Herramientas</div>
+      <div class="menu__seccion menu__acordeon">
+        <button type="button" class="menu__seccion-titulo menu__acordeon-btn" data-panel-plegable aria-expanded="false" aria-controls="cuerpoHerramientas"><span>Herramientas</span><span class="menu__acordeon-icono" aria-hidden="true">＋</span></button>
+        <div class="menu__acordeon-cuerpo" id="cuerpoHerramientas" hidden>
         <div class="menu__herramientas">
           <button type="button" class="btn menu__btn" data-accion="leyenda">⚙️ Gestionar convenciones</button>
           <button type="button" class="btn menu__btn" id="btnExportar">⬇️ Exportar respaldo (JSON)</button>
@@ -96,13 +103,16 @@
           <button type="button" class="btn menu__btn" id="btnHistorial">🕰️ Historial</button>
           <button type="button" class="btn menu__btn" id="btnAyuda">❓ Cómo usar</button>
         </div>
+        </div>
       </div>
 
-      <div class="menu__seccion">
-        <div class="menu__seccion-titulo">Estado del trabajo</div>
+      <div class="menu__seccion menu__acordeon">
+        <button type="button" class="menu__seccion-titulo menu__acordeon-btn" data-panel-plegable aria-expanded="false" aria-controls="cuerpoEstado"><span>Estado del trabajo</span><span class="menu__acordeon-icono" aria-hidden="true">＋</span></button>
+        <div class="menu__acordeon-cuerpo" id="cuerpoEstado" hidden>
         <div class="menu__guardado" id="estadoGuardado">Guardado automático activo</div>
         <div class="menu__guardado" id="estadoNube">☁ Conectando…</div>
         <div class="menu__progreso" id="progresoEntrega"></div>
+        </div>
       </div>
     </aside>
 
