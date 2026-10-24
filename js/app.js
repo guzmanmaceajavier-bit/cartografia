@@ -1377,26 +1377,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : ""));
         marcadores["ubi:" + u.id] = m;
 
-        // Puntos secundarios asociados a una misma ubicación narrativa.
-        (u.puntos || []).forEach((p) => {
-          if (typeof p.lat !== "number" || typeof p.lng !== "number" || p.precision === "sin") return;
-          const nombrePunto = p.nombre || "Punto adicional";
-          const simboloPunto = SIMBOLOS_CAMPO[p.simboloCampo] || "📍";
-          const iconoPunto = L.divIcon({
-            className: "marcador-narrativa marcador-narrativa--secundario",
-            html: "<span title='" + escapar(nombrePunto) + "' style='display:flex;align-items:center;justify-content:center;width:30px;height:30px;border:2px solid #fff;border-radius:50%;background:" + cat.color + ";color:#fff;font-size:16px;font-weight:700;box-shadow:0 1px 5px #0005'>" + escapar(simboloPunto) + "</span>",
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-          });
-          const clavePunto = "ubi:" + u.id + ":punto:" + p.id;
-          const mp = L.marker([p.lat, p.lng], { icon: iconoPunto, ubiId: u.id, puntoId: p.id });
-          mp.addTo(capaMarcadores);
-          mp.bindTooltip(escapar(nombrePunto), { permanent: true, direction: "top", offset: [0, -16], className: "etiqueta-nombre", opacity: 1 });
-          mp.bindPopup("<strong>" + escapar(nombrePunto) + "</strong><br><span>" + escapar(idea.nombre) + " · " + escapar(u.nombre) + "</span>" +
-            ((p.lugar || u.lugar || idea.territorio) ? "<p><strong>Zona:</strong> " + escapar(p.lugar || u.lugar || idea.territorio) + "</p>" : "") +
-            (p.descripcion ? "<p>" + escapar(p.descripcion) + "</p>" : ""));
-          marcadores[clavePunto] = mp;
-        });
+
       });
     });
     aplicarNombres();
@@ -1890,51 +1871,28 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     abrirModal("modalUbi");
   }
 
-  function crearPuntoAdicionalUbi(punto = {}) {
+  function crearPuntoAdicionalUbi(ubicacion = {}) {
     const cont = $("#ubiPuntosAdicionales");
     if (!cont) return;
     const bloque = document.createElement("section");
     bloque.className = "ubi-punto-adicional";
     bloque.style.cssText = "border:1px solid var(--borde,#d9e0e7);border-radius:10px;padding:12px;margin:10px 0";
-    bloque.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-        <h4 style="margin:0">Punto adicional</h4>
-        <button type="button" class="btn btn--suave" data-quitar-punto-ubi>Quitar punto</button>
-      </div>
-      <label>Nombre del sitio
-        <input type="text" data-punto-ubi="nombre" placeholder="Ej.: banco del centro, colegio, finca">
-      </label>
-      <label>Zona o dirección
-        <input type="text" data-punto-ubi="lugar" placeholder="Ej.: barrio Centro, vereda">
-      </label>
-      <label>Descripción
-        <textarea rows="2" data-punto-ubi="descripcion" placeholder="Relación de este sitio con el tema"></textarea>
-      </label>
-      <label>Símbolo del sitio
-        <select data-punto-ubi="simboloCampo">
-          <option value="">Usar símbolo 📍</option>
-          ${Object.keys(SIMBOLOS_CAMPO).map((nombre) => `<option value="${escapar(nombre)}">${escapar(SIMBOLOS_CAMPO[nombre])} — ${escapar(nombre)}</option>`).join("")}
-        </select>
-      </label>
-      <div class="formulario__fila">
-        <label>Latitud<input type="number" step="any" min="-90" max="90" data-punto-ubi="lat" placeholder="8.6100"></label>
-        <label>Longitud<input type="number" step="any" min="-180" max="180" data-punto-ubi="lng" placeholder="-75.4698"></label>
-        <label>Precisión
-          <select data-punto-ubi="precision">
-            <option value="exacta">Exacta</option>
-            <option value="aproximada">Aproximada</option>
-            <option value="sin">Sin ubicación en el mapa</option>
-          </select>
-        </label>
-      </div>`;
-    bloque.querySelector('[data-punto-ubi="nombre"]').value = punto.nombre || "";
-    bloque.querySelector('[data-punto-ubi="lugar"]').value = punto.lugar || "";
-    bloque.querySelector('[data-punto-ubi="descripcion"]').value = punto.descripcion || "";
-    bloque.querySelector('[data-punto-ubi="simboloCampo"]').value = punto.simboloCampo || "";
-    bloque.querySelector('[data-punto-ubi="lat"]').value = punto.lat ?? "";
-    bloque.querySelector('[data-punto-ubi="lng"]').value = punto.lng ?? "";
-    bloque.querySelector('[data-punto-ubi="precision"]').value = punto.precision || "exacta";
-    if (punto.id) bloque.dataset.puntoId = punto.id;
+    const opcionesSimbolo = Object.keys(SIMBOLOS_CAMPO).map((nombre) => '<option value="' + escapar(nombre) + '">' + escapar(SIMBOLOS_CAMPO[nombre]) + " — " + escapar(nombre) + "</option>").join("");
+    bloque.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h4 style="margin:0">Ubicación adicional</h4><button type="button" class="btn btn--suave" data-quitar-punto-ubi>Quitar ubicación</button></div>' +
+      '<label>Nombre del sitio<input type="text" data-punto-ubi="nombre" placeholder="Ej.: banco del centro, colegio, finca"></label>' +
+      '<label>Zona o dirección<input type="text" data-punto-ubi="lugar" placeholder="Ej.: barrio Centro, vereda"></label>' +
+      '<label>Descripción<textarea rows="2" data-punto-ubi="descripcion" placeholder="Relación de este sitio con el tema"></textarea></label>' +
+      '<label>Símbolo del sitio<select data-punto-ubi="simboloCampo"><option value="">Usar símbolo 📍</option>' + opcionesSimbolo + '</select></label>' +
+      '<div class="formulario__fila"><label>Latitud<input type="number" step="any" min="-90" max="90" data-punto-ubi="lat" placeholder="8.6100"></label>' +
+      '<label>Longitud<input type="number" step="any" min="-180" max="180" data-punto-ubi="lng" placeholder="-75.4698"></label>' +
+      '<label>Precisión<select data-punto-ubi="precision"><option value="exacta">Exacta</option><option value="aproximada">Aproximada</option><option value="sin">Sin ubicación en el mapa</option></select></label></div>';
+    bloque.querySelector('[data-punto-ubi="nombre"]').value = ubicacion.nombre || "";
+    bloque.querySelector('[data-punto-ubi="lugar"]').value = ubicacion.lugar || "";
+    bloque.querySelector('[data-punto-ubi="descripcion"]').value = ubicacion.descripcion || "";
+    bloque.querySelector('[data-punto-ubi="simboloCampo"]').value = ubicacion.simboloCampo || "";
+    bloque.querySelector('[data-punto-ubi="lat"]').value = ubicacion.lat ?? "";
+    bloque.querySelector('[data-punto-ubi="lng"]').value = ubicacion.lng ?? "";
+    bloque.querySelector('[data-punto-ubi="precision"]').value = ubicacion.precision || "exacta";
     bloque.querySelector("[data-quitar-punto-ubi]").addEventListener("click", () => bloque.remove());
     cont.appendChild(bloque);
   }
@@ -1986,8 +1944,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ubiLng").value = ubi.lng ?? "";
     $("#ubiPrecision").value = ubi.precision || "exacta";
     $("#ubiId").value = ubi.id;
+    // Las ubicaciones adicionales se guardan como entradas independientes en idea.ubicaciones.
     $("#ubiPuntosAdicionales").innerHTML = "";
-    (ubi.puntos || []).forEach((p) => crearPuntoAdicionalUbi(p));
     abrirModal("modalUbi");
   }
 
@@ -2486,57 +2444,16 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const idea = estado.ideas.find((i) => i.id === ideaId);
     if (!idea) { toast("La idea no existe.", "error"); return; }
     if (!idea.ubicaciones) idea.ubicaciones = [];
-
-    const latTexto = $("#ubiLat").value.trim();
-    const lngTexto = $("#ubiLng").value.trim();
-    const lat = latTexto === "" ? null : Number(latTexto);
-    const lng = lngTexto === "" ? null : Number(lngTexto);
-    if ((lat === null) !== (lng === null)) {
-      toast("Ingresa tanto la latitud como la longitud, o deja ambas vacías.", "error");
-      return;
-    }
-    if (lat !== null && (!Number.isFinite(lat) || lat < -90 || lat > 90)) {
-      toast("La latitud debe ser un número entre -90 y 90.", "error");
-      return;
-    }
-    if (lng !== null && (!Number.isFinite(lng) || lng < -180 || lng > 180)) {
-      toast("La longitud debe ser un número entre -180 y 180.", "error");
-      return;
-    }
-
-    const puntos = [];
-    for (const bloque of $("#ubiPuntosAdicionales .ubi-punto-adicional")) {
-      const valor = (campo) => bloque.querySelector('[data-punto-ubi="' + campo + '"]').value.trim();
-      const latPTexto = valor("lat");
-      const lngPTexto = valor("lng");
-      const latP = latPTexto === "" ? null : Number(latPTexto);
-      const lngP = lngPTexto === "" ? null : Number(lngPTexto);
-      const nombreP = valor("nombre");
-      if (!nombreP && latP === null && lngP === null && !valor("lugar") && !valor("descripcion")) continue;
-      if ((latP === null) !== (lngP === null)) {
-        toast("En cada punto adicional debes ingresar latitud y longitud, o dejar ambas vacías.", "error");
-        return;
-      }
-      if (latP !== null && (!Number.isFinite(latP) || latP < -90 || latP > 90)) {
-        toast("La latitud de un punto adicional debe estar entre -90 y 90.", "error");
-        return;
-      }
-      if (lngP !== null && (!Number.isFinite(lngP) || lngP < -180 || lngP > 180)) {
-        toast("La longitud de un punto adicional debe estar entre -180 y 180.", "error");
-        return;
-      }
-      puntos.push({
-        id: bloque.dataset.puntoId || ("punto-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)),
-        nombre: nombreP || "Punto adicional",
-        lugar: valor("lugar"),
-        descripcion: valor("descripcion"),
-        simboloCampo: valor("simboloCampo"),
-        lat: latP,
-        lng: lngP,
-        precision: valor("precision") || "exacta"
-      });
-    }
-
+    const validarCoordenadas = (latTexto, lngTexto, etiqueta) => {
+      const lat = latTexto.trim() === "" ? null : Number(latTexto);
+      const lng = lngTexto.trim() === "" ? null : Number(lngTexto);
+      if ((lat === null) !== (lng === null)) { toast("En " + etiqueta + " ingresa latitud y longitud juntas, o deja ambas vacías.", "error"); return null; }
+      if (lat !== null && (!Number.isFinite(lat) || lat < -90 || lat > 90)) { toast("La latitud de " + etiqueta + " debe estar entre -90 y 90.", "error"); return null; }
+      if (lng !== null && (!Number.isFinite(lng) || lng < -180 || lng > 180)) { toast("La longitud de " + etiqueta + " debe estar entre -180 y 180.", "error"); return null; }
+      return { lat, lng };
+    };
+    const coords = validarCoordenadas($("#ubiLat").value, $("#ubiLng").value, "la ubicación principal");
+    if (!coords) return;
     const datos = {
       nombre: $("#ubiNombre").value.trim() || "Ubicación sin nombre",
       lugar: $("#ubiLugar").value.trim(),
@@ -2544,26 +2461,32 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       fecha: $("#ubiFecha").value.trim(),
       categoria: $("#ubiCategoria").value || idea.categoria || "lugares",
       simboloCampo: $("#ubiSimboloCampo").value || "Sin símbolo específico",
-      lat,
-      lng,
-      precision: $("#ubiPrecision").value,
-      puntos,
-      creado: new Date().toISOString()
+      lat: coords.lat, lng: coords.lng, precision: $("#ubiPrecision").value, creado: new Date().toISOString()
     };
-
+    const adicionales = [];
+    for (const bloque of $("#ubiPuntosAdicionales .ubi-punto-adicional")) {
+      const valor = (campo) => bloque.querySelector('[data-punto-ubi="' + campo + '"]').value.trim();
+      const nombre = valor("nombre"), lugar = valor("lugar"), descripcion = valor("descripcion");
+      const latTexto = valor("lat"), lngTexto = valor("lng");
+      if (!nombre && !lugar && !descripcion && !latTexto && !lngTexto) continue;
+      if (!nombre) { toast("Ponle un nombre a cada ubicación adicional.", "error"); return; }
+      const c = validarCoordenadas(latTexto, lngTexto, "la ubicación «" + nombre + "»");
+      if (!c) return;
+      adicionales.push({ id: "ubi-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), nombre, lugar, descripcion, fecha: datos.fecha, categoria: datos.categoria, simboloCampo: valor("simboloCampo") || "Sin símbolo específico", lat: c.lat, lng: c.lng, precision: valor("precision") || "exacta", creado: new Date().toISOString() });
+    }
     if (id) {
       const ubi = idea.ubicaciones.find((u) => u.id === id);
-      if (ubi) Object.assign(ubi, datos);
-      toast("Ubicación actualizada.");
+      if (!ubi) { toast("No se encontró la ubicación que intentas editar.", "error"); return; }
+      Object.assign(ubi, datos);
+      toast(adicionales.length ? "Ubicación actualizada y sitios adicionales guardados por separado." : "Ubicación actualizada.");
     } else {
       datos.id = "ubi-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
       idea.ubicaciones.push(datos);
       toast("Ubicación agregada a la idea.");
     }
-    guardar();
-    pintarIdeas();
-    pintarMapa();
-    cerrarModal("modalUbi");
+    // Cada sitio adicional queda como ubicación hermana, no como punto anidado.
+    idea.ubicaciones.push(...adicionales);
+    guardar(); pintarIdeas(); pintarMapa(); cerrarModal("modalUbi");
   }
 
   /* ==================== TERRITORIO ==================== */
