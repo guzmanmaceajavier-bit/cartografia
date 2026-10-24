@@ -31,114 +31,9 @@
 
 const PALETA = ["#C9A227", "#102D4F", "#15803D", "#9B1C1C", "#6D28D9", "#1D4ED8", "#C2410C", "#5D6B7E"];
 
-// ==================== TURSO SEGURO (LADO SERVIDOR) ==================== //
-
-const TURSO_CONFIG = {
-  url: null,
-  token: null,
-  syncInterval: 30000
-};
-
-let tursoSyncActivo = false;
-let ultimaSincronizacion = null;
-
-async function sincronizarConTurso() {
-  if (!TURSO_CONFIG.url || !TURSO_CONFIG.token) {
-    console.warn("Turso no configurado: falta URL o token en configuración del servidor");
-    return false;
-  }
-  
-  try {
-    const datosLocales = {
-      version: VERSION,
-      config: estado.config,
-      reflexion: estado.reflexion,
-      fichas: estado.fichas,
-      zonas: estado.zonas,
-      leyenda: estado.leyenda,
-      ideas: estado.ideas || [],
-      historial: estado.historial || []
-    };
-
-    const response = await fetch(TURSO_CONFIG.url + "/sync", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + TURSO_CONFIG.token
-      },
-      body: JSON.stringify({
-        datos: estado,
-        ultimaSincronizacion: ultimaSincronizacion
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error("HTTP " + response.status + ": " + await response.text());
-    }
-
-    const resultado = await response.json();
-    
-    if (resultado.datos && resultado.ultimaSincronizacion > ultimaSincronizacion) {
-      estado = migrar(resultado.datos);
-      ultimaSincronizacion = resultado.ultimaSincronizacion;
-      aplicarLeyenda();
-      repintar();
-      toast("Sincronizado con la nube.");
-    }
-    
-    ultimaSincronizacion = Date.now();
-    return true;
-  } catch (e) {
-    console.error("Error sincronizando con Turso:", e);
-    return false;
-  }
-}
-
-function iniciarSincronizacionTurso() {
-  if (turboSyncActivo) return;
-  tursoSyncActivo = true;
-  
-  sincronizarConTurso();
-  
-  setInterval(async () => {
-    if (turboSyncActivo) {
-      await sincronizarConTurso();
-    }
-  }, TURSO_CONFIG.syncInterval);
-  
-  toast("Sincronización con la nube activada.");
-}
-
-function detenerSincronizacionTurso() {
-  turboSyncActivo = false;
-  toast("Sincronización con la nube detenida.");
-}
-
-function configurarTurso(url, token) {
-  TURSO_CONFIG.url = url;
-  TURSO_CONFIG.token = token;
-  localStorage.setItem("turso_config", JSON.stringify({ url, token }));
-  if (tursoSyncActivo) {
-    detenerSincronizacionTurso();
-    iniciarSincronizacionTurso();
-  }
-  toast("Configuración de Turso actualizada.");
-}
-
-function cargarConfigTurso() {
-  try {
-    const guardada = localStorage.getItem("turso_config");
-    if (guardada) {
-      const config = JSON.parse(guardada);
-      TURSO_CONFIG.url = config.url;
-      TURSO_CONFIG.token = config.token;
-    }
-  } catch (e) {
-    console.warn("No se pudo cargar configuración Turso:", e);
-  }
-}
-
-cargarConfigTurso();
+  // La persistencia en la nube se gestiona mediante guardarNube() y cargarNube(),
+  // usando la función propia /api/estado. Nunca se guardan credenciales de base de datos
+  // en el navegador: las variables sensibles deben permanecer en el entorno del servidor.
 
 // ==================== HISTORIAL DE CAMBIOS ==================== //
 
@@ -2857,9 +2752,6 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     eventos();
     restaurarSesion();
     actualizarUIAuth();
-    if (TURSO_CONFIG.url && TURSO_CONFIG.token) {
-      iniciarSincronizacionTurso();
-    }
     navegar("mapa");
     if (window.matchMedia && window.matchMedia("(max-width: 900px)").matches) alternarTira(true);
 
