@@ -739,7 +739,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       ).join("") +
       "<label class='tipo-mapa__etiquetas' id='tipoEtiquetas' hidden><input type='checkbox' id='chkEtiquetas'> Etiquetas</label>" +
       "<label class='tipo-mapa__etiquetas' id='tipoNombres' title='Mostrar los nombres de los lugares sobre el mapa'><input type='checkbox' id='chkNombres' checked> Nombres</label>" +
-      "<div class='tipo-mapa__nota'>La leyenda de colores y símbolos está en el menú lateral, en ‘Leyenda del mapa’.</div>" +
+      "<div class='tipo-mapa__nota'>Activa o desactiva categorías para elegir qué registros aparecen en el mapa.</div>" +
+      "<div class='tipo-mapa__sec'>Categorías visibles</div>" +
+      "<div class='filtros-categorias-mapa' id='filtrosCategoriasMapa'>" + Object.keys(CATEGORIAS).filter((k) => k !== "delimitacion").sort((a,b) => CATEGORIAS[a].seccion-CATEGORIAS[b].seccion).map((k) => "<label class='tipo-mapa__etiquetas'><input type='checkbox' data-filtro-categoria='" + escapar(k) + "' " + (catOculta(k) ? "" : "checked") + "> <span style='color:" + escapar(CATEGORIAS[k].color) + "'>" + escapar(CATEGORIAS[k].simbolo) + "</span> " + escapar(CATEGORIAS[k].seccion + ". " + CATEGORIAS[k].nombre) + "</label>").join("") + "</div>" +
       "</div>" +
       "<button type='button' class='tipo-mapa__btn' id='tipoMapaBtn' title='Cambiar la vista cartográfica' aria-haspopup='true' aria-expanded='false'>" +
       "<span class='tipo-mapa__icono' aria-hidden='true'>▦</span><span class='tipo-mapa__etiqueta'>Mapa base</span><span class='tipo-mapa__separador' aria-hidden='true'></span><span id='tipoMapaNombre'></span><span class='tipo-mapa__caret' aria-hidden='true'>⌄</span>" +
@@ -764,6 +766,23 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       cambiarVistaBase(item.dataset.tipo);
       pintarTipoMapa();
     });
+
+    cont.querySelectorAll("[data-filtro-categoria]").forEach((chk) => chk.addEventListener("change", (e) => {
+      const k = e.target.dataset.filtroCategoria;
+      const L = leyendaActual();
+      const o = L.cats[k] || {};
+      if (e.target.checked) {
+        if (!o.nombre && !o.color && !o.simbolo) delete L.cats[k];
+        else { o.oculta = false; L.cats[k] = o; }
+      } else {
+        o.oculta = true;
+        L.cats[k] = o;
+      }
+      aplicarLeyenda();
+      guardar();
+      pintarMapa();
+      repintarSeccion();
+    }));
 
     cont.querySelector("#chkEtiquetas").addEventListener("change", (e) => {
       estado.config.etiquetas = e.target.checked;
@@ -2744,6 +2763,65 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       $("#archivoImportar").value = "";
     };
     lector.readAsText(archivo);
+  }
+
+  function imprimirPaginado(opciones) {
+    const vistaPrevia = !!(opciones && opciones.vistaPrevia);
+    const area = $("#areaImpresion");
+    if (!area) { toast("No se encontró el área del informe.", "error"); return; }
+    const fichas = ordenarPorSeccion(fichasVisibles().filter((f) => !catOculta(f.categoria)));
+    const ideas = (estado.ideas || []).filter((idea) => (idea.ubicaciones || []).some((u) => !u.categoria || !catOculta(u.categoria)));
+    const fecha = new Date().toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
+    const config = estado.config || {};
+    const categorias = Object.keys(CATEGORIAS).filter((k) => k !== "delimitacion" && !catOculta(k)).sort((a,b) => CATEGORIAS[a].seccion-CATEGORIAS[b].seccion);
+    const leyenda = categorias.map((k) => {
+      const c = CATEGORIAS[k];
+      return "<li><span class='imp-simbolo' style='background:" + escapar(c.color) + "'>" + escapar(c.simbolo) + "</span><span><strong>" + escapar(c.seccion + ". " + c.nombre) + "</strong> — " + escapar(c.descripcion || "") + "</span></li>";
+    }).join("");
+    const listaFichas = fichas.length ? fichas.map((f) => {
+      const c = CATEGORIAS[f.categoria] || {};
+      return "<li><strong>" + escapar(f.nombre) + "</strong> (" + escapar(c.seccion || "") + ". " + escapar(c.nombre || f.categoria) + ")" +
+        "<p>" + escapar(f.descripcion) + "</p>" +
+        (f.historia ? "<p><strong>Memoria/contexto:</strong> " + escapar(f.historia) + "</p>" : "") +
+        (f.aporte ? "<p><strong>Aporte a la paz:</strong> " + escapar(f.aporte) + "</p>" : "") +
+        "<p><strong>Ubicación:</strong> " + escapar(f.lugar || "No especificada") +
+        (typeof f.lat === "number" && typeof f.lng === "number" ? " (" + f.lat.toFixed(5) + ", " + f.lng.toFixed(5) + ")" : "") + "</p>" +
+        (f.fecha ? "<p><strong>Fecha/periodo:</strong> " + escapar(f.fecha) + "</p>" : "") +
+        (f.fuente ? "<p><strong>Fuente:</strong> " + escapar(f.fuente) + "</p>" : "") +
+        "<p><strong>Estado:</strong> " + escapar((ESTADOS[f.estado] || {}).nombre || f.estado || "Pendiente") + " · <strong>Precisión:</strong> " + escapar(f.precision || "No indicada") + "</p></li>";
+    }).join("") : "<li>No hay fichas visibles en las categorías seleccionadas.</li>";
+    const listaIdeas = ideas.map((idea) => {
+      const ubicaciones = (idea.ubicaciones || []).filter((u) => !u.categoria || !catOculta(u.categoria));
+      if (!ubicaciones.length) return "";
+      return "<li><h3>" + escapar(idea.nombre || "Narrativa temática") + "</h3>" +
+        (idea.descripcion ? "<p>" + escapar(idea.descripcion) + "</p>" : "") +
+        "<ul>" + ubicaciones.map((u) => "<li><strong>" + escapar(u.nombre || "Lugar sin nombre") + "</strong>" +
+          (u.categoria ? " · " + escapar((CATEGORIAS[u.categoria] || {}).nombre || u.categoria) : "") +
+          (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") +
+          "<p><strong>Ubicación:</strong> " + escapar(u.lugar || idea.territorio || "No especificada") +
+          (typeof u.lat === "number" && typeof u.lng === "number" ? " (" + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + ")" : "") +
+          "</p></li>").join("") + "</ul></li>";
+    }).join("");
+    const reflexion = estado.reflexion || {};
+    area.innerHTML = "<article class='imp-portada'><h1>Cartografía de paz</h1><h2>" + escapar(config.municipio || "Sahagún") + (config.departamento ? ", " + escapar(config.departamento) : ", Córdoba") + "</h2><p>Informe cartográfico · " + escapar(fecha) + "</p><p>Registros incluidos: " + fichas.length + " · Narrativas: " + ideas.length + "</p></article>" +
+      "<section class='imp-pagina'><h2>Convenciones y categorías visibles</h2><ul class='imp-leyenda'>" + leyenda + "</ul></section>" +
+      "<section class='imp-pagina'><h2>Registros cartográficos</h2><ol class='imp-lista'>" + listaFichas + "</ol></section>" +
+      (listaIdeas ? "<section class='imp-pagina'><h2>Narrativas y lugares asociados</h2><ol class='imp-lista'>" + listaIdeas + "</ol></section>" : "") +
+      "<section class='imp-pagina'><h2>Lectura y reflexión del territorio</h2>" +
+      (reflexion.lectura ? "<p><strong>Lectura del territorio:</strong> " + escapar(reflexion.lectura) + "</p>" : "") +
+      (reflexion.tensiones ? "<p><strong>Tensiones y afectaciones:</strong> " + escapar(reflexion.tensiones) + "</p>" : "") +
+      (reflexion.oportunidad ? "<p><strong>Oportunidades para la paz:</strong> " + escapar(reflexion.oportunidad) + "</p>" : "") +
+      "<p class='imp-pie'>Informe generado desde la Cartografía de paz. Verifique las fuentes y proteja datos sensibles antes de compartir.</p></section>";
+    if (vistaPrevia) {
+      const cuerpo = $("#vistaPreviaCuerpo");
+      if (cuerpo) cuerpo.innerHTML = area.innerHTML;
+      const titulo = $("#tituloVistaPrevia");
+      if (titulo) titulo.textContent = "Vista previa del informe PDF";
+      abrirModal("modalVistaPrevia");
+    } else {
+      cerrarModal("modalVistaPrevia");
+      window.print();
+    }
   }
 
   function imprimir(vistaPrevia) {
