@@ -21,7 +21,7 @@
 
   <nav class="principal" aria-label="Secciones del trabajo">
     <button type="button" class="principal__btn principal__btn--activo" data-seccion="mapa">🗺️ Mapa</button>
-    <button type="button" class="principal__btn" data-seccion="ideas">📖 Ideas</button>
+    <button type="button" class="principal__btn" data-seccion="ideas">📍 Temas y ubicaciones</button>
     <button type="button" class="principal__btn" data-seccion="lugares" title="Lugares y experiencias">📇 Lugares</button>
     <button type="button" class="principal__btn" data-seccion="memoria" title="Memoria y afectaciones">🕯️ Memoria</button>
     <button type="button" class="principal__btn" data-seccion="actores" title="Actores e iniciativas de paz">🤝 Actores</button>
@@ -160,9 +160,10 @@
     <header class="hoja__cabecera">
       <div>
         <p class="hoja__numero">Sección 2</p>
-        <h1>Ideas y narrativas temáticas</h1>
-        <p class="hoja__intro">Mapas temáticos con múltiples ubicaciones asociadas a una narrativa. Cada idea agrupa lugares, hechos, actores y experiencias bajo una misma lectura temática.</      </div>
-      <button type="button" class="btn btn--primario" data-accion="nuevaIdea">＋ Nueva idea</button>
+        <h1>Temas y ubicaciones del territorio</h1>
+        <p class="hoja__intro">Agrupe varios puntos bajo un mismo tema. Por ejemplo, cree «Huellas de violencia en Sahagún» y añada cada lugar específico que haya podido documentar. Cada ubicación aparecerá como un punto en el mapa.</p>
+      </div>
+      <button type="button" class="btn btn--primario" data-accion="nuevaIdea">＋ Nuevo tema</button>
     </header>
     <div class="ideas-lista" id="ideasLista"></div>
   </div>
@@ -578,29 +579,29 @@
 <div class="modal" id="modalIdea" hidden>
   <div class="modal__caja modal__caja--grande" role="dialog" aria-modal="true" aria-labelledby="modalIdeaTitulo">
     <header class="modal__cabecera">
-      <h2 id="modalIdeaTitulo">Nueva idea</h2>
+      <h2 id="modalIdeaTitulo">Nuevo tema</h2>
       <button class="modal__cerrar" data-cerrar="modalIdea" aria-label="Cerrar">✕</button>
     </header>
     <div class="modal__cuerpo formulario">
       <input type="hidden" id="ideaId">
-      <label>Nombre de la idea
+      <label>Nombre del tema
         <input type="text" id="ideaNombre" placeholder="Ej.: Sahagún: un territorio habitado por la violencia">
       </label>
       <label>Descripción de la narrativa
         <textarea id="ideaDescripcion" rows="3" placeholder="¿Qué narrativa o lectura temática quiere construir sobre este territorio?"></textarea>
       </label>
       <div class="formulario__fila">
-        <label>Color de la idea
+        <label>Color del tema
           <input type="color" id="ideaColor" value="#9B1C1C">
         </label>
-        <label>Símbolo de la idea
+        <label>Símbolo del tema
           <input type="text" id="ideaSimbolo" maxlength="3" placeholder="✕" value="✕">
         </label>
       </div>
     </div>
     <footer class="modal__pie">
       <button class="btn" data-cerrar="modalIdea">Cancelar</button>
-      <button class="btn btn--primario" id="btnGuardarIdea">Guardar idea</button>
+      <button class="btn btn--primario" id="btnGuardarIdea">Guardar tema</button>
     </footer>
   </div>
 </div>
@@ -618,7 +619,7 @@
         <input type="text" id="ubiNombre" placeholder="Ej.: Centro del municipio, Finca El Paraíso, Colegio San José…">
       </label>
       <label>Descripción
-        <textarea id="ubiDescripcion" rows="3" placeholder="¿Qué relación tiene este lugar con la narrativa de la idea?"></textarea>
+        <textarea id="ubiDescripcion" rows="3" placeholder="¿Qué ocurrió o qué importancia tiene este lugar dentro del tema?"></textarea>
       </label>
       <div class="formulario__fila">
         <label>Categoría (02–08)
