@@ -1864,9 +1864,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $$("#ideasLista [data-eliminar-idea]").forEach((b) => {
       b.addEventListener("click", () => eliminarIdea(b.dataset.eliminarIdea));
     });
-    $$("#ideasLista [data-agregar-ubi]").forEach((b) => {
-      b.addEventListener("click", () => abrirModalUbi(b.dataset.agregarUbi));
-    });
+
     $$("#ideasLista [data-ver-ubi]").forEach((b) => {
       b.addEventListener("click", () => verUbiEnMapa(b.dataset.verUbi));
     });
