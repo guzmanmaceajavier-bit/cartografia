@@ -1293,6 +1293,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     // Las ubicaciones de cada narrativa también se muestran en el mapa.
     (estado.ideas || []).forEach((idea) => {
       (idea.ubicaciones || []).forEach((u) => {
+        if (u.categoria && catOculta(u.categoria)) return;
         if (typeof u.lat !== "number" || typeof u.lng !== "number") return;
         const cat = CATEGORIAS[u.categoria] || { color: idea.color || "#9B1C1C", simbolo: idea.simbolo || "•" };
         const icono = L.divIcon({
@@ -1692,7 +1693,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function abrirModalEditarIdea(ideaId) {
     const idea = estado.ideas.find((i) => i.id === ideaId);
     if (!idea) return;
-    $("#modalIdeaTitulo").textContent = "Editar idea";
+    $("#modalIdeaTitulo").textContent = "Editar tema";
     $("#ideaId").value = idea.id;
     $("#ideaNombre").value = idea.nombre;
     $("#ideaDescripcion").value = idea.descripcion || "";
@@ -1758,7 +1759,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function guardarIdea() {
     const id = $("#ideaId").value;
     const nombre = $("#ideaNombre").value.trim();
-    if (!nombre) { toast("Escriba un nombre para la idea.", "error"); return; }
+    if (!nombre) { toast("Escriba un nombre para el tema.", "error"); return; }
     if (id) {
       const idea = estado.ideas.find((i) => i.id === id);
       if (idea) {
@@ -1767,7 +1768,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         idea.color = $("#ideaColor").value;
         idea.simbolo = $("#ideaSimbolo").value || "✕";
       }
-      toast("Idea actualizada.");
+      toast("Tema actualizado.");
     } else {
       const nueva = {
         id: "idea-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
@@ -1780,10 +1781,11 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       };
       if (!estado.ideas) estado.ideas = [];
       estado.ideas.push(nueva);
-      toast("Idea creada.");
+      toast("Tema creado.");
     }
     guardar();
     pintarIdeas();
+    pintarMapa();
     cerrarModal("modalIdea");
   }
 
@@ -1793,7 +1795,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     guardar();
     pintarIdeas();
     pintarMapa();
-    toast("Idea eliminada.");
+    toast("Tema eliminado.");
   }
 
   function eliminarUbi(ubiId) {
@@ -1814,7 +1816,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!cont) return;
     const ideas = estado.ideas || [];
     if (!ideas.length) {
-      cont.innerHTML = "<p class='vacio'>No hay ideas creadas. Use «＋ Nueva idea» para empezar.</p>";
+      cont.innerHTML = "<p class='vacio'>No hay temas creados. Use «＋ Nuevo tema» para empezar.</p>";
       return;
     }
     cont.innerHTML = ideas.map((idea) => {
@@ -2573,7 +2575,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (accion) {
         const a = accion.dataset.accion;
         if (a === "nueva") abrirFicha(null);
-        else if (a === "nuevaIdea") { $("#modalIdeaTitulo").textContent = "Nueva idea"; $("#ideaId").value = ""; $("#ideaNombre").value = ""; $("#ideaDescripcion").value = ""; $("#ideaColor").value = "#9B1C1C"; $("#ideaSimbolo").value = "✕"; abrirModal("modalIdea"); return; }
+        else if (a === "nuevaIdea") { $("#modalIdeaTitulo").textContent = "Nuevo tema"; $("#ideaId").value = ""; $("#ideaNombre").value = ""; $("#ideaDescripcion").value = ""; $("#ideaColor").value = "#9B1C1C"; $("#ideaSimbolo").value = "✕"; abrirModal("modalIdea"); return; }
         else if (a === "leyenda") abrirGestionLeyenda();
         else if (a === "exportar") exportarTodo();
         else if (a === "importar") $("#archivoImportar").click();
