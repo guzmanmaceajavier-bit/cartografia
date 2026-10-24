@@ -2300,3 +2300,7 @@ body.dibujando .leaflet-container { cursor: crosshair; }
   .nav-etapa .principal__btn { white-space: nowrap; }
   .menu__seccion { margin: 8px 0; }
 }
+
+
+/* Oculta los símbolos que no coinciden con la búsqueda. Actualización 24/10/2026. */
+.simbolos-paleta__btn[hidden] { display: none !important; }
