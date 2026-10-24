@@ -191,12 +191,12 @@ body[data-seccion="mapa"] .pestanas { display: flex; }
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 264px minmax(0, 1fr) 340px;
+  grid-template-columns: 310px minmax(0, 1fr) 320px;
   transition: grid-template-columns 0.25s ease;
 }
 
-body.menu-oculto .aplicacion { grid-template-columns: 0 minmax(0, 1fr) 340px; }
-body.info-oculta .aplicacion { grid-template-columns: 264px minmax(0, 1fr) 0; }
+body.menu-oculto .aplicacion { grid-template-columns: 0 minmax(0, 1fr) 320px; }
+body.info-oculta .aplicacion { grid-template-columns: 310px minmax(0, 1fr) 0; }
 body.menu-oculto.info-oculta .aplicacion { grid-template-columns: 0 minmax(0, 1fr) 0; }
 
 /* ============ MENÚ IZQUIERDO ============ */
@@ -278,6 +278,31 @@ body.menu-oculto .menu { padding: 0; border: none; visibility: hidden; }
   font-size: 0.62rem;
   flex: none;
   margin-top: 2px;
+}
+
+.menu__convenciones-ayuda {
+  margin: 0 0 8px;
+  color: var(--tinta-suave);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.menu__convenciones {
+  min-width: 0;
+  width: 100%;
+  overflow: visible;
+}
+
+.menu__convenciones .convenciones__item {
+  min-width: 0;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px 2px;
+}
+
+.menu__convenciones .convenciones__item > span:not(.filtro__simbolo):not(.convenciones__linea) {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .convenciones__seccion {
@@ -1329,6 +1354,19 @@ body.info-oculta .panel-info { border: none; visibility: hidden; }
 
 @media (max-width: 900px) {
   body:not([data-seccion="mapa"]) .pestanas { display: none; }
+}
+
+@media (max-width: 1100px) {
+  .aplicacion { grid-template-columns: 280px minmax(0, 1fr) 0 !important; }
+  .panel-info { display: none; }
+  body.menu-oculto .aplicacion { grid-template-columns: 0 minmax(0, 1fr) 0 !important; }
+}
+
+@media (max-width: 700px) {
+  .aplicacion { grid-template-columns: minmax(0, 1fr) !important; }
+  .menu { display: none; }
+  .panel-info { display: none; }
+  body:not(.menu-oculto) .menu { display: block; position: absolute; z-index: 1200; inset: 0 auto 0 0; width: min(88vw, 340px); box-shadow: var(--sombra-alta); }
 }
 
 @media print {
