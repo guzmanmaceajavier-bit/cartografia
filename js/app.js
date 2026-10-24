@@ -19,6 +19,10 @@
   let seccionActual = "mapa";
   let chipLugares = "todas";
   let soloVerificados = false;
+  let paginaIdeas = 1;
+  const ubicacionesExpandidas = new Set();
+  const IDEAS_POR_PAGINA = 4;
+  const UBICACIONES_INICIALES = 4;
 
   // Herramientas de dibujo
   let dibujoTool = null;
@@ -1975,71 +1979,126 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!cont) return;
     const ideas = estado.ideas || [];
     if (!ideas.length) {
-      cont.innerHTML = "<p class='vacio'>No hay temas creados. Use «＋ Nuevo tema» para empezar.</p>";
+      paginaIdeas = 1;
+      cont.innerHTML = "<div class='temas-vacio'><span class='temas-vacio__icono'>✦</span><h3>Tu cartografía comienza aquí</h3><p>Crea un tema para organizar una idea y agregar los lugares que quieras documentar.</p></div>";
       return;
     }
-    cont.innerHTML = ideas.map((idea) => {
-      const ubiCount = idea.ubicaciones ? idea.ubicaciones.length : 0;
-      const ubiConCoordenadas = (idea.ubicaciones || []).filter((u) => typeof u.lat === "number" && Number.isFinite(u.lat) && typeof u.lng === "number" && Number.isFinite(u.lng)).length;
-      return `
-        <article class="tarjeta idea-tarjeta" data-idea-id="${idea.id}">
-          <header class="idea-tarjeta__cabecera">
-            <span class="idea-tarjeta__simbolo" style="background:${CATEGORIAS[idea.categoria || "afectaciones"]?.color || idea.color || "#9B1C1C"};">${CATEGORIAS[idea.categoria || "afectaciones"]?.simbolo || idea.simbolo || "•"}</span>
-            <div>
-              <h3>${escapar(idea.nombre)}</h3>
-              <p class="idea-tarjeta__meta">Componente ${CATEGORIAS[idea.categoria || "afectaciones"]?.seccion || "sin clasificar"} · ${escapar(CATEGORIAS[idea.categoria || "afectaciones"]?.nombre || "Sin componente seleccionado")}</p>
-              <p class="idea-tarjeta__meta">${ubiCount} sitio${ubiCount !== 1 ? "s" : ""} · ${ubiConCoordenadas} en el mapa · ${escapar(idea.territorio || "Ámbito geográfico por definir")}</p>
-              <p class="idea-tarjeta__meta">${escapar(idea.descripcion || "Sin descripción")}</p>
-            </div>
-          </header>
-          <div class="idea-tarjeta__ubicaciones">
-            ${(idea.ubicaciones || []).map((ubi) => `
-              <div class="idea-ubicacion" data-ubi-id="${ubi.id}">
-                <span class="idea-ubicacion__simbolo" title="${escapar(ubi.simboloCampo || "Símbolo del componente")}" style="background:${CATEGORIAS[ubi.categoria]?.color || "#5D6B7E"}">${SIMBOLOS_CAMPO[simboloCampoDe(ubi)] || CATEGORIAS[ubi.categoria]?.simbolo || "•"}</span>
-                <div class="idea-ubicacion__info">
-                  <strong>${escapar(ubi.nombre)}</strong>
-                  <span class="idea-ubicacion__cat">${escapar(CATEGORIAS[ubi.categoria] ? CATEGORIAS[ubi.categoria].seccion + ". " + CATEGORIAS[ubi.categoria].nombre : (ubi.categoria || "Sin componente"))}</span>
-                  <p class="idea-ubicacion__cat">${escapar(ubi.lugar || idea.territorio || "")}</p>
-                  <p class="idea-ubicacion__coordenadas">${typeof ubi.lat === "number" && typeof ubi.lng === "number" ? "Lat. " + ubi.lat + " · Long. " + ubi.lng : "Sin coordenadas: no aparecerá en el mapa"}</p>
-                  <p class="idea-ubicacion__desc">${escapar(ubi.descripcion || "")}</p>
-                </div>
-                <div class="idea-ubicacion__acciones">
-                  <button type="button" class="btn btn--mini" data-ver-ubi="${ubi.id}" title="Ver en mapa">📍</button>
-                  <button type="button" class="btn btn--mini" data-editar-ubi="${ubi.id}" title="Editar ubicación">✏️</button>
-                  <button type="button" class="btn btn--mini btn--peligro" data-eliminar-ubi="${ubi.id}" title="Eliminar ubicación">🗑️</button>
-                </div>
-              </div>
-            `).join("")}
-          </div>
-          <div class="idea-tarjeta__acciones">
-            <button type="button" class="btn btn--mini" data-agregar-ubi="${idea.id}">＋ Agregar ubicación</button>
-            <button type="button" class="btn btn--mini" data-editar-idea="${idea.id}">✏️ Editar idea</button>
-            <button type="button" class="btn btn--mini btn--peligro" data-eliminar-idea="${idea.id}">🗑️ Eliminar</button>
-          </div>
-        </article>
-      `;
-    }).join("");
-    
-    // Event listeners for idea actions
-    $$("#ideasLista [data-agregar-ubi]").forEach((b) => {
-      b.addEventListener("click", () => abrirModalUbi(b.dataset.agregarUbi));
-    });
-    $$("#ideasLista [data-editar-idea]").forEach((b) => {
-      b.addEventListener("click", () => abrirModalEditarIdea(b.dataset.editarIdea));
-    });
-    $$("#ideasLista [data-eliminar-idea]").forEach((b) => {
-      b.addEventListener("click", () => eliminarIdea(b.dataset.eliminarIdea));
-    });
 
-    $$("#ideasLista [data-ver-ubi]").forEach((b) => {
-      b.addEventListener("click", () => verUbiEnMapa(b.dataset.verUbi));
-    });
-    $$("#ideasLista [data-editar-ubi]").forEach((b) => {
-      b.addEventListener("click", () => abrirModalEditarUbi(b.dataset.editarUbi));
-    });
-    $$("#ideasLista [data-eliminar-ubi]").forEach((b) => {
-      b.addEventListener("click", () => eliminarUbi(b.dataset.eliminarUbi));
-    });
+    const totalPaginas = Math.max(1, Math.ceil(ideas.length / IDEAS_POR_PAGINA));
+    paginaIdeas = Math.min(Math.max(1, paginaIdeas), totalPaginas);
+    const inicio = (paginaIdeas - 1) * IDEAS_POR_PAGINA;
+    const ideasPagina = ideas.slice(inicio, inicio + IDEAS_POR_PAGINA);
+
+    const renderDescripcion = (texto, clase) => {
+      const desc = String(texto || "").trim();
+      if (!desc) return "<p class='" + clase + " tema-descripcion-vacia'>Sin descripción agregada.</p>";
+      const limite = 190;
+      if (desc.length <= limite) return "<p class='" + clase + "'>" + escapar(desc) + "</p>";
+      return "<div class='tema-descripcion'><p class='" + clase + " tema-descripcion__corta'>" + escapar(desc.slice(0, limite).trimEnd()) + "…</p><details class='tema-descripcion__detalle'><summary>Leer más</summary><p>" + escapar(desc) + "</p></details></div>";
+    };
+
+    cont.innerHTML = `
+      <div class="temas-resumen">
+        <div><span class="temas-resumen__eyebrow">TU CARTOGRAFÍA</span><h2>Temas creados</h2><p>Organiza tus ideas y explora los lugares vinculados a cada una.</p></div>
+        <span class="temas-resumen__contador">${ideas.length} tema${ideas.length !== 1 ? "s" : ""}</span>
+      </div>
+      <div class="temas-grid">
+        ${ideasPagina.map((idea) => {
+          const ubicaciones = Array.isArray(idea.ubicaciones) ? idea.ubicaciones : [];
+          const ubiCount = ubicaciones.length;
+          const ubiConCoordenadas = ubicaciones.filter((u) => typeof u.lat === "number" && Number.isFinite(u.lat) && typeof u.lng === "number" && Number.isFinite(u.lng)).length;
+          const categoria = CATEGORIAS[idea.categoria || "afectaciones"];
+          const color = categoria?.color || idea.color || "#9B1C1C";
+          const simbolo = categoria?.simbolo || idea.simbolo || "•";
+          const mostrarTodas = ubicacionesExpandidas.has(idea.id);
+          const ubicacionesVisibles = mostrarTodas ? ubicaciones : ubicaciones.slice(0, UBICACIONES_INICIALES);
+          return `
+            <article class="tema-card" data-idea-id="${escapar(idea.id)}" style="--tema-color:${color}">
+              <header class="tema-card__cabecera">
+                <span class="tema-card__simbolo">${escapar(simbolo)}</span>
+                <div class="tema-card__titulo">
+                  <span class="tema-card__etiqueta">TEMA DE CARTOGRAFÍA</span>
+                  <h3>${escapar(idea.nombre || "Tema sin título")}</h3>
+                  <p class="tema-card__componente">Componente ${escapar(categoria?.seccion || "—")} · ${escapar(categoria?.nombre || "Sin componente seleccionado")}</p>
+                </div>
+              </header>
+              <div class="tema-card__contenido">
+                <div class="tema-metricas">
+                  <div class="tema-metrica"><strong>${ubiCount}</strong><span>${ubiCount === 1 ? "ubicación" : "ubicaciones"}</span></div>
+                  <div class="tema-metrica"><strong>${ubiConCoordenadas}</strong><span>en el mapa</span></div>
+                  <div class="tema-metrica tema-metrica--territorio"><strong>Territorio</strong><span>${escapar(idea.territorio || "Por definir")}</span></div>
+                </div>
+                <section class="tema-card__descripcion">
+                  <h4>Sobre este tema</h4>
+                  ${renderDescripcion(idea.descripcion, "tema-card__texto")}
+                </section>
+                <section class="tema-card__sitios">
+                  <div class="tema-card__seccion-titulo"><div><h4>Lugares vinculados</h4><p>Los sitios conservan sus propios símbolos y coordenadas.</p></div><span>${ubiCount}</span></div>
+                  ${ubiCount ? `
+                    <div class="tema-sitios-lista">
+                      ${ubicacionesVisibles.map((ubi) => {
+                        const ubiCategoria = CATEGORIAS[ubi.categoria];
+                        const ubiColor = ubiCategoria?.color || "#5D6B7E";
+                        const ubiSimbolo = SIMBOLOS_CAMPO[simboloCampoDe(ubi)] || ubiCategoria?.simbolo || "•";
+                        const tieneCoords = typeof ubi.lat === "number" && Number.isFinite(ubi.lat) && typeof ubi.lng === "number" && Number.isFinite(ubi.lng);
+                        return `
+                          <article class="tema-sitio">
+                            <span class="tema-sitio__simbolo" style="--sitio-color:${ubiColor}">${escapar(ubiSimbolo)}</span>
+                            <div class="tema-sitio__contenido">
+                              <h5>${escapar(ubi.nombre || "Ubicación sin nombre")}</h5>
+                              <p class="tema-sitio__lugar">${escapar(ubi.lugar || idea.territorio || "Territorio por definir")}</p>
+                              <span class="tema-sitio__categoria">${escapar(ubi.simboloCampo || (ubiCategoria ? ubiCategoria.seccion + ". " + ubiCategoria.nombre : "Sin componente"))}</span>
+                              ${renderDescripcion(ubi.descripcion, "tema-sitio__descripcion")}
+                              <p class="tema-sitio__coordenadas ${tieneCoords ? "" : "tema-sitio__coordenadas--pendiente"}">${tieneCoords ? "⌖ " + Number(ubi.lat).toFixed(5) + ", " + Number(ubi.lng).toFixed(5) : "○ Sin coordenadas: no aparece en el mapa"}</p>
+                            </div>
+                            <div class="tema-sitio__acciones">
+                              <button type="button" class="tema-icono-btn" data-ver-ubi="${escapar(ubi.id)}" title="Ver en el mapa" aria-label="Ver en el mapa">⌖</button>
+                              <button type="button" class="tema-icono-btn" data-editar-ubi="${escapar(ubi.id)}" title="Editar ubicación" aria-label="Editar ubicación">✎</button>
+                              <button type="button" class="tema-icono-btn tema-icono-btn--peligro" data-eliminar-ubi="${escapar(ubi.id)}" title="Eliminar ubicación" aria-label="Eliminar ubicación">×</button>
+                            </div>
+                          </article>`;
+                      }).join("")}
+                    </div>
+                    ${ubiCount > UBICACIONES_INICIALES ? `<button type="button" class="tema-ver-todos" data-toggle-ubicaciones="${escapar(idea.id)}">${mostrarTodas ? "Mostrar menos ↑" : "Ver las " + ubiCount + " ubicaciones ↓"}</button>` : ""}
+                  ` : `<div class="tema-sitios-vacio"><span>⌖</span><p>Aún no hay lugares vinculados a este tema.</p><small>Agrega el primer sitio para empezar a ubicarlo en el mapa.</small></div>`}
+                </section>
+              </div>
+              <footer class="tema-card__acciones">
+                <button type="button" class="btn btn--primario tema-card__agregar" data-agregar-ubi="${escapar(idea.id)}">＋ Agregar ubicación</button>
+                <button type="button" class="btn btn--suave" data-editar-idea="${escapar(idea.id)}">Editar tema</button>
+                <button type="button" class="tema-eliminar" data-eliminar-idea="${escapar(idea.id)}" aria-label="Eliminar tema">Eliminar</button>
+              </footer>
+            </article>`;
+        }).join("")}
+      </div>
+      ${totalPaginas > 1 ? `
+        <nav class="temas-paginacion" aria-label="Paginación de temas">
+          <span>Mostrando ${inicio + 1}–${Math.min(inicio + IDEAS_POR_PAGINA, ideas.length)} de ${ideas.length} temas</span>
+          <div class="temas-paginacion__controles">
+            <button type="button" data-pagina-ideas="${paginaIdeas - 1}" ${paginaIdeas === 1 ? "disabled" : ""} aria-label="Página anterior">← Anterior</button>
+            ${Array.from({length: totalPaginas}, (_, i) => i + 1).map((n) => `<button type="button" class="${n === paginaIdeas ? "is-activa" : ""}" data-pagina-ideas="${n}" aria-label="Página ${n}" ${n === paginaIdeas ? "aria-current='page'" : ""}>${n}</button>`).join("")}
+            <button type="button" data-pagina-ideas="${paginaIdeas + 1}" ${paginaIdeas === totalPaginas ? "disabled" : ""} aria-label="Página siguiente">Siguiente →</button>
+          </div>
+        </nav>` : ""}
+    `;
+
+    $$("#ideasLista [data-pagina-ideas]").forEach((b) => b.addEventListener("click", () => {
+      paginaIdeas = Number(b.dataset.paginaIdeas);
+      pintarIdeas();
+      $("#ideasLista").scrollIntoView({ behavior: "smooth", block: "start" });
+    }));
+    $$("#ideasLista [data-toggle-ubicaciones]").forEach((b) => b.addEventListener("click", () => {
+      const id = b.dataset.toggleUbicaciones;
+      if (ubicacionesExpandidas.has(id)) ubicacionesExpandidas.delete(id);
+      else ubicacionesExpandidas.add(id);
+      pintarIdeas();
+    }));
+    $$("#ideasLista [data-agregar-ubi]").forEach((b) => b.addEventListener("click", () => abrirModalUbi(b.dataset.agregarUbi)));
+    $$("#ideasLista [data-editar-idea]").forEach((b) => b.addEventListener("click", () => abrirModalEditarIdea(b.dataset.editarIdea)));
+    $$("#ideasLista [data-eliminar-idea]").forEach((b) => b.addEventListener("click", () => eliminarIdea(b.dataset.eliminarIdea)));
+    $$("#ideasLista [data-ver-ubi]").forEach((b) => b.addEventListener("click", () => verUbiEnMapa(b.dataset.verUbi)));
+    $$("#ideasLista [data-editar-ubi]").forEach((b) => b.addEventListener("click", () => abrirModalEditarUbi(b.dataset.editarUbi)));
+    $$("#ideasLista [data-eliminar-ubi]").forEach((b) => b.addEventListener("click", () => eliminarUbi(b.dataset.eliminarUbi)));
   }
 
   /* ==================== CRUD DE FICHAS ==================== */
