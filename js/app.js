@@ -1699,7 +1699,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     html += "</div>";
 
     cont.innerHTML = html;
-    $(".menu__cat__btn").forEach((b) => {
+    $$(".menu__cat__btn").forEach((b) => {
       b.addEventListener("click", () => {
         chipLugares = b.dataset.cat;
         chipSubtema = "todos";
