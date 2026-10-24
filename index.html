@@ -632,30 +632,69 @@
       <h2 id="modalIdeaTitulo">Nuevo tema</h2>
       <button class="modal__cerrar" data-cerrar="modalIdea" aria-label="Cerrar">✕</button>
     </header>
-    <div class="modal__cuerpo formulario">
+    <div class="modal__cuerpo formulario formulario-tema">
       <input type="hidden" id="ideaId">
-      <div class="formulario__fila">
-        <label>Nombre del tema
+
+      <section class="tema-formulario__seccion">
+        <div class="tema-formulario__encabezado">
+          <span class="tema-formulario__paso">01</span>
+          <div><h3>Información del tema</h3><p>Define la idea que quieres representar en la cartografía.</p></div>
+        </div>
+        <label>Nombre del tema <span class="campo-opcional">* Recomendado</span>
           <input type="text" id="ideaNombre" placeholder="Ej.: Huellas de violencia en Sahagún">
         </label>
-        <label>¿A cuál componente de la cartografía pertenece?
+        <label>Componente de la cartografía
           <select id="ideaCategoria"></select>
         </label>
-      </div>
-      <label>Territorio o zona que abarca este tema
-        <input type="text" id="ideaTerritorio" placeholder="Ej.: Sahagún, Córdoba; o varios municipios de Córdoba">
-      </label>
-      <label>Descripción de la narrativa
-        <textarea id="ideaDescripcion" rows="3" placeholder="¿Qué quiere comprender o documentar con este tema?"></textarea>
-      </label>
-      <div class="formulario__fila">
-        <label>Color del tema
-          <input type="color" id="ideaColor" value="#9B1C1C">
+        <label>Territorio que abarca
+          <input type="text" id="ideaTerritorio" placeholder="Ej.: Sahagún, Córdoba; o varios municipios">
+          <small>Escribe el alcance general. Cada punto puede pertenecer a un municipio o vereda diferente.</small>
         </label>
-        <label>Símbolo del tema
-          <input type="text" id="ideaSimbolo" maxlength="3" placeholder="✕" value="✕">
+        <label>Descripción y propósito
+          <textarea id="ideaDescripcion" rows="3" placeholder="¿Qué quieres documentar, comprender o mostrar con este tema?"></textarea>
         </label>
-      </div>
+      </section>
+
+      <section class="tema-formulario__seccion tema-formulario__seccion--ubicacion" id="ideaPrimeraUbicacion">
+        <div class="tema-formulario__encabezado">
+          <span class="tema-formulario__paso">02</span>
+          <div><h3>Primera ubicación <span class="campo-opcional">Opcional</span></h3><p>Si ya tienes coordenadas, registra aquí el primer sitio. Después podrás añadir más.</p></div>
+        </div>
+        <label>Nombre del lugar
+          <input type="text" id="ideaUbiNombre" placeholder="Ej.: parque central, colegio, finca o sector">
+        </label>
+        <label>Municipio, vereda o zona específica
+          <input type="text" id="ideaUbiLugar" placeholder="Ej.: Sahagún, Córdoba">
+        </label>
+        <label>Descripción del lugar
+          <textarea id="ideaUbiDescripcion" rows="2" placeholder="¿Qué relación tiene este lugar con el tema?"></textarea>
+        </label>
+        <div class="tema-coordenadas__ayuda">
+          <strong><span aria-hidden="true">↗</span> ¿Dónde encuentro las coordenadas?</strong>
+          <p>Busca el lugar en <a href="https://maps.google.com/" target="_blank" rel="noopener noreferrer">Google Maps</a>, haz clic derecho en el punto exacto y copia los dos números: primero la latitud y después la longitud.</p>
+        </div>
+        <div class="formulario__fila tema-coordenadas">
+          <label>Latitud
+            <input type="number" id="ideaUbiLat" step="any" min="-90" max="90" placeholder="Ej.: 8.6100">
+          </label>
+          <label>Longitud
+            <input type="number" id="ideaUbiLng" step="any" min="-180" max="180" placeholder="Ej.: -75.4698">
+          </label>
+        </div>
+        <p class="tema-formulario__nota">La ubicación se guardará con el tema solo si completas el nombre del lugar o alguna coordenada. Debes introducir latitud y longitud juntas para mostrar el punto en el mapa.</p>
+      </section>
+
+      <details class="tema-formulario__apariencia">
+        <summary>Personalizar apariencia del tema</summary>
+        <div class="formulario__fila">
+          <label>Color
+            <input type="color" id="ideaColor" value="#9B1C1C">
+          </label>
+          <label>Símbolo
+            <input type="text" id="ideaSimbolo" maxlength="3" placeholder="✕" value="✕">
+          </label>
+        </div>
+      </details>
     </div>
     <footer class="modal__pie">
       <button class="btn" data-cerrar="modalIdea">Cancelar</button>
