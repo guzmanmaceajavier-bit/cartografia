@@ -1637,7 +1637,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       btnNueva.setAttribute("aria-label", esTemas ? "Crear un tema de cartografía" : "Agregar un registro territorial");
       btnNueva.title = esTemas ? "Crear un tema y vincularle varias ubicaciones" : "Agregar un registro a la cartografía";
     }
-    $(".principal__btn").forEach((b) => b.classList.toggle("principal__btn--activo", b.dataset.seccion === seccion));
+    $$(".principal__btn").forEach((b) => b.classList.toggle("principal__btn--activo", b.dataset.seccion === seccion));
     $$(".vista").forEach((v) => {
       const activa = v.dataset.vistaSeccion === seccion;
       v.classList.toggle("vista--activa", activa);
