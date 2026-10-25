@@ -1659,9 +1659,11 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     cont.innerHTML = html;
 
     const ordenadas = ordenarPorSeccion(chipLugares === "todas" ? base : base.filter((f) => f.categoria === chipLugares));
-    $("#lugaresLista").innerHTML = ordenadas.length
-      ? ordenadas.map(fichaCardHTML).join("")
-      : "<p class='vacio'>No hay registros con estos criterios. Quite la búsqueda, elija otro filtro o agregue un registro nuevo con el botón «＋ Agregar registro».</p>";
+    $("#lugaresLista").innerHTML =
+      (ordenadas.length
+        ? ordenadas.map(fichaCardHTML).join("")
+        : "<p class='vacio'>No hay registros con estos criterios. Quite la búsqueda, elija otro filtro o agregue un registro nuevo con el botón «＋ Agregar registro».</p>") +
+      temasRelacionadosHTML(Object.keys(CATEGORIAS).filter((k) => CATEGORIAS[k] && CATEGORIAS[k].seccion), "Temas y ubicaciones relacionados con los componentes");
   }
 
   function cortar(txt, n) {
@@ -2243,6 +2245,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     guardar();
     pintarIdeas();
     pintarMapa();
+    pintarTiraLectura();
+    pintarProgreso();
     cerrarModal("modalIdea");
   }
 
@@ -2793,6 +2797,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     estado.reflexion.oportunidad = $("#refOportunidad").value;
     guardar();
     pintarReflexion();
+    pintarTiraLectura();
+    pintarProgreso();
     toast("Reflexión guardada.");
   }
 
