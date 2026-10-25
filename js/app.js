@@ -273,7 +273,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (n) n.textContent = texto;
   }
 
-  async async function cargarNube() {
+  async function cargarNube() {
     try {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), 7000);
@@ -288,7 +288,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     }
   }
 
-  async async function guardarNube() {
+  async function guardarNube() {
     nubeTimer = null;
     if (!estado) return;
     pintarEstadoNube("☁ Guardando en la nube…");
