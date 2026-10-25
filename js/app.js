@@ -223,7 +223,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (nombre.includes("calle del comercio")) {
         ubi.precision = "aproximada"; ubi.fecha = ""; ubi.simboloCampo = ubi.simboloCampo || "Extorsión / vacunas";
         if (!descripcion.startsWith("PENDIENTE DE CORROBORACIÓN")) ubi.descripcion = "PENDIENTE DE CORROBORACIÓN: el archivo inicial registra una observación sobre posibles cobros extorsivos, pero esta revisión no confirmó fecha, hecho ni responsables con una fuente pública. No presentarlo como hecho probado. Nota original: " + descripcion;
-      } else if (nombre.includes("centro") && (lugar.includes("banco") || lugar.includes("sahagún")) && /rob|hurt/i.test(descripcion)) {
+      } else if (nombre.includes("centro") && (lugar.includes("banco") || lugar.includes("sahagún")) && !descripcion.startsWith("PENDIENTE DE CORROBORACIÓN") && /rob|hurt/i.test(descripcion)) {
         ubi.precision = "aproximada"; ubi.fecha = ""; ubi.simboloCampo = ubi.simboloCampo || "Hurtos";
         ubi.descripcion = "PENDIENTE DE CORROBORACIÓN: el archivo inicial registra posibles hurtos en el sector bancario, pero no se confirmó fecha ni reporte concreto. No presentarlo como hecho probado. Nota original: " + descripcion;
       } else if (nombre.includes("finca nuevo méxico")) {
@@ -250,7 +250,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       } else if ((nombre.includes("escuelas de fútbol") || nombre.includes("sede deportiva efusa")) && /reclutamiento|barrera de protección/.test(descripcion)) {
         ubi.descripcion = "La ficha propone esta escuela deportiva como posible entorno protector. No se confirmó una evaluación o fuente específica que permita afirmar que haya prevenido el reclutamiento en este lugar. Documentar programa, periodo y fuente local antes de afirmar ese efecto.";
       } else if (nombre.includes("esc salitral") || nombre === "colomboy" || nombre === "las llanadas") {
-        if (descripcion.length > 100) ubi.descripcion = "Interpretación propuesta en el registro inicial, pendiente de corroboración con la comunidad y fuentes escolares. Las afirmaciones sobre zonas de paz, reconciliación o programas pedagógicos no están confirmadas por la Alerta Temprana 011-24. Nota original: " + descripcion;
+        if (descripcion.length > 100 && !descripcion.startsWith("Interpretación propuesta")) ubi.descripcion = "Interpretación propuesta en el registro inicial, pendiente de corroboración con la comunidad y fuentes escolares. Las afirmaciones sobre zonas de paz, reconciliación o programas pedagógicos no están confirmadas por la Alerta Temprana 011-24. Nota original: " + descripcion;
       }
       if (nombre.includes("plaza maría varilla")) ubi.lugar = "Plaza María Varilla, San Pelayo, Córdoba (contexto regional; fuera de Sahagún)";
       if (nombre.includes("plaza cultural del sinú")) ubi.lugar = "Plaza Cultural del Sinú / Avenida Primera, Montería, Córdoba (contexto regional; fuera de Sahagún)";
