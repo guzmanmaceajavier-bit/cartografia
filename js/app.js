@@ -1725,6 +1725,29 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     btn.setAttribute("aria-expanded", String(!plegar));
   }
 
+  function resumenTemasHTML(claves, todasLasUbicaciones) {
+    const ideas = Array.isArray(estado.ideas) ? estado.ideas : [];
+    const relacionadas = ideas.map((idea) => {
+      const ubicaciones = Array.isArray(idea.ubicaciones) ? idea.ubicaciones : [];
+      const temaCoincide = claves.includes(idea.categoria || "afectaciones");
+      const ubicacionesCoinciden = ubicaciones.filter((u) => claves.includes(u.categoria || idea.categoria || "afectaciones"));
+      if (!temaCoincide && !ubicacionesCoinciden.length) return null;
+      const mostradas = todasLasUbicaciones || temaCoincide ? ubicaciones : ubicacionesCoinciden;
+      return { idea, ubicaciones: mostradas };
+    }).filter(Boolean);
+    if (!relacionadas.length) {
+      return "<div class='grupo-temas-vinculados'><h3>Temas y ubicaciones vinculados</h3><p class='vacio'>Todavía no hay temas de «Temas y ubicaciones» asociados a estos componentes.</p><button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Ir a Temas y ubicaciones →</button></div>";
+    }
+    return "<div class='grupo-temas-vinculados'><h3>Temas y ubicaciones vinculados</h3><p>Estos temas se muestran desde el menú «Temas y ubicaciones»; no son copias de las fichas.</p>" +
+      relacionadas.map(({ idea, ubicaciones }) =>
+        "<article class='grupo-tema-vinculado'><strong>" + escapar(idea.nombre || "Tema sin nombre") + "</strong>" +
+        (idea.descripcion ? "<p>" + escapar(idea.descripcion) + "</p>" : "") +
+        "<small>" + ubicaciones.length + " ubicación" + (ubicaciones.length === 1 ? "" : "es") + "</small>" +
+        (ubicaciones.length ? "<ul>" + ubicaciones.map((u) => "<li><strong>" + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" + (u.lugar ? " · " + escapar(u.lugar) : "") + (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") + (typeof u.lat === "number" && typeof u.lng === "number" ? "<small>Coordenadas: " + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + "</small>" : "<small>Sin coordenadas guardadas</small>") + "</li>").join("") + "</ul>" : "<p class='vacio'>Este tema aún no tiene ubicaciones agregadas.</p>") +
+        "</article>"
+      ).join("") + "<button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Gestionar temas y ubicaciones →</button></div>";
+  }
+
   function pintarGruposSeccion(contSel, claves) {
     const cont = $(contSel);
     const base = fichasVisibles();
@@ -1732,6 +1755,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     let total = 0;
     claves.forEach((k) => {
       const cat = CATEGORIAS[k];
+      if (!cat) return;
       const fichas = ordenarPorSeccion(base.filter((f) => f.categoria === k));
       total += fichas.length;
       html +=
@@ -1741,11 +1765,12 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         "<div><h2>" + escapar(cat.nombre) + "</h2><p>" + escapar(cat.descripcion) + "</p></div>" +
         "<span class='grupo-seccion__n'>" + fichas.length + " registro" + (fichas.length === 1 ? "" : "s") + "</span>" +
         "</header>" +
-        (fichas.length ? fichas.map(fichaCardHTML).join("") : "<p class='vacio'>Sin registros en esta sección aún. Búsquelos con la barra superior o créelos con «＋ Agregar registro».</p>") +
+        (fichas.length ? fichas.map(fichaCardHTML).join("") : "<p class='vacio'>Sin fichas de registro en esta sección aún. Puede agregarlas con «＋ Agregar registro».</p>") +
+        resumenTemasHTML([k], false) +
         "</section>";
     });
-    cont.innerHTML = total === 0 && !normalizar($("#busqueda").value)
-      ? "<p class='vacio'>Esta sección aún no tiene registros. Use «＋ Agregar registro» para empezar el reconocimiento del territorio.</p>"
+    cont.innerHTML = total === 0 && !normalizar($("#busqueda").value) && !(estado.ideas || []).length
+      ? "<p class='vacio'>Esta sección aún no tiene registros ni temas vinculados. Use «＋ Agregar registro» o «Temas y ubicaciones» para empezar.</p>"
       : html;
   }
 
@@ -1761,6 +1786,24 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#refTexto").value = estado.reflexion.texto || "";
     $("#refReto").value = estado.reflexion.reto || "";
     $("#refOportunidad").value = estado.reflexion.oportunidad || "";
+
+    const ideas = Array.isArray(estado.ideas) ? estado.ideas : [];
+    const totalUbicaciones = ideas.reduce((n, idea) => n + (Array.isArray(idea.ubicaciones) ? idea.ubicaciones.length : 0), 0);
+    const categorias = [...new Set(ideas.map((idea) => idea.categoria || "afectaciones"))];
+    $("#reflexionContexto").innerHTML = ideas.length
+      ? "<p>Esta síntesis reúne información ya registrada en «Temas y ubicaciones». No modifica el texto de la reflexión ni crea registros duplicados.</p>" +
+        "<p><strong>" + ideas.length + " tema" + (ideas.length === 1 ? "" : "s") + " · " + totalUbicaciones + " ubicaciones · " + estado.fichas.length + " fichas territoriales.</strong></p>" +
+        ideas.map((idea) => {
+          const ubicaciones = Array.isArray(idea.ubicaciones) ? idea.ubicaciones : [];
+          const cat = CATEGORIAS[idea.categoria || "afectaciones"];
+          return "<article class='grupo-tema-vinculado'><strong>" + escapar(idea.nombre || "Tema sin nombre") + "</strong>" +
+            "<small>" + escapar(cat ? cat.nombre : "Componente sin clasificar") + " · " + ubicaciones.length + " ubicación" + (ubicaciones.length === 1 ? "" : "es") + "</small>" +
+            (idea.descripcion ? "<p>" + escapar(idea.descripcion) + "</p>" : "") +
+            (ubicaciones.length ? "<ul>" + ubicaciones.map((u) => "<li><strong>" + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" + (u.lugar ? " · " + escapar(u.lugar) : "") + (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") + (typeof u.lat === "number" && typeof u.lng === "number" ? "<small>Coordenadas: " + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + "</small>" : "<small>Sin coordenadas guardadas</small>") + "</li>").join("") + "</ul>" : "<p class='vacio'>Sin ubicaciones registradas.</p>") +
+            "</article>";
+        }).join("") +
+        "<button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Revisar temas y ubicaciones →</button>"
+      : "<p class='vacio'>Todavía no hay temas creados. Primero registre una idea y sus ubicaciones en «Temas y ubicaciones»; aquí podrá consultarlas para elaborar la reflexión.</p><button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Ir a Temas y ubicaciones →</button>";
 
     const retos = ordenarPorSeccion(estado.fichas.filter((f) => f.categoria === "retos"));
     $("#reflexionRetos").innerHTML = retos.length
