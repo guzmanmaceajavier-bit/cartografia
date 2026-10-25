@@ -1750,7 +1750,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         (idea.descripcion ? "<p>" + escapar(idea.descripcion) + "</p>" : "") +
         "<small>" + ubicaciones.length + " ubicación" + (ubicaciones.length === 1 ? "" : "es") + "</small>" +
         (ubicaciones.length ? "<ul>" + ubicaciones.map((u) => "<li><strong>" + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" + (u.lugar ? " · " + escapar(u.lugar) : "") + (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") + (typeof u.lat === "number" && typeof u.lng === "number" ? "<small>Coordenadas: " + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + "</small>" : "<small>Sin coordenadas guardadas</small>") + "</li>").join("") + "</ul>" : "<p class='vacio'>Este tema aún no tiene ubicaciones agregadas.</p>") +
-        "</article>"
+        "<button type='button' class='btn btn--mini' data-abrir-tema='" + escapar(idea.id) + "'>Abrir tema →</button></article>"
       ).join("") + "<button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Gestionar temas y ubicaciones →</button></div>";
   }
 
