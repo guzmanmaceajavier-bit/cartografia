@@ -191,3 +191,140 @@ const FICHAS_INICIALES = [
     creado: "2026-10-23T00:00:00.000Z"
   }
 ];
+
+
+// Registros iniciales respaldados por fuentes públicas. Se agregan mediante migración
+// sin reemplazar los temas que la persona ya haya creado.
+const IDEAS_VERIFICADAS_INICIALES = [
+  {
+    id: "fuente-alerta-011-24-sahagun",
+    nombre: "Alerta Temprana 011-24: riesgo advertido para Sahagún",
+    descripcion: "La Defensoría del Pueblo emitió esta alerta el 12 de abril de 2024 e incluyó a Sahagún entre los municipios advertidos. La alerta describe riesgos regionales asociados a la presencia y actuación de las AGC y llama a medidas de prevención y protección. Importante: una alerta de riesgo no demuestra que haya ocurrido un hecho específico en cada vereda o punto del mapa.",
+    fecha: "2024-04-12",
+    categoria: "retos",
+    territorio: "Municipio de Sahagún, Córdoba",
+    color: "#C2410C",
+    simbolo: "▲",
+    fuente: "https://alertastempranas.defensoria.gov.co/Alerta/Details/91909",
+    ubicaciones: [{
+      id: "ubi-alerta-011-24-sahagun",
+      nombre: "Ámbito territorial advertido en la alerta",
+      lugar: "Sahagún y localidades rurales enumeradas en la Alerta Temprana 011-24, Córdoba",
+      descripcion: "La alerta incluye, entre otras localidades, El Viajano, Las Llanadas, San Andresito, Colombo, El Crucero, Las Bocas, Catalina, Rodania, Dividivi, Los Amarillos, Arenas del Norte, Salguerito y Salitral. La inclusión indica ámbito de riesgo advertido, no prueba un incidente particular en cada lugar. Fuente PDF: https://alertasstg.blob.core.windows.net/alertas/011-24.pdf",
+      fecha: "2024-04-12",
+      categoria: "retos",
+      simboloCampo: "Amenazas",
+      lat: null,
+      lng: null,
+      precision: "sin",
+      creado: "2026-10-25T00:00:00.000Z"
+    }],
+    creado: "2026-10-25T00:00:00.000Z"
+  },
+  {
+    id: "fuente-memoria-cnmh-sahagun-2019",
+    nombre: "Memoria de las víctimas: «Me levanté contigo en la cabeza»",
+    descripcion: "El Centro Nacional de Memoria Histórica documentó la construcción de un especial digital sobre los daños del Bloque Córdoba a la población civil, con perfiles biográficos de ocho víctimas elaborados en concertación con sus familias durante el segundo semestre de 2018. El lanzamiento en Sahagún fue anunciado para el 12 de septiembre de 2019. Esta fecha corresponde al evento de presentación, no a la fecha de todos los hechos recordados.",
+    fecha: "2019-09-12",
+    categoria: "memoria",
+    territorio: "Sahagún, Córdoba",
+    color: "#6D28D9",
+    simbolo: "✦",
+    fuente: "https://centrodememoriahistorica.gov.co/lanzamiento-de-me-levante-contigo-en-la-cabeza/",
+    ubicaciones: [{
+      id: "ubi-memoria-cnmh-escuela-bellas-artes",
+      nombre: "Presentación del especial de memoria del CNMH",
+      lugar: "Escuela de Bellas Artes, carrera 11 n.º 16–68, barrio Centro, Sahagún, Córdoba (frente a la estación de Policía)",
+      descripcion: "Lugar del evento de presentación anunciado por el CNMH para el 12 de septiembre de 2019. La fuente documenta el evento en este lugar, no que allí ocurrieran los hechos de violencia descritos.",
+      fecha: "2019-09-12",
+      categoria: "memoria",
+      simboloCampo: "Memoria de las víctimas",
+      lat: null,
+      lng: null,
+      precision: "sin",
+      creado: "2026-10-25T00:00:00.000Z"
+    }],
+    creado: "2026-10-25T00:00:00.000Z"
+  },
+  {
+    id: "fuente-reparacion-victimas-sahagun-2018",
+    nombre: "Jornada de reparación administrativa a víctimas",
+    descripcion: "El 24 de julio de 2018, la Unidad para las Víctimas informó que 86 personas recibieron cartas de notificación de indemnización en Sahagún, por un monto total superior a $1.089 millones. La entidad indicó que la mayoría había sufrido homicidio de familiares o lesiones personales. Esta cifra corresponde a esa jornada; no es el total de víctimas del municipio.",
+    fecha: "2018-07-24",
+    categoria: "esperanza",
+    territorio: "Sahagún, Córdoba",
+    color: "#C9A227",
+    simbolo: "☀",
+    fuente: "https://portalhistorico.unidadvictimas.gov.co/es/reparacion/en-sahagun-cordoba-indemnizadas-86-victimas-del-conflicto-armado/43071",
+    ubicaciones: [{
+      id: "ubi-reparacion-victimas-sahagun-2018",
+      nombre: "Jornada de notificación de indemnizaciones",
+      lugar: "Municipio de Sahagún, Córdoba (la publicación no precisa la dirección del acto)",
+      descripcion: "Registro territorial de una jornada documentada de reparación administrativa. Se deja sin punto en el mapa porque la fuente consultada no identifica una dirección exacta.",
+      fecha: "2018-07-24",
+      categoria: "esperanza",
+      simboloCampo: "Esperanza / reconciliación",
+      lat: null,
+      lng: null,
+      precision: "sin",
+      creado: "2026-10-25T00:00:00.000Z"
+    }],
+    creado: "2026-10-25T00:00:00.000Z"
+  },
+  {
+    id: "fuente-nuevo-mexico-sahagun-2024",
+    nombre: "Acceso campesino a la tierra: finca Nuevo México",
+    descripcion: "El 23 de agosto de 2024 se informó que la Sociedad de Activos Especiales entregó a la Agencia Nacional de Tierras la finca Nuevo México, de 497 hectáreas, para beneficiar a campesinos de Sahagún mediante la organización Asocamila. La ubicación rural exacta no queda confirmada en la fuente consultada, por lo que no se asignan coordenadas.",
+    fecha: "2024-08-23",
+    categoria: "resistencia",
+    territorio: "Zona rural de Sahagún, Córdoba",
+    color: "#15803D",
+    simbolo: "✊",
+    fuente: "https://www.wradio.com.co/2024/08/23/lujosa-finca-del-exsenador-musa-besaile-pasa-a-manos-de-campesinos-en-cordoba/",
+    ubicaciones: [{
+      id: "ubi-nuevo-mexico-sahagun-2024",
+      nombre: "Finca Nuevo México",
+      lugar: "Zona rural de Sahagún, Córdoba; punto catastral pendiente de confirmar",
+      descripcion: "Predio de 497 hectáreas cuya entrega a la ANT fue reportada el 23 de agosto de 2024 para beneficiar a campesinos a través de Asocamila. No utilizar el centro urbano de Sahagún como coordenada de la finca.",
+      fecha: "2024-08-23",
+      categoria: "resistencia",
+      simboloCampo: "Cultivos / agricultura",
+      lat: null,
+      lng: null,
+      precision: "sin",
+      creado: "2026-10-25T00:00:00.000Z"
+    }],
+    creado: "2026-10-25T00:00:00.000Z"
+  },
+  {
+    id: "fuente-la-macarena-sahagun-2025",
+    nombre: "Acceso a la tierra para mujeres rurales: predio La Macarena",
+    descripcion: "La Agencia Nacional de Tierras informó en julio de 2025 sobre una iniciativa de acceso a la tierra que benefició a 100 mujeres campesinas de Planeta Rica y Sahagún. La publicación incluye el predio La Macarena, de 222 hectáreas, en Sahagún. Es distinto de la finca Nuevo México. La fuente consultada no ofrece coordenadas catastrales del predio.",
+    fecha: "2025-07-16",
+    categoria: "esperanza",
+    territorio: "Sahagún, Córdoba",
+    color: "#C9A227",
+    simbolo: "☀",
+    fuente: "https://www.ant.gov.co/prensa/noticias/de-los-terratenientes-a-las-mujeres-rurales-1162-hectareas-listas-para-sembrar-en-cordoba",
+    ubicaciones: [{
+      id: "ubi-la-macarena-sahagun-2025",
+      nombre: "Predio La Macarena",
+      lugar: "Zona rural de Sahagún, Córdoba; ubicación catastral pendiente de confirmar",
+      descripcion: "Predio de 222 hectáreas citado por la ANT en su publicación sobre acceso a tierras para mujeres rurales. No se asigna coordenada exacta sin una referencia catastral o cartográfica oficial.",
+      fecha: "2025-07-16",
+      categoria: "esperanza",
+      simboloCampo: "Esperanza / reconciliación",
+      lat: null,
+      lng: null,
+      precision: "sin",
+      creado: "2026-10-25T00:00:00.000Z"
+    }],
+    creado: "2026-10-25T00:00:00.000Z"
+  }
+];
+
+const REFLEXION_DOCUMENTADA = {
+  texto: "La cartografía de paz de Sahagún permite reconocer que la paz no consiste únicamente en que cesen los enfrentamientos: también requiere memoria, protección, justicia, reparación y condiciones dignas para reconstruir la vida comunitaria. Las fuentes públicas consultadas muestran procesos concretos: el trabajo del Centro Nacional de Memoria Histórica con familias de víctimas del Bloque Córdoba; una jornada de indemnización a víctimas registrada por la Unidad para las Víctimas en 2018; la alerta preventiva de la Defensoría del Pueblo de 2024; y procesos de acceso campesino a la tierra documentados en 2024 y 2025. Estos procesos no borran el daño ni prueban por sí solos una reconciliación completa, pero ofrecen elementos para analizar responsabilidades y posibilidades de transformación.\n\nMateo 5–7 ilumina esta lectura. «Bienaventurados los que trabajan por la paz» (Mt 5,9) llama a una práctica comprometida con la justicia y la dignidad. Amar a los enemigos (Mt 5,44) no significa negar el daño ni reemplazar la justicia por impunidad; significa resistir la deshumanización y no reproducir la venganza. La regla de tratar a los demás como queremos ser tratados (Mt 7,12) invita a escuchar a las víctimas, proteger a quienes están en riesgo y construir relaciones respetuosas.\n\nLa Declaración Universal de Derechos Humanos refuerza esta responsabilidad: el artículo 3 reconoce el derecho a la vida, la libertad y la seguridad; el artículo 5 prohíbe la tortura y los tratos crueles, inhumanos o degradantes; y el artículo 8 reconoce el derecho a un recurso efectivo ante violaciones de derechos fundamentales. Por eso, una teología de paz no puede limitarse a pedir perdón o reconciliación: debe defender la vida, acompañar la búsqueda de verdad y reparación, y contribuir a garantías de no repetición.\n\nDesde la tradición anabautista, el discipulado de Jesús se expresa en la no violencia, la vida comunitaria, la reconciliación y el compromiso con quienes sufren. En Sahagún, esto implica escuchar a las familias afectadas sin apropiarse de sus historias, respetar al pueblo Zenú, apoyar procesos campesinos documentados y exigir protección efectiva para las comunidades. La cartografía debe reconocer tanto las huellas de la violencia como la dignidad y capacidad de acción de las personas del territorio.",
+  reto: "Actualizar periódicamente la cartografía contrastando las alertas de la Defensoría con fuentes posteriores; verificar cada afectación con fecha y evidencia; y evitar publicar coordenadas o testimonios que puedan exponer a víctimas, comerciantes o liderazgos comunitarios.",
+  oportunidad: "Usar los procesos públicos de memoria histórica, reparación y acceso a la tierra como puntos de partida para encuentros participativos con víctimas, comunidades campesinas, pueblo Zenú, jóvenes e iglesias, con consentimiento y sin atribuir programas o resultados que no hayan sido comprobados."
+};

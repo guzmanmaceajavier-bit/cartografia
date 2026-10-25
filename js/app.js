@@ -186,7 +186,88 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function migrar(datos) {
     datos.version = VERSION;
     datos.zonas = Array.isArray(datos.zonas) ? datos.zonas : [];
+
     datos.ideas = Array.isArray(datos.ideas) ? datos.ideas : [];
+    if (!datos.reflexion || typeof datos.reflexion !== "object") datos.reflexion = clonar(REFLEXION_INICIAL);
+    const idsIdeasExistentes = new Set(datos.ideas.map((idea) => idea && idea.id).filter(Boolean));
+    (typeof IDEAS_VERIFICADAS_INICIALES !== "undefined" ? IDEAS_VERIFICADAS_INICIALES : []).forEach((idea) => {
+      if (idea && idea.id && !idsIdeasExistentes.has(idea.id)) {
+        datos.ideas.push(clonar(idea));
+        idsIdeasExistentes.add(idea.id);
+      }
+    });
+    const reflexionTexto = String(datos.reflexion.texto || "");
+    if (typeof REFLEXION_DOCUMENTADA !== "undefined" &&
+        (!reflexionTexto.trim() || reflexionTexto === REFLEXION_INICIAL.texto ||
+         reflexionTexto.includes("Sugerencias para escribir su reflexión"))) {
+      datos.reflexion.texto = REFLEXION_DOCUMENTADA.texto;
+    }
+    if (typeof REFLEXION_DOCUMENTADA !== "undefined") {
+      if (!String(datos.reflexion.reto || "").trim() || String(datos.reflexion.reto).startsWith("Escriba aquí")) datos.reflexion.reto = REFLEXION_DOCUMENTADA.reto;
+      if (!String(datos.reflexion.oportunidad || "").trim() || String(datos.reflexion.oportunidad).startsWith("Escriba aquí")) datos.reflexion.oportunidad = REFLEXION_DOCUMENTADA.oportunidad;
+    }
+    const ideaPorNombre = (fragmento) => datos.ideas.find((idea) => normalizar(idea.nombre).includes(normalizar(fragmento)));
+    const descripcionesIniciales = [
+      ["huellas de la violencia", "Este tema conserva observaciones iniciales sobre posibles afectaciones en el comercio y el centro urbano. Las afirmaciones concretas sobre extorsión y hurtos requieren fecha, fuente y corroboración independiente; no deben presentarse como hechos confirmados hasta verificarlas."],
+      ["lugares significativos", "Reúne lugares urbanos, rurales, culturales y territoriales considerados significativos en el trabajo inicial. Cada afirmación histórica requiere una fuente específica. Los territorios de otros municipios son contexto regional, no ubicaciones dentro de Sahagún."],
+      ["actores sociales", "Mapa de actores institucionales, comunitarios y eclesiales. La presencia de una institución no prueba que haya desarrollado una acción específica de paz; documentar actividad, fecha y fuente antes de afirmarlo."],
+      ["arte y danza folclorica", "Línea de investigación sobre cultura, deporte y educación como posibles experiencias de resistencia. Las afirmaciones de que una actividad previene el reclutamiento requieren documentación o testimonios autorizados. Los lugares de otros municipios son contexto regional."],
+      ["signos de esperanza", "Reúne lugares propuestos como signos de esperanza. Las afirmaciones sobre programas de reconciliación o resultados concretos requieren fuentes locales; no atribuirlos a una escuela o entidad sin evidencia."]
+    ];
+    descripcionesIniciales.forEach(([nombre, descripcion]) => {
+      const idea = ideaPorNombre(nombre);
+      if (idea && !String(idea.descripcion || "").trim()) idea.descripcion = descripcion;
+    });
+    datos.ideas.forEach((idea) => (idea.ubicaciones || []).forEach((ubi) => {
+      const nombre = normalizar(ubi.nombre), lugar = normalizar(ubi.lugar), descripcion = String(ubi.descripcion || "");
+      if (nombre.includes("calle del comercio")) {
+        ubi.precision = "aproximada"; ubi.fecha = ""; ubi.simboloCampo = ubi.simboloCampo || "Extorsión / vacunas";
+        if (!descripcion.startsWith("PENDIENTE DE CORROBORACIÓN")) ubi.descripcion = "PENDIENTE DE CORROBORACIÓN: el archivo inicial registra una observación sobre posibles cobros extorsivos, pero esta revisión no confirmó fecha, hecho ni responsables con una fuente pública. No presentarlo como hecho probado. Nota original: " + descripcion;
+      } else if (nombre.includes("centro") && (lugar.includes("banco") || lugar.includes("sahagún")) && /rob|hurt/i.test(descripcion)) {
+        ubi.precision = "aproximada"; ubi.fecha = ""; ubi.simboloCampo = ubi.simboloCampo || "Hurtos";
+        ubi.descripcion = "PENDIENTE DE CORROBORACIÓN: el archivo inicial registra posibles hurtos en el sector bancario, pero no se confirmó fecha ni reporte concreto. No presentarlo como hecho probado. Nota original: " + descripcion;
+      } else if (nombre.includes("finca nuevo méxico")) {
+        ubi.lat = null; ubi.lng = null; ubi.precision = "sin"; ubi.fecha = "2024-08-23"; ubi.simboloCampo = "Cultivos / agricultura";
+        ubi.lugar = "Finca Nuevo México, zona rural de Sahagún, Córdoba; punto catastral pendiente de confirmar";
+        ubi.descripcion = "El 23 de agosto de 2024 se informó que la SAE entregó a la ANT la finca de 497 hectáreas para beneficiar a campesinos mediante Asocamila. La fuente consultada no confirma coordenadas catastrales; no usar el centro urbano como punto de la finca. Fuente: https://www.wradio.com.co/2024/08/23/lujosa-finca-del-exsenador-musa-besaile-pasa-a-manos-de-campesinos-en-cordoba/";
+      } else if (nombre.includes("bajo grande")) {
+        ubi.precision = "aproximada"; ubi.fecha = "";
+        ubi.descripcion = "PENDIENTE DE VERIFICACIÓN: el archivo inicial menciona despojo y desplazamiento entre 1997 y 2005, pero esa cronología y los hechos concretos requieren una fuente específica para Bajo Grande. Mantener como línea de investigación hasta documentarlo.";
+      } else if (nombre.includes("parroquia san juan bautista")) {
+        ubi.descripcion = "Templo católico y lugar de referencia religiosa en el centro de Sahagún. Las afirmaciones específicas sobre refugio durante el conflicto o custodia de testimonios requieren documentación parroquial, fuentes históricas o testimonios autorizados.";
+      } else if (nombre.includes("icbf")) {
+        ubi.lat = null; ubi.lng = null; ubi.precision = "sin"; ubi.lugar = "Sahagún, Córdoba; sede específica pendiente de verificar";
+        ubi.descripcion = "Actor institucional de protección de la niñez y las familias. Esta ficha no confirma una actividad local específica de construcción de paz; añadir sede, fecha y fuente si se documenta una intervención concreta.";
+      } else if (nombre.includes("mesa municipal de víctimas")) {
+        ubi.lat = null; ubi.lng = null; ubi.precision = "sin"; ubi.lugar = "Sahagún, Córdoba; lugar de reunión no verificado";
+        ubi.descripcion = "El archivo inicial menciona la Mesa Municipal de Víctimas y colectivos de mujeres. Confirmar denominación vigente y acciones concretas con fuentes municipales o con las organizaciones antes de presentarlas como verificadas.";
+      } else if (nombre.includes("policia nacional") && /Encuentros Comunitarios|Víctima/.test(descripcion)) {
+        ubi.descripcion = "La Policía Nacional es un actor institucional presente en el municipio. Las actividades concretas de encuentros comunitarios, atención a víctimas o prevención mencionadas en el registro inicial requieren una fuente local.";
+      } else if (nombre.includes("hospital") && /refugio|Misión Médica/.test(descripcion)) {
+        ubi.descripcion = "El hospital es un actor de atención sanitaria. Las afirmaciones específicas del registro inicial sobre refugio durante el conflicto o programas de atención psicosocial requieren fuentes institucionales que las confirmen.";
+      } else if (nombre.includes("cuerpo de bomberos") && /conflicto|zonas vulnerables/.test(descripcion)) {
+        ubi.descripcion = "Actor institucional de respuesta a emergencias. Esta ficha no documenta una operación concreta relacionada con el conflicto o la construcción de paz; registrar fecha y fuente si se identifica una actuación específica.";
+      } else if ((nombre.includes("escuelas de fútbol") || nombre.includes("sede deportiva efusa")) && /reclutamiento|barrera de protección/.test(descripcion)) {
+        ubi.descripcion = "La ficha propone esta escuela deportiva como posible entorno protector. No se confirmó una evaluación o fuente específica que permita afirmar que haya prevenido el reclutamiento en este lugar. Documentar programa, periodo y fuente local antes de afirmar ese efecto.";
+      } else if (nombre.includes("esc salitral") || nombre === "colomboy" || nombre === "las llanadas") {
+        if (descripcion.length > 100) ubi.descripcion = "Interpretación propuesta en el registro inicial, pendiente de corroboración con la comunidad y fuentes escolares. Las afirmaciones sobre zonas de paz, reconciliación o programas pedagógicos no están confirmadas por la Alerta Temprana 011-24. Nota original: " + descripcion;
+      }
+      if (nombre.includes("plaza maría varilla")) ubi.lugar = "Plaza María Varilla, San Pelayo, Córdoba (contexto regional; fuera de Sahagún)";
+      if (nombre.includes("plaza cultural del sinú")) ubi.lugar = "Plaza Cultural del Sinú / Avenida Primera, Montería, Córdoba (contexto regional; fuera de Sahagún)";
+      if (nombre.includes("cordobés fútbol club")) ubi.lugar = "Academia Cordobés Fútbol Club, Montería, Córdoba (contexto regional; fuera de Sahagún)";
+      if (nombre.includes("santa teresa")) ubi.lugar = "Cancha Santa Teresa, Cereté, Córdoba (contexto regional; fuera de Sahagún)";
+      if (nombre.includes("santa cruz de lorica")) ubi.lugar = "Santa Cruz de Lorica, Córdoba (contexto regional; fuera de Sahagún)";
+      if (nombre.includes("cátedra de la paz") || lugar.includes("tierralta")) {
+        if (!String(ubi.lugar || "").toLowerCase().includes("fuera de sahagún")) ubi.lugar = String(ubi.lugar || "Tierralta, Córdoba") + " (contexto regional; fuera de Sahagún)";
+      }
+      if (nombre.includes("centro de conciliación de la defensoría")) ubi.lugar = "Centro de Conciliación de la Defensoría del Pueblo, Montelíbano, Córdoba (contexto regional; fuera de Sahagún)";
+      if (nombre.includes("casa de la cultura")) ubi.lugar = "Casa de la Cultura / Centro de Escucha, Tierralta, Córdoba (contexto regional; fuera de Sahagún)";
+      if (nombre.includes("territorio ancestral zenú")) {
+        ubi.precision = "aproximada";
+        if (!String(ubi.lugar || "").toLowerCase().includes("fuera de sahagún")) ubi.lugar = String(ubi.lugar || "Territorio Zenú, Córdoba") + " (contexto regional; fuera de Sahagún)";
+        if (/reclutar|refugios|resistencia espiritual/.test(descripcion)) ubi.descripcion = "Territorio relacionado con el pueblo Zenú. Las afirmaciones específicas sobre reclutamiento, protección cultural o hechos del conflicto requieren fuentes específicas y diálogo respetuoso con las autoridades Zenú; no se presentan como hechos confirmados.";
+      }
+    }));
     if (!datos.config || typeof datos.config !== "object") datos.config = {};
     if (datos.config.participante === undefined) datos.config.participante = CONFIGURACION_INICIAL.participante || "";
     if (datos.config.municipio === undefined) datos.config.municipio = CONFIGURACION_INICIAL.municipio || "";
@@ -2066,6 +2147,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#ideaPrimeraUbicacion").hidden = true;
     $("#ideaUbicacionesAdicionales").innerHTML = "";
     $("#ideaFecha").value = idea.fecha || "";
+    $("#ideaFuente").value = idea.fuente || "";
     $("#ideaId").value = idea.id;
     $("#ideaNombre").value = idea.nombre;
     $("#ideaDescripcion").value = idea.descripcion || "";
@@ -2117,6 +2199,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const ubiNombre = $("#ideaUbiNombre").value.trim();
     const ubiLugar = $("#ideaUbiLugar").value.trim();
     const ubiDescripcion = $("#ideaUbiDescripcion").value.trim();
+    const fuente = $("#ideaFuente").value.trim();
     const ubiLatTexto = $("#ideaUbiLat").value.trim();
     const ubiLngTexto = $("#ideaUbiLng").value.trim();
     const ubiLat = ubiLatTexto === "" ? null : Number(ubiLatTexto);
@@ -2140,6 +2223,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         idea.nombre = nombre;
         idea.descripcion = $("#ideaDescripcion").value.trim();
         idea.fecha = $("#ideaFecha").value.trim();
+        idea.fuente = fuente;
         idea.categoria = $("#ideaCategoria").value || "afectaciones";
         idea.territorio = $("#ideaTerritorio").value.trim();
         idea.color = $("#ideaColor").value;
@@ -2152,6 +2236,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         nombre: nombre,
         descripcion: $("#ideaDescripcion").value.trim(),
         fecha: $("#ideaFecha").value.trim(),
+        fuente: fuente,
         categoria: $("#ideaCategoria").value || "afectaciones",
         territorio: $("#ideaTerritorio").value.trim(),
         color: $("#ideaColor").value || "#9B1C1C",
@@ -2299,6 +2384,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
                   <h4>Sobre este tema</h4>
                   ${renderDescripcion(idea.descripcion, "tema-card__texto")}
                   ${idea.fecha ? `<p class="tema-sitio__fecha"><strong>Fecha o periodo:</strong> ${escapar(idea.fecha)}</p>` : ""}
+                  ${idea.fuente && /^https?:\/\//i.test(String(idea.fuente).trim()) ? `<p class="tema-sitio__fecha"><strong>Fuente:</strong> <a href="${escapar(String(idea.fuente).trim())}" target="_blank" rel="noopener noreferrer">Consultar fuente verificable ↗</a></p>` : idea.fuente ? `<p class="tema-sitio__fecha"><strong>Fuente:</strong> ${escapar(idea.fuente)}</p>` : ""}
                 </section>
                 <section class="tema-card__sitios">
                   <div class="tema-card__seccion-titulo"><div><h4>Lugares vinculados</h4><p>Los sitios conservan sus propios símbolos y coordenadas.</p></div><span>${ubiCount}</span></div>
@@ -3241,6 +3327,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           $("#ideaPrimeraUbicacion").hidden = false;
     $("#ideaUbicacionesAdicionales").innerHTML = "";
     $("#ideaFecha").value = "";
+          $("#ideaFuente").value = "";
           abrirModal("modalIdea");
           return;
         }
@@ -3296,6 +3383,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     pintarEstadoGuardado();
     pintarEstadoNube(deNube ? "☁ Nube conectada ✓" : "☁ Sin conexión: guardado local");
     eventos();
+    // Persistir la migración sin borrar datos previos ni duplicar registros documentados.
+    guardar();
     navegar("mapa");
     if (window.matchMedia && window.matchMedia("(max-width: 900px)").matches) alternarTira(true);
 
