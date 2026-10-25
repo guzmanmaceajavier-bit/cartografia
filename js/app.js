@@ -290,7 +290,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
             if (idea.id === "fuente-nuevo-mexico-sahagun-2024") ubi.simboloCampo = "Cultivos / agricultura";
             if (idea.id === "fuente-la-macarena-sahagun-2025") ubi.simboloCampo = "Cultivos / agricultura";
             if (idea.id === "fuente-alerta-011-24-sahagun") ubi.simboloCampo = "Amenazas";
-            if (idea.id === "fuente-reparacion-victimas-sahagun-2018") ubi.simboloCampo = "Memoria de las víctimas";
+            if (idea.id === "fuente-reparacion-victimas-sahagun-2018") ubi.simboloCampo = "Esperanza / reconciliación";
           });
         }
         if (idea.id === "idea-mvmxm3pmzq98e" &&
@@ -302,8 +302,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           idea.simbolo = "✊";
           const resumenOriginal = "Reúne las experiencias registradas de arte y danza folclórica (porro y fandango), escuelas de fútbol como posibles entornos protectores, Cátedra de la Paz e instituciones educativas agropecuarias.";
           idea.descripcion = String(idea.descripcion || "").trim();
-          if (!idea.descripcion) idea.descripcion = resumenOriginal + "\\n\\nTítulo original conservado: " + tituloOriginal;
-          else if (!idea.descripcion.includes(tituloOriginal)) idea.descripcion += "\\n\\nTítulo original conservado: " + tituloOriginal;
+          if (!idea.descripcion) idea.descripcion = resumenOriginal + "\n\nTítulo original conservado: " + tituloOriginal;
+          else if (!idea.descripcion.includes(tituloOriginal)) idea.descripcion += "\n\nTítulo original conservado: " + tituloOriginal;
           (idea.ubicaciones || []).forEach((ubi) => { ubi.categoria = "resistencia"; });
         }
       });
