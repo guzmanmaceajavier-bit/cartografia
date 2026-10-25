@@ -990,6 +990,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!capaVerticesEdicion) capaVerticesEdicion = L.layerGroup().addTo(mapa);
     capaVerticesEdicion.clearLayers();
     zonaEditandoVertices = id;
+    const btnTerminar = $("#btnTerminarEdicionVertices");
+    if (btnTerminar) btnTerminar.hidden = false;
     if (mapa) mapa.closePopup();
     z.coords.forEach((punto, indice) => {
       const handle = L.marker(punto, {
@@ -1020,6 +1022,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function terminarEdicionVertices() {
     if (capaVerticesEdicion) capaVerticesEdicion.clearLayers();
     zonaEditandoVertices = null;
+    const btnTerminar = $("#btnTerminarEdicionVertices");
+    if (btnTerminar) btnTerminar.hidden = true;
     toast("Edición de vértices terminada.");
   }
 
