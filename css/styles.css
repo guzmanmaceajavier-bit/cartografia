@@ -2387,3 +2387,33 @@ body.dibujando .leaflet-container { cursor: crosshair; }
 @media (max-width: 700px) {
   .vista-previa .imp-portada, .vista-previa .imp-pagina { padding: 18px; }
 }
+
+
+/* ============ TEMAS COMPARTIDOS ENTRE MENÚS ============ */
+.grupo-temas-vinculados {
+  margin: 14px 0 4px;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+.grupo-temas-vinculados > h3 { margin: 0 0 5px; color: var(--azul); font-size: .92rem; }
+.grupo-temas-vinculados > p { margin: 0 0 10px; color: var(--tinta-suave); font-size: .78rem; line-height: 1.5; }
+.grupo-tema-vinculado {
+  margin: 9px 0;
+  padding: 11px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fbfaf7;
+}
+.grupo-tema-vinculado > strong { display: block; color: var(--azul); font-size: .86rem; margin-bottom: 4px; }
+.grupo-tema-vinculado p { margin: 4px 0 7px; color: var(--tinta); font-size: .8rem; line-height: 1.45; }
+.grupo-tema-vinculado small { display: block; margin: 4px 0; color: var(--tinta-suave); font-size: .74rem; }
+.grupo-tema-vinculado ul { margin: 8px 0 10px; padding-left: 20px; }
+.grupo-tema-vinculado li { padding: 6px 0; font-size: .8rem; line-height: 1.45; }
+.grupo-tema-vinculado li + li { border-top: 1px solid var(--borde); }
+.grupo-tema-vinculado li p { margin-bottom: 4px; }
+@media (max-width: 600px) {
+  .grupo-temas-vinculados { padding: 10px; }
+  .grupo-tema-vinculado { padding: 9px; }
+}

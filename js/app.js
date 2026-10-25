@@ -1659,9 +1659,15 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     cont.innerHTML = html;
 
     const ordenadas = ordenarPorSeccion(chipLugares === "todas" ? base : base.filter((f) => f.categoria === chipLugares));
-    $("#lugaresLista").innerHTML = ordenadas.length
-      ? ordenadas.map(fichaCardHTML).join("")
-      : "<p class='vacio'>No hay registros con estos criterios. Quite la búsqueda, elija otro filtro o agregue un registro nuevo con el botón «＋ Agregar registro».</p>";
+    const clavesTemas = chipLugares === "todas"
+      ? Object.keys(CATEGORIAS).filter((k) => CATEGORIAS[k] && CATEGORIAS[k].seccion)
+      : [chipLugares];
+    $("#lugaresLista").innerHTML =
+      (ordenadas.length
+        ? ordenadas.map(fichaCardHTML).join("")
+        : "<p class='vacio'>No hay registros con estos criterios. Quite la búsqueda, elija otro filtro o agregue un registro nuevo con el botón «＋ Agregar registro».</p>") +
+      resumenTemasHTML(clavesTemas, chipLugares === "todas");
+
   }
 
   function cortar(txt, n) {
@@ -1744,12 +1750,13 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         (idea.descripcion ? "<p>" + escapar(idea.descripcion) + "</p>" : "") +
         "<small>" + ubicaciones.length + " ubicación" + (ubicaciones.length === 1 ? "" : "es") + "</small>" +
         (ubicaciones.length ? "<ul>" + ubicaciones.map((u) => "<li><strong>" + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" + (u.lugar ? " · " + escapar(u.lugar) : "") + (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") + (typeof u.lat === "number" && typeof u.lng === "number" ? "<small>Coordenadas: " + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + "</small>" : "<small>Sin coordenadas guardadas</small>") + "</li>").join("") + "</ul>" : "<p class='vacio'>Este tema aún no tiene ubicaciones agregadas.</p>") +
-        "</article>"
+        "<button type='button' class='btn btn--mini' data-abrir-tema='" + escapar(idea.id) + "'>Abrir tema →</button></article>"
       ).join("") + "<button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Gestionar temas y ubicaciones →</button></div>";
   }
 
   function pintarGruposSeccion(contSel, claves) {
     const cont = $(contSel);
+    if (!cont) return;
     const base = fichasVisibles();
     let html = "";
     let total = 0;
@@ -2219,6 +2226,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     guardar();
     pintarIdeas();
     pintarMapa();
+    pintarTiraLectura();
+    pintarProgreso();
     cerrarModal("modalIdea");
   }
 
@@ -2769,6 +2778,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     estado.reflexion.oportunidad = $("#refOportunidad").value;
     guardar();
     pintarReflexion();
+    pintarTiraLectura();
+    pintarProgreso();
     toast("Reflexión guardada.");
   }
 
@@ -3145,6 +3156,15 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (cerrar) { cerrarModal(cerrar.dataset.cerrar); return; }
       const ir = e.target.closest("[data-seccion-ir]");
       if (ir) { navegar(ir.dataset.seccionIr); return; }
+      const abrirTema = e.target.closest("[data-abrir-tema]");
+      if (abrirTema) {
+        const idTema = abrirTema.dataset.abrirTema;
+        ubicacionesExpandidas.add(idTema);
+        navegar("ideas");
+        const tarjetaTema = Array.from(document.querySelectorAll("[data-idea-id]")).find((n) => n.dataset.ideaId === idTema);
+        if (tarjetaTema) tarjetaTema.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
       const volver = e.target.closest("[data-volver-info]");
       if (volver) { pintarInfo(); return; }
       const sim = e.target.closest("[data-sim]");
