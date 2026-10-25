@@ -1748,8 +1748,30 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       ).join("") + "<button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Gestionar temas y ubicaciones →</button></div>";
   }
 
+  function temasRelacionadosHTML(claves, titulo) {
+    const categorias = Array.isArray(claves) ? claves : [claves];
+    const temas = (estado.ideas || []).filter((idea) => categorias.includes(idea.categoria));
+    if (!temas.length) return "";
+    return "<section class='temas-relacionados'>" +
+      "<header class='temas-relacionados__cabecera'><h3>" + escapar(titulo || "Temas y ubicaciones relacionados") + "</h3>" +
+      "<p>Estos temas se administran en «Temas y ubicaciones». Los cambios se reflejan aquí sin crear copias.</p></header>" +
+      "<div class='temas-relacionados__lista'>" + temas.map((idea) => {
+        const ubicaciones = Array.isArray(idea.ubicaciones) ? idea.ubicaciones : [];
+        const lugares = ubicaciones.map((u) => u.nombre || u.lugar || "Ubicación sin nombre").filter(Boolean);
+        return "<article class='tema-relacionado'>" +
+          "<div><h4>" + escapar(idea.nombre || "Tema sin nombre") + "</h4>" +
+          "<p>" + escapar(idea.descripcion || "Sin descripción.") + "</p>" +
+          "<span>" + ubicaciones.length + " ubicación" + (ubicaciones.length === 1 ? "" : "es") +
+          (lugares.length ? " · " + escapar(lugares.slice(0, 3).join(", ")) + (lugares.length > 3 ? "…" : "") : " · Sin lugares agregados") +
+          "</span></div>" +
+          "<button type='button' class='btn btn--mini' data-abrir-tema='" + escapar(idea.id) + "'>Abrir tema →</button>" +
+          "</article>";
+      }).join("") + "</div></section>";
+  }
+
   function pintarGruposSeccion(contSel, claves) {
     const cont = $(contSel);
+    if (!cont) return;
     const base = fichasVisibles();
     let html = "";
     let total = 0;
@@ -1765,12 +1787,12 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         "<div><h2>" + escapar(cat.nombre) + "</h2><p>" + escapar(cat.descripcion) + "</p></div>" +
         "<span class='grupo-seccion__n'>" + fichas.length + " registro" + (fichas.length === 1 ? "" : "s") + "</span>" +
         "</header>" +
-        (fichas.length ? fichas.map(fichaCardHTML).join("") : "<p class='vacio'>Sin fichas de registro en esta sección aún. Puede agregarlas con «＋ Agregar registro».</p>") +
-        resumenTemasHTML([k], false) +
+        (fichas.length ? fichas.map(fichaCardHTML).join("") : "<p class='vacio'>Sin registros en esta sección aún. Búsquelos con la barra superior o créelos con «＋ Agregar registro».</p>") +
         "</section>";
     });
-    cont.innerHTML = total === 0 && !normalizar($("#busqueda").value) && !(estado.ideas || []).length
-      ? "<p class='vacio'>Esta sección aún no tiene registros ni temas vinculados. Use «＋ Agregar registro» o «Temas y ubicaciones» para empezar.</p>"
+    html += temasRelacionadosHTML(claves, "Temas y ubicaciones de estos componentes");
+    cont.innerHTML = total === 0 && !normalizar($("#busqueda").value) && !(estado.ideas || []).some((idea) => claves.includes(idea.categoria))
+      ? "<p class='vacio'>Esta sección aún no tiene registros. Use «＋ Agregar registro» o cree un tema desde «Temas y ubicaciones».</p>"
       : html;
   }
 
@@ -1806,9 +1828,11 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       : "<p class='vacio'>Todavía no hay temas creados. Primero registre una idea y sus ubicaciones en «Temas y ubicaciones»; aquí podrá consultarlas para elaborar la reflexión.</p><button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Ir a Temas y ubicaciones →</button>";
 
     const retos = ordenarPorSeccion(estado.fichas.filter((f) => f.categoria === "retos"));
-    $("#reflexionRetos").innerHTML = retos.length
-      ? retos.map(fichaCardHTML).join("")
-      : "<p class='vacio'>Aún no hay retos registrados en la sección 08. Puede crearlos aquí con «＋ Agregar registro» (categoría «Retos actuales para la construcción de paz»).</p>";
+    const temasRetos = temasRelacionadosHTML(["retos"], "Temas y ubicaciones asociados a los retos");
+    $("#reflexionRetos").innerHTML =
+      (retos.length ? retos.map(fichaCardHTML).join("") :
+        "<p class='vacio'>Aún no hay fichas de retos registradas. Puede crearlas con «＋ Agregar registro» en el componente 08.</p>") +
+      temasRetos;
   }
 
   function repintarSeccion() {
@@ -3145,6 +3169,15 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (cerrar) { cerrarModal(cerrar.dataset.cerrar); return; }
       const ir = e.target.closest("[data-seccion-ir]");
       if (ir) { navegar(ir.dataset.seccionIr); return; }
+      const abrirTema = e.target.closest("[data-abrir-tema]");
+      if (abrirTema) {
+        const idTema = abrirTema.dataset.abrirTema;
+        ubicacionesExpandidas.add(idTema);
+        navegar("ideas");
+        const tarjetaTema = Array.from(document.querySelectorAll("[data-idea-id]")).find((n) => n.dataset.ideaId === idTema);
+        if (tarjetaTema) tarjetaTema.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
       const volver = e.target.closest("[data-volver-info]");
       if (volver) { pintarInfo(); return; }
       const sim = e.target.closest("[data-sim]");
