@@ -268,6 +268,47 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         if (/reclutar|refugios|resistencia espiritual/.test(descripcion)) ubi.descripcion = "Territorio relacionado con el pueblo Zenú. Las afirmaciones específicas sobre reclutamiento, protección cultural o hechos del conflicto requieren fuentes específicas y diálogo respetuoso con las autoridades Zenú; no se presentan como hechos confirmados.";
       }
     }));
+    // Clasificación editorial de registros dentro de las ocho categorías obligatorias.
+    // Se ejecuta una sola vez para no pisar futuras ediciones del usuario.
+    if (!datos.meta || typeof datos.meta !== "object") datos.meta = {};
+    if (!datos.meta.clasificacionOchoCategoriasV1) {
+      const clasificaciones = {
+        "fuente-alerta-011-24-sahagun": { categoria: "retos", color: "#C2410C", simbolo: "▲" },
+        "fuente-reparacion-victimas-sahagun-2018": { categoria: "esperanza", color: "#C9A227", simbolo: "☀" },
+        "fuente-nuevo-mexico-sahagun-2024": { categoria: "resistencia", color: "#15803D", simbolo: "✊" },
+        "fuente-la-macarena-sahagun-2025": { categoria: "resistencia", color: "#15803D", simbolo: "✊" }
+      };
+      datos.ideas.forEach((idea) => {
+        if (!idea) return;
+        const clasificacion = clasificaciones[idea.id];
+        if (clasificacion) {
+          idea.categoria = clasificacion.categoria;
+          idea.color = clasificacion.color;
+          idea.simbolo = clasificacion.simbolo;
+          (idea.ubicaciones || []).forEach((ubi) => {
+            ubi.categoria = clasificacion.categoria;
+            if (idea.id === "fuente-nuevo-mexico-sahagun-2024") ubi.simboloCampo = "Cultivos / agricultura";
+            if (idea.id === "fuente-la-macarena-sahagun-2025") ubi.simboloCampo = "Cultivos / agricultura";
+            if (idea.id === "fuente-alerta-011-24-sahagun") ubi.simboloCampo = "Amenazas";
+            if (idea.id === "fuente-reparacion-victimas-sahagun-2018") ubi.simboloCampo = "Memoria de las víctimas";
+          });
+        }
+        if (idea.id === "idea-mvmxm3pmzq98e" &&
+            normalizar(idea.nombre).includes("arte y danza folclorica")) {
+          const tituloOriginal = idea.nombre;
+          idea.nombre = "Experiencias de resistencia y construcción de paz";
+          idea.categoria = "resistencia";
+          idea.color = "#15803D";
+          idea.simbolo = "✊";
+          const resumenOriginal = "Reúne las experiencias registradas de arte y danza folclórica (porro y fandango), escuelas de fútbol como posibles entornos protectores, Cátedra de la Paz e instituciones educativas agropecuarias.";
+          idea.descripcion = String(idea.descripcion || "").trim();
+          if (!idea.descripcion) idea.descripcion = resumenOriginal + "\\n\\nTítulo original conservado: " + tituloOriginal;
+          else if (!idea.descripcion.includes(tituloOriginal)) idea.descripcion += "\\n\\nTítulo original conservado: " + tituloOriginal;
+          (idea.ubicaciones || []).forEach((ubi) => { ubi.categoria = "resistencia"; });
+        }
+      });
+      datos.meta.clasificacionOchoCategoriasV1 = true;
+    }
     if (!datos.config || typeof datos.config !== "object") datos.config = {};
     if (datos.config.participante === undefined) datos.config.participante = CONFIGURACION_INICIAL.participante || "";
     if (datos.config.municipio === undefined) datos.config.municipio = CONFIGURACION_INICIAL.municipio || "";
