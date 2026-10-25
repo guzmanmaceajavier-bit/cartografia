@@ -1632,7 +1632,14 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function navegar(seccion) {
     seccionActual = seccion;
     document.body.dataset.seccion = seccion;
-    $$(".principal__btn").forEach((b) => b.classList.toggle("principal__btn--activo", b.dataset.seccion === seccion));
+    const btnNueva = $("#btnNueva");
+    if (btnNueva) {
+      const esTemas = seccion === "ideas";
+      btnNueva.textContent = esTemas ? "＋ Nuevo tema" : "＋ Agregar registro";
+      btnNueva.setAttribute("aria-label", esTemas ? "Crear un tema de cartografía" : "Agregar un registro territorial");
+      btnNueva.title = esTemas ? "Crear un tema y vincularle varias ubicaciones" : "Agregar un registro a la cartografía";
+    }
+    $(".principal__btn").forEach((b) => b.classList.toggle("principal__btn--activo", b.dataset.seccion === seccion));
     $$(".vista").forEach((v) => {
       const activa = v.dataset.vistaSeccion === seccion;
       v.classList.toggle("vista--activa", activa);
@@ -2217,6 +2224,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     pintarMapa();
     pintarTiraLectura();
     pintarProgreso();
+    repintarSeccion();
     cerrarModal("modalIdea");
   }
 
@@ -2226,6 +2234,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     guardar();
     pintarIdeas();
     pintarMapa();
+    pintarTiraLectura();
+    pintarProgreso();
+    repintarSeccion();
     toast("Tema eliminado.");
   }
 
@@ -2274,7 +2285,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         ${ideasPagina.map((idea) => {
           const ubicaciones = Array.isArray(idea.ubicaciones) ? idea.ubicaciones : [];
           const ubiCount = ubicaciones.length;
-          const ubiConCoordenadas = ubicaciones.filter((u) => typeof u.lat === "number" && Number.isFinite(u.lat) && typeof u.lng === "number" && Number.isFinite(u.lng)).length;
+          const ubiConCoordenadas = ubicaciones.filter((u) => u.precision !== "sin" && typeof u.lat === "number" && Number.isFinite(u.lat) && typeof u.lng === "number" && Number.isFinite(u.lng)).length;
           const categoria = CATEGORIAS[idea.categoria || "afectaciones"];
           const color = categoria?.color || idea.color || "#9B1C1C";
           const simbolo = categoria?.simbolo || idea.simbolo || "•";
@@ -2631,7 +2642,13 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     }
     // Cada sitio adicional queda como ubicación hermana, no como punto anidado.
     idea.ubicaciones.push(...adicionales);
-    guardar(); pintarIdeas(); pintarMapa(); cerrarModal("modalUbi");
+    guardar();
+    pintarIdeas();
+    pintarMapa();
+    pintarTiraLectura();
+    pintarProgreso();
+    repintarSeccion();
+    cerrarModal("modalUbi");
   }
 
   /* ==================== TERRITORIO ==================== */
@@ -3005,7 +3022,13 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   /* ==================== EVENTOS ==================== */
 
   function eventos() {
-    $("#btnNueva").addEventListener("click", () => abrirFicha(null));
+    $("#btnNueva").addEventListener("click", () => {
+      if (seccionActual === "ideas") {
+        const btnNuevaIdea = document.querySelector('[data-accion="nuevaIdea"]');
+        if (btnNuevaIdea) { btnNuevaIdea.click(); return; }
+      }
+      abrirFicha(null);
+    });
 
     const btnVerConv = $("#btnVerConvenciones");
     if (btnVerConv) btnVerConv.addEventListener("click", abrirConvencionesCompletas);
