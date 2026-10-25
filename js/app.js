@@ -307,32 +307,36 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       datos.meta.clasificacionOchoCategoriasV2 = true;
     }
     // Integrar las fuentes documentadas en sus categorías existentes, sin crear temas
-    // independientes en "Temas y ubicaciones". La migración es idempotente y conserva
-    // título, descripción, fecha, fuente y detalle territorial en una ficha de categoría.
+    // independientes en "Temas y ubicaciones". La fuente inicial sirve como respaldo
+    // si una ejecución anterior ya retiró la idea pero no llegó a guardar la ficha.
     datos.fichas = Array.isArray(datos.fichas) ? datos.fichas : [];
-    const idsFuentesIntegradas = new Set([
+    const idsFuentesIntegradas = [
       "fuente-alerta-011-24-sahagun",
       "fuente-reparacion-victimas-sahagun-2018",
       "fuente-nuevo-mexico-sahagun-2024",
       "fuente-la-macarena-sahagun-2025"
-    ]);
+    ];
     const subtemasFuentes = {
       "fuente-alerta-011-24-sahagun": "Prevención y protección frente a riesgos advertidos",
       "fuente-reparacion-victimas-sahagun-2018": "Reparación administrativa a víctimas",
       "fuente-nuevo-mexico-sahagun-2024": "Acceso campesino a la tierra",
       "fuente-la-macarena-sahagun-2025": "Acceso a la tierra para mujeres rurales"
     };
-    datos.ideas = datos.ideas.filter((idea) => {
-      if (!idea || !idsFuentesIntegradas.has(idea.id)) return true;
-      const idFicha = "ficha-integrada-" + idea.id;
+    idsFuentesIntegradas.forEach((idFuente) => {
+      const idea = datos.ideas.find((idea) => idea && idea.id === idFuente) ||
+        (typeof IDEAS_VERIFICADAS_INICIALES !== "undefined"
+          ? IDEAS_VERIFICADAS_INICIALES.find((idea) => idea && idea.id === idFuente)
+          : null);
+      if (!idea) return;
+      const idFicha = "ficha-integrada-" + idFuente;
       const ubicacion = Array.isArray(idea.ubicaciones) ? idea.ubicaciones[0] : null;
-      const fichaExistente = datos.fichas.find((f) => f.id === idFicha);
-      if (!fichaExistente) {
-        datos.fichas.push(normalizarFicha({
+      let ficha = datos.fichas.find((f) => f.id === idFicha);
+      if (!ficha) {
+        ficha = normalizarFicha({
           id: idFicha,
           nombre: idea.nombre || "Registro documentado",
           categoria: idea.categoria || "lugares",
-          subtema: subtemasFuentes[idea.id] || "",
+          subtema: subtemasFuentes[idFuente] || "",
           lat: null,
           lng: null,
           precision: "sin",
@@ -343,7 +347,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           actores: "",
           fecha: idea.fecha || (ubicacion && ubicacion.fecha) || "",
           fuente: idea.fuente || "",
-          tipoFuente: idea.id === "fuente-nuevo-mexico-sahagun-2024" ? "prensa" : "oficial",
+          tipoFuente: idFuente === "fuente-nuevo-mexico-sahagun-2024" ? "prensa" : "oficial",
           estado: "documentado",
           tipo_registro: "registro",
           territorio_padre: "",
@@ -354,10 +358,15 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           visible: true,
           creado: idea.creado || new Date().toISOString(),
           relacionados: []
-        }));
+        });
+        datos.fichas.push(ficha);
+      } else {
+        // Garantizar que la ficha existente aparezca en la categoría correcta.
+        ficha.categoria = idea.categoria || ficha.categoria || "lugares";
+        if (!ficha.subtema) ficha.subtema = subtemasFuentes[idFuente] || "";
       }
-      return false;
     });
+    datos.ideas = datos.ideas.filter((idea) => !idea || !idsFuentesIntegradas.includes(idea.id));
     if (!datos.config || typeof datos.config !== "object") datos.config = {};
     if (datos.config.participante === undefined) datos.config.participante = CONFIGURACION_INICIAL.participante || "";
     if (datos.config.municipio === undefined) datos.config.municipio = CONFIGURACION_INICIAL.municipio || "";
