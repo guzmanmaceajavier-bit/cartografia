@@ -273,7 +273,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (n) n.textContent = texto;
   }
 
-  async function cargarNube() {
+  async async function cargarNube() {
     try {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), 7000);
@@ -288,7 +288,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     }
   }
 
-  async function guardarNube() {
+  async async function guardarNube() {
     nubeTimer = null;
     if (!estado) return;
     pintarEstadoNube("☁ Guardando en la nube…");
@@ -1461,6 +1461,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     (estado.ideas || []).forEach((idea) => {
       (idea.ubicaciones || []).forEach((u) => {
         if (u.categoria && catOculta(u.categoria)) return;
+        if (u.precision === "sin") return;
         if (typeof u.lat !== "number" || typeof u.lng !== "number") return;
         const cat = CATEGORIAS[u.categoria] || { color: idea.color || "#9B1C1C", simbolo: idea.simbolo || "•", nombre: "Sin clasificar" };
         // El símbolo principal identifica el componente cartográfico; el color coincide con la leyenda.
@@ -1629,7 +1630,14 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   function navegar(seccion) {
     seccionActual = seccion;
     document.body.dataset.seccion = seccion;
-    $$(".principal__btn").forEach((b) => b.classList.toggle("principal__btn--activo", b.dataset.seccion === seccion));
+    const btnNueva = $("#btnNueva");
+    if (btnNueva) {
+      const esTemas = seccion === "ideas";
+      btnNueva.textContent = esTemas ? "＋ Nuevo tema" : "＋ Agregar registro";
+      btnNueva.setAttribute("aria-label", esTemas ? "Crear un tema de cartografía" : "Agregar un registro territorial");
+      btnNueva.title = esTemas ? "Crear un tema y vincularle varias ubicaciones" : "Agregar un registro a la cartografía";
+    }
+    $(".principal__btn").forEach((b) => b.classList.toggle("principal__btn--activo", b.dataset.seccion === seccion));
     $$(".vista").forEach((v) => {
       const activa = v.dataset.vistaSeccion === seccion;
       v.classList.toggle("vista--activa", activa);
@@ -2103,33 +2111,6 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     abrirModal("modalUbi");
   }
 
-  function eliminarUbi(ubiId) {
-    if (!confirm("¿Eliminar esta ubicación?")) return;
-    estado.ideas.forEach((idea) => {
-      if (idea.ubicaciones) {
-        idea.ubicaciones = idea.ubicaciones.filter((u) => u.id !== ubiId);
-      }
-    });
-    guardar();
-    pintarIdeas();
-    pintarMapa();
-    toast("Ubicación eliminada.");
-  }
-
-  function abrirModalEditarIdea(ideaId) {
-    const idea = estado.ideas.find((i) => i.id === ideaId);
-    if (!idea) return;
-    $("#modalIdeaTitulo").textContent = "Editar idea";
-    $("#ideaId").value = idea.id;
-    $("#ideaNombre").value = idea.nombre;
-    $("#ideaDescripcion").value = idea.descripcion || "";
-    $("#ideaCategoria").value = idea.categoria || "afectaciones";
-    $("#ideaTerritorio").value = idea.territorio || estado.config?.nombreTerritorio || "";
-    $("#ideaColor").value = idea.color || "#9B1C1C";
-    $("#ideaSimbolo").value = idea.simbolo || "✕";
-    abrirModal("modalIdea");
-  }
-
   function guardarIdea() {
     const id = $("#ideaId").value;
     const nombre = $("#ideaNombre").value.trim() || "Tema sin nombre";
@@ -2228,6 +2209,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     pintarMapa();
     pintarTiraLectura();
     pintarProgreso();
+    repintarSeccion();
     cerrarModal("modalIdea");
   }
 
@@ -2237,6 +2219,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     guardar();
     pintarIdeas();
     pintarMapa();
+    pintarTiraLectura();
+    pintarProgreso();
+    repintarSeccion();
     toast("Tema eliminado.");
   }
 
@@ -2250,6 +2235,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     guardar();
     pintarIdeas();
     pintarMapa();
+    pintarTiraLectura();
+    pintarProgreso();
+    repintarSeccion();
     toast("Ubicación eliminada.");
   }
 
@@ -2285,7 +2273,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         ${ideasPagina.map((idea) => {
           const ubicaciones = Array.isArray(idea.ubicaciones) ? idea.ubicaciones : [];
           const ubiCount = ubicaciones.length;
-          const ubiConCoordenadas = ubicaciones.filter((u) => typeof u.lat === "number" && Number.isFinite(u.lat) && typeof u.lng === "number" && Number.isFinite(u.lng)).length;
+          const ubiConCoordenadas = ubicaciones.filter((u) => u.precision !== "sin" && typeof u.lat === "number" && Number.isFinite(u.lat) && typeof u.lng === "number" && Number.isFinite(u.lng)).length;
           const categoria = CATEGORIAS[idea.categoria || "afectaciones"];
           const color = categoria?.color || idea.color || "#9B1C1C";
           const simbolo = categoria?.simbolo || idea.simbolo || "•";
@@ -2642,7 +2630,13 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     }
     // Cada sitio adicional queda como ubicación hermana, no como punto anidado.
     idea.ubicaciones.push(...adicionales);
-    guardar(); pintarIdeas(); pintarMapa(); cerrarModal("modalUbi");
+    guardar();
+    pintarIdeas();
+    pintarMapa();
+    pintarTiraLectura();
+    pintarProgreso();
+    repintarSeccion();
+    cerrarModal("modalUbi");
   }
 
   /* ==================== TERRITORIO ==================== */
@@ -3016,7 +3010,13 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   /* ==================== EVENTOS ==================== */
 
   function eventos() {
-    $("#btnNueva").addEventListener("click", () => abrirFicha(null));
+    $("#btnNueva").addEventListener("click", () => {
+      if (seccionActual === "ideas") {
+        const btnNuevaIdea = document.querySelector('[data-accion="nuevaIdea"]');
+        if (btnNuevaIdea) { btnNuevaIdea.click(); return; }
+      }
+      abrirFicha(null);
+    });
 
     const btnVerConv = $("#btnVerConvenciones");
     if (btnVerConv) btnVerConv.addEventListener("click", abrirConvencionesCompletas);
