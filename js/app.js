@@ -30,6 +30,8 @@
   let dibujoTmp = null;
   let clicZona = false;
   let zonaLayers = {};
+  let capaVerticesEdicion = null;
+  let zonaEditandoVertices = null;
   let moveZona = null;
   let nubeTimer = null;
 
@@ -595,6 +597,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     capaLimite = L.geoJSON();
     capaMarcadores = L.layerGroup().addTo(mapa);
     capaZonas = L.layerGroup().addTo(mapa);
+    capaVerticesEdicion = L.layerGroup().addTo(mapa);
     dibujarLimite();
     pintarZonas();
 
@@ -961,6 +964,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       html += "<label class='zona-popup__texto'>Texto de la etiqueta<input type='text' id='zonaTextoInput' value='" + escapar(z.texto || "") + "' maxlength='80'></label>" +
         "<button type='button' class='btn btn--mini' data-zona-texto='" + z.id + "'>Guardar texto</button>";
     }
+    if (["poligono", "linea", "flecha"].includes(z.tipo)) {
+      html += "<button type='button' class='btn btn--mini' data-zona-editar-puntos='" + z.id + "'>✥ Editar vértices</button>" +
+        "<p class='zona-popup__nota'>Mueva los puntos blancos para ajustar el contorno o recorrido.</p>";
+    }
     html +=
       "<div class='zona-popup__colores'>" +
       PALETA.map((c) =>
@@ -975,6 +982,49 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       .setLatLng(latlng)
       .setContent(html)
       .openOn(mapa);
+  }
+
+  function editarVerticesZona(id) {
+    const z = (estado.zonas || []).find((x) => x.id === id);
+    if (!z || !["poligono", "linea", "flecha"].includes(z.tipo) || !Array.isArray(z.coords)) return;
+    if (!capaVerticesEdicion) capaVerticesEdicion = L.layerGroup().addTo(mapa);
+    capaVerticesEdicion.clearLayers();
+    zonaEditandoVertices = id;
+    const btnTerminar = $("#btnTerminarEdicionVertices");
+    if (btnTerminar) btnTerminar.hidden = false;
+    if (mapa) mapa.closePopup();
+    z.coords.forEach((punto, indice) => {
+      const handle = L.marker(punto, {
+        draggable: true,
+        keyboard: true,
+        title: "Vértice " + (indice + 1) + " — arrastre para ajustar",
+        icon: L.divIcon({
+          className: "vertice-edicion-icono",
+          html: "<span style='display:block;width:14px;height:14px;border:3px solid #102D4F;border-radius:50%;background:#fff;box-shadow:0 1px 5px #0008'></span>",
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        })
+      });
+      handle.on("dragend", () => {
+        const actual = (estado.zonas || []).find((x) => x.id === id);
+        if (!actual || !actual.coords || !actual.coords[indice]) return;
+        const ll = handle.getLatLng();
+        actual.coords[indice] = [ll.lat, ll.lng];
+        guardar();
+        pintarZonas();
+        toast("Vértice " + (indice + 1) + " actualizado.");
+      });
+      handle.addTo(capaVerticesEdicion);
+    });
+    toast("Arrastre los puntos blancos para ajustar cada vértice. Pulse «Terminar edición» cuando acabe.");
+  }
+
+  function terminarEdicionVertices() {
+    if (capaVerticesEdicion) capaVerticesEdicion.clearLayers();
+    zonaEditandoVertices = null;
+    const btnTerminar = $("#btnTerminarEdicionVertices");
+    if (btnTerminar) btnTerminar.hidden = true;
+    toast("Edición de vértices terminada.");
   }
 
   function recolorearZona(id, color) {
@@ -3042,6 +3092,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       }
       setHerramienta(btn.dataset.dibujo);
     });
+    const btnTerminarVertices = $("#btnTerminarEdicionVertices");
+    if (btnTerminarVertices) btnTerminarVertices.addEventListener("click", terminarEdicionVertices);
     const btnDibujo = $("#btnDibujoToggle");
     if (btnDibujo) btnDibujo.addEventListener("click", () => mostrarBarraDibujo(true));
 
@@ -3085,6 +3137,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (vf) { soloVerificados = !soloVerificados; repintar(); return; }
       const sv = e.target.closest("[data-streetview]");
       if (sv) { abrirStreetView(sv.dataset.streetview); return; }
+      const zev = e.target.closest("[data-zona-editar-puntos]");
+      if (zev) { editarVerticesZona(zev.dataset.zonaEditarPuntos); return; }
       const zc = e.target.closest("[data-zona-color]");
       if (zc) { recolorearZona(zc.dataset.zonaId, zc.dataset.zonaColor); return; }
       const ze = e.target.closest("[data-zona-eliminar]");
