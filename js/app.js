@@ -366,7 +366,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         if (!ficha.subtema) ficha.subtema = subtemasFuentes[idFuente] || "";
       }
     });
-    datos.ideas = datos.ideas.filter((idea) => !idea || !idsFuentesIntegradas.includes(idea.id));
+    datos.ideas = datos.ideas.filter((idea) => !idea || !idsFuentesIntegradas.includes(idea.id) || idea.id === "fuente-alerta-011-24-sahagun");
     if (!datos.config || typeof datos.config !== "object") datos.config = {};
     if (datos.config.participante === undefined) datos.config.participante = CONFIGURACION_INICIAL.participante || "";
     if (datos.config.municipio === undefined) datos.config.municipio = CONFIGURACION_INICIAL.municipio || "";
