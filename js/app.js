@@ -268,29 +268,26 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         if (/reclutar|refugios|resistencia espiritual/.test(descripcion)) ubi.descripcion = "Territorio relacionado con el pueblo Zenú. Las afirmaciones específicas sobre reclutamiento, protección cultural o hechos del conflicto requieren fuentes específicas y diálogo respetuoso con las autoridades Zenú; no se presentan como hechos confirmados.";
       }
     }));
-    // Clasificación editorial de registros dentro de las ocho categorías obligatorias.
-    // Se ejecuta una sola vez para no pisar futuras ediciones del usuario.
+    // Clasificación V2: repara registros ya guardados con la migración anterior.
+    // La versión nueva fuerza la categoría correcta una vez incluso si V1 ya se ejecutó.
     if (!datos.meta || typeof datos.meta !== "object") datos.meta = {};
-    if (!datos.meta.clasificacionOchoCategoriasV1) {
-      const clasificaciones = {
-        "fuente-alerta-011-24-sahagun": { categoria: "retos", color: "#C2410C", simbolo: "▲" },
-        "fuente-reparacion-victimas-sahagun-2018": { categoria: "esperanza", color: "#C9A227", simbolo: "☀" },
-        "fuente-nuevo-mexico-sahagun-2024": { categoria: "resistencia", color: "#15803D", simbolo: "✊" },
-        "fuente-la-macarena-sahagun-2025": { categoria: "resistencia", color: "#15803D", simbolo: "✊" }
+    if (!datos.meta.clasificacionOchoCategoriasV2) {
+      const clasificacionesV2 = {
+        "fuente-alerta-011-24-sahagun": { categoria: "retos", color: "#C2410C", simbolo: "▲", simboloCampo: "Amenazas" },
+        "fuente-reparacion-victimas-sahagun-2018": { categoria: "resistencia", color: "#15803D", simbolo: "✊", simboloCampo: "Resistencia y paz" },
+        "fuente-nuevo-mexico-sahagun-2024": { categoria: "resistencia", color: "#15803D", simbolo: "✊", simboloCampo: "Cultivos / agricultura" },
+        "fuente-la-macarena-sahagun-2025": { categoria: "resistencia", color: "#15803D", simbolo: "✊", simboloCampo: "Cultivos / agricultura" }
       };
       datos.ideas.forEach((idea) => {
         if (!idea) return;
-        const clasificacion = clasificaciones[idea.id];
+        const clasificacion = clasificacionesV2[idea.id];
         if (clasificacion) {
           idea.categoria = clasificacion.categoria;
           idea.color = clasificacion.color;
           idea.simbolo = clasificacion.simbolo;
           (idea.ubicaciones || []).forEach((ubi) => {
             ubi.categoria = clasificacion.categoria;
-            if (idea.id === "fuente-nuevo-mexico-sahagun-2024") ubi.simboloCampo = "Cultivos / agricultura";
-            if (idea.id === "fuente-la-macarena-sahagun-2025") ubi.simboloCampo = "Cultivos / agricultura";
-            if (idea.id === "fuente-alerta-011-24-sahagun") ubi.simboloCampo = "Amenazas";
-            if (idea.id === "fuente-reparacion-victimas-sahagun-2018") ubi.simboloCampo = "Esperanza / reconciliación";
+            ubi.simboloCampo = clasificacion.simboloCampo;
           });
         }
         if (idea.id === "idea-mvmxm3pmzq98e" &&
@@ -307,7 +304,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           (idea.ubicaciones || []).forEach((ubi) => { ubi.categoria = "resistencia"; });
         }
       });
-      datos.meta.clasificacionOchoCategoriasV1 = true;
+      datos.meta.clasificacionOchoCategoriasV2 = true;
     }
     if (!datos.config || typeof datos.config !== "object") datos.config = {};
     if (datos.config.participante === undefined) datos.config.participante = CONFIGURACION_INICIAL.participante || "";
