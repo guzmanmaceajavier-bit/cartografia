@@ -1461,6 +1461,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     (estado.ideas || []).forEach((idea) => {
       (idea.ubicaciones || []).forEach((u) => {
         if (u.categoria && catOculta(u.categoria)) return;
+        // Una ubicación marcada como "sin" no debe aparecer en el mapa,
+        // aunque conserve coordenadas históricas en el respaldo.
+        if (u.precision === "sin") return;
         if (typeof u.lat !== "number" || typeof u.lng !== "number") return;
         const cat = CATEGORIAS[u.categoria] || { color: idea.color || "#9B1C1C", simbolo: idea.simbolo || "•", nombre: "Sin clasificar" };
         // El símbolo principal identifica el componente cartográfico; el color coincide con la leyenda.
@@ -2114,20 +2117,6 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     pintarIdeas();
     pintarMapa();
     toast("Ubicación eliminada.");
-  }
-
-  function abrirModalEditarIdea(ideaId) {
-    const idea = estado.ideas.find((i) => i.id === ideaId);
-    if (!idea) return;
-    $("#modalIdeaTitulo").textContent = "Editar idea";
-    $("#ideaId").value = idea.id;
-    $("#ideaNombre").value = idea.nombre;
-    $("#ideaDescripcion").value = idea.descripcion || "";
-    $("#ideaCategoria").value = idea.categoria || "afectaciones";
-    $("#ideaTerritorio").value = idea.territorio || estado.config?.nombreTerritorio || "";
-    $("#ideaColor").value = idea.color || "#9B1C1C";
-    $("#ideaSimbolo").value = idea.simbolo || "✕";
-    abrirModal("modalIdea");
   }
 
   function guardarIdea() {
