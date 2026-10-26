@@ -2462,3 +2462,37 @@ body.dibujando .leaflet-container { cursor: crosshair; }
 @media (max-width: 600px) {
   .aviso-territorio-cordoba { grid-template-columns: 1fr; }
 }
+
+
+
+/* Estado de sincronización visible: no ocultar los fallos dentro del menú plegable. */
+.estado-nube-global {
+  position: relative;
+  z-index: 20;
+  padding: 8px 16px;
+  font-size: .82rem;
+  line-height: 1.35;
+  font-weight: 650;
+  border-bottom: 1px solid #d6dce3;
+  background: #fff7df;
+  color: #704b00;
+  overflow-wrap: anywhere;
+}
+.estado-nube-global--ok {
+  background: #e9f8ef;
+  color: #17643a;
+  border-color: #b7e1c5;
+}
+.estado-nube-global--error {
+  background: #fff0ef;
+  color: #9b1c1c;
+  border-color: #f0c2bf;
+}
+.estado-nube-global--pendiente {
+  background: #fff7df;
+  color: #704b00;
+  border-color: #ead49a;
+}
+@media (max-width: 760px) {
+  .estado-nube-global { padding: 9px 11px; font-size: .78rem; }
+}
