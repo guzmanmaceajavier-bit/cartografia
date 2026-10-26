@@ -117,7 +117,7 @@
       return "<label class='filtro-categoria'>" +
         "<input type='checkbox' data-filtro-categoria='" + escapeHTML(key) + "'" + checked + ">" +
         "<span class='filtro-categoria__simbolo' style='background:" + escapeHTML(cat.color || "#5D6B7E") + "'>" + escapeHTML(cat.simbolo || "•") + "</span>" +
-        "<span class='filtro-categoria__texto'><strong>" + escapeHTML(cat.nombre || key) + "</strong><small>" + escapeHTML(cat.descripcion || "") + "</small></span>" +
+        "<span class='filtro-categoria__texto'><strong>" + escapeHTML(cat.nombre || key) + "</strong><small title='" + escapeHTML(cat.descripcion || "") + "'>" + escapeHTML((cat.descripcion || "").slice(0, 66)) + ((cat.descripcion || "").length > 66 ? "…" : "") + "</small></span>" +
         "<span class='filtro-categoria__cantidad'>" + (cantidades[key] || 0) + "</span></label>";
     }).join("");
   }
