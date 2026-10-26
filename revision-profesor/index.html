@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Vista de revisión · Cartografía de Paz</title>
   <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="/revision-profesor/revision-profesor.css?v=c774858f9f9394920fc4">
+  <link rel="stylesheet" href="/revision-profesor/revision-profesor.css?v=0fdb30c0819904a7a875">
 </head>
 <body>
   <header class="revision-cabecera">
@@ -49,7 +49,7 @@
           <p class="panel-ayuda">Active las categorías que desea observar. El mapa se actualizará automáticamente.</p>
           <div id="filtrosCategorias" class="filtros-categorias"></div>
           <div class="filtro-separador"></div>
-          <label class="filtro-figuras"><input type="checkbox" id="verFiguras" checked> Mostrar límites y figuras dibujadas</label>
+          <label class="filtro-figuras"><input type="checkbox" id="verFiguras" checked> Mostrar figuras dibujadas</label>
           <label class="busqueda-label" for="buscarRegistro">Buscar en la cartografía</label>
           <input id="buscarRegistro" class="busqueda-registro" type="search" placeholder="Nombre, lugar o palabra clave">
           <p id="estadoResultados" class="estado-resultados" aria-live="polite"></p>
@@ -60,16 +60,23 @@
             <div><span class="panel-ceja">MAPA INTERACTIVO</span><h2>Territorio y registros</h2></div>
             <span class="mapa-ayuda">Seleccione un marcador para consultar su ficha</span>
           </div>
-          <div class="mapa-controles" role="group" aria-label="Controles de encuadre del mapa">
-            <button id="btnZoomMas" type="button" title="Acercar mapa" aria-label="Acercar mapa">+</button>
-            <button id="btnZoomMenos" type="button" title="Alejar mapa" aria-label="Alejar mapa">−</button>
-            <button id="btnAjustarMapa" type="button">Ajustar a ubicaciones</button>
-            <button id="btnVerCordoba" type="button">Ver todo Córdoba</button>
+          <div class="mapa-controles" role="group" aria-label="Encuadre del mapa">
+            <span>Use los controles + y − del mapa para acercar o alejar.</span>
+            <button id="btnVerCordoba" type="button">Volver a Córdoba</button>
           </div>
           <div id="mapaRevision" role="application" aria-label="Mapa de la cartografía de paz"></div>
           <div class="mapa-pie"><span>© OpenStreetMap contributors</span><span>La ubicación aproximada no equivale a la confirmación de un hecho.</span></div>
         </section>
       </div>
+
+      <section class="temas-panel" aria-labelledby="tituloTemas">
+        <div class="panel-titulo">
+          <div><span class="panel-ceja">CUERPO DEL TRABAJO</span><h2 id="tituloTemas">Temas desarrollados en la cartografía</h2></div>
+          <span id="cantidadTemas" class="cantidad-lista">0 temas</span>
+        </div>
+        <p class="temas-intro">Este es el contenido central del trabajo: temas, descripciones y ubicaciones guardadas en la cartografía.</p>
+        <div id="listaTemas" class="lista-temas"></div>
+      </section>
 
       <section class="registros-panel">
         <div class="panel-titulo">
@@ -93,6 +100,6 @@
 
   <script src="/vendor/leaflet/leaflet.js"></script>
   <script src="/js/data.js"></script>
-  <script src="/revision-profesor/revision-profesor.js?v=846b53d7c3a6426e3599"></script>
+  <script src="/revision-profesor/revision-profesor.js?v=1f6e07a7df479cce58fd"></script>
 </body>
 </html>
