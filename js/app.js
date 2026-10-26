@@ -2890,17 +2890,32 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#terrMenuDesc").textContent = (desc || "Sin descripción delimitada. Edite la delimitación para completarla.") + (oficial ? " · Límite oficial cargado ✓" : "");
   }
 
+  function actualizarAyudaDepartamento() {
+    const departamento = ($("#terrDepartamento").value || "").trim().toLocaleLowerCase("es");
+    const aviso = $("#terrAyudaCordoba");
+    if (aviso) aviso.hidden = departamento !== "córdoba" && departamento !== "cordoba";
+  }
+
   function abrirTerritorio() {
     $("#terrNombre").value = estado.config.nombreTerritorio || "";
     $("#terrParticipante").value = estado.config.participante || "";
     $("#terrMunicipio").value = estado.config.municipio || "";
-    $("#terrDepartamento").value = estado.config.departamento || "";
+    const departamento = estado.config.departamento || "";
+    const selectorDepartamento = $("#terrDepartamento");
+    if (departamento && !Array.from(selectorDepartamento.options).some((o) => o.value === departamento)) {
+      const opcion = document.createElement("option");
+      opcion.value = departamento;
+      opcion.textContent = departamento;
+      selectorDepartamento.appendChild(opcion);
+    }
+    selectorDepartamento.value = departamento;
     $("#terrDescripcion").value = estado.config.descripcionTerritorio || "";
     $("#terrLat").value = estado.config.centro.lat;
     $("#terrLng").value = estado.config.centro.lng;
     $("#terrZoom").value = estado.config.centro.zoom;
     $("#terrMostrarLimite").checked = !!estado.config.mostrarLimite;
     $("#terrLimite").value = JSON.stringify(estado.config.limite || {}, null, 2);
+    actualizarAyudaDepartamento();
     abrirModal("modalTerritorio");
   }
 
@@ -3275,6 +3290,11 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       });
     });
     $("#btnTerritorio").addEventListener("click", abrirTerritorio);
+    $("#terrDepartamento").addEventListener("change", actualizarAyudaDepartamento);
+    $("#btnEnfocarCordoba").addEventListener("click", () => {
+      enfocarDepartamentoCordoba();
+      if (mapa) setTimeout(() => mapa.invalidateSize(), 80);
+    });
     $("#btnGuardarTerritorio").addEventListener("click", guardarTerritorio);
     $("#btnLimiteOficial").addEventListener("click", cargarLimiteOficial);
     $("#btnRestablecer").addEventListener("click", restablecer);
