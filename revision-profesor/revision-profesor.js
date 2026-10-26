@@ -267,7 +267,7 @@
       : (item.fuente ? "<p><strong>Fuente:</strong> " + escapeHTML(item.fuente) + "</p>" : "");
     const descripcionHtml = descripcion.length > 450
       ? "<p class='texto-expandible'><span>" + escapeHTML(descripcion.slice(0, 450)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(descripcion.slice(450)) +
-        "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más</button>"
+        "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button>"
       : (descripcion ? "<p>" + escapeHTML(descripcion) + "</p>" : "");
     return "<div class='rp-popup'><div class='rp-popup__categoria' style='color:" + escapeHTML(cat.color || "#5D6B7E") + "'>" +
       escapeHTML(cat.simbolo || "") + " " + escapeHTML(cat.nombre || item.categoria) + "</div><h3>" + escapeHTML(nombre) + "</h3>" +
@@ -458,9 +458,12 @@
           const detalle = cleanText(u.descripcion);
           const municipio = cleanText(u.municipio || u.territorio || u.zona);
           const coords = hasCoord(u.lat) && hasCoord(u.lng) ? "<p>Coordenadas: " + escapeHTML(u.lat) + ", " + escapeHTML(u.lng) + "</p>" : "";
+          const detalleHtml = !detalle ? "" : (detalle.length > 240
+            ? "<p class='texto-expandible'><span>" + escapeHTML(detalle.slice(0, 240)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(detalle.slice(240)) + "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button>"
+            : "<p>" + escapeHTML(detalle) + "</p>");
           return "<li><strong>" + escapeHTML(nombre) + "</strong>" +
             (municipio ? "<span class='tema-card__lugar'> · " + escapeHTML(municipio) + "</span>" : "") +
-            (detalle ? "<p>" + escapeHTML(detalle) + "</p>" : "") + coords + "</li>";
+            detalleHtml + coords + "</li>";
         }).join("") + "</ul></div>" : "<p class='tema-card__sin-ubicaciones'>Este tema no tiene ubicaciones asociadas guardadas.</p>";
       const fuente = cleanText(idea.fuente);
       const fuenteHtml = fuente ? "<p class='tema-card__fuente'>Fuente: " + escapeHTML(fuente) + "</p>" : "";
@@ -652,7 +655,7 @@
     const expandido = boton.getAttribute("aria-expanded") === "true";
     completo.hidden = expandido;
     boton.setAttribute("aria-expanded", String(!expandido));
-    boton.textContent = expandido ? "Leer más" : "Leer menos";
+    boton.textContent = expandido ? "Seguir leyendo" : "Mostrar menos";
   });
   $("#listaRegistros").addEventListener("click", (event) => {
     const button = event.target.closest("[data-enfocar]");
