@@ -344,8 +344,12 @@
 
   async function actualizarLimiteTerritorial() {
     if (!capaLimite || !estado) return;
-    capaLimite.clearLayers();
     const solicitud = "cordoba|departamento";
+    if (ultimoLimiteAjustado === solicitud && capaLimite.getLayers().length) {
+      $("#nombreTerritorio").textContent = "Departamento de Córdoba";
+      return;
+    }
+    capaLimite.clearLayers();
     territorioSolicitado = solicitud;
     const geojson = await obtenerLimiteTerritorial({ nombre: "Córdoba", tipo: "departamento" });
     if (territorioSolicitado !== solicitud || !capaLimite) return;
@@ -476,6 +480,7 @@
     const cont = $("#listaRegistros");
     const consulta = cleanText($("#buscarRegistro").value).toLocaleLowerCase("es");
     const filtrados = items.filter((item) => {
+      if (item.tipo === "tema") return false;
       if (!categoriasActivas.has(item.categoria)) return false;
       const texto = [item.nombre, item.subtema, item.descripcion, item.historia, item.fuente,
         ...(item.ubicaciones || []).map((u) => [u.nombre, u.lugar, u.descripcion].join(" "))].join(" ").toLocaleLowerCase("es");
