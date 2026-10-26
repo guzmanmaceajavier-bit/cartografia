@@ -2421,3 +2421,44 @@ body.dibujando .leaflet-container { cursor: crosshair; }
   .grupo-temas-vinculados { padding: 10px; }
   .grupo-tema-vinculado { padding: 9px; }
 }
+
+
+/* Orientación de la categoría 01 cuando se selecciona el departamento de Córdoba. */
+.aviso-territorio-cordoba {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  margin: 8px 0 14px;
+  padding: 14px;
+  border: 1px solid #cbd8e5;
+  border-left: 4px solid #102D4F;
+  border-radius: 10px;
+  background: #f3f7fb;
+  color: #19324a;
+}
+.aviso-territorio-cordoba[hidden] { display: none !important; }
+.aviso-territorio-cordoba__simbolo {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  background: #102D4F;
+  color: #fff;
+  font-size: 23px;
+}
+.aviso-territorio-cordoba strong { color: #102D4F; }
+.aviso-territorio-cordoba p {
+  margin: 7px 0;
+  font-size: .82rem;
+  line-height: 1.5;
+}
+.aviso-territorio-cordoba .btn { margin-top: 5px; }
+#terrDepartamento {
+  width: 100%;
+  min-width: 0;
+}
+@media (max-width: 600px) {
+  .aviso-territorio-cordoba { grid-template-columns: 1fr; }
+}
