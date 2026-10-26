@@ -87,6 +87,9 @@
           descripcion: cleanText(u.descripcion),
           precision: cleanText(u.precision),
           fecha: cleanText(u.fecha),
+          municipio: cleanText(u.municipio),
+          territorio: cleanText(u.territorio || u.zona),
+          departamento: cleanText(u.departamento),
           simbolo: cleanText(u.simboloCampo || u.simbolo)
         };
       }).filter(Boolean);
