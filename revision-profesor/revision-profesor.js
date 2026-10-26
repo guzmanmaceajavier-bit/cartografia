@@ -190,12 +190,12 @@
       const n = normalizarTexto(municipio);
       return textos.some((t) => {
         const txt = normalizarTexto(t);
-        return txt.includes(n) || (n === "cerete" && /\\bcerete\\b/.test(txt)) ||
-          (n === "sahagun" && /\\bsahagun\\b/.test(txt));
+        return txt.includes(n) || (n === "cerete" && /\bcerete\b/.test(txt)) ||
+          (n === "sahagun" && /\bsahagun\b/.test(txt));
       });
     });
     if (encontrados.length) return encontrados.map((nombre) => ({ nombre, tipo: "municipio" }));
-    if (textos.some((t) => /\\bcordoba\\b/i.test(normalizarTexto(t)))) {
+    if (textos.some((t) => /\bcordoba\b/i.test(normalizarTexto(t)))) {
       return [{ nombre: "Córdoba", tipo: "departamento" }];
     }
     const municipioGuardado = cleanText(estado?.config?.municipio);
