@@ -140,9 +140,9 @@ button { cursor: pointer; }
 .registro-card p, .reflexion-bloque p { overflow-wrap:anywhere; }
 .texto-completo { white-space:pre-line; }
 .btn-leer-mas {
-  display:inline-flex; align-items:center; gap:6px; margin-top:7px; padding:6px 0;
-  border:0; background:transparent; color:#245a7d; font-size:.8rem; font-weight:800;
-  text-decoration:underline; text-underline-offset:3px;
+  display:inline; margin:0; padding:0 1px;
+  border:0; background:transparent; color:#245a7d; font:inherit; font-size:.88em; font-weight:800;
+  text-decoration:underline; text-underline-offset:3px; white-space:normal; cursor:pointer;
 }
 .btn-leer-mas:hover { color:#102d4f; }
 .btn-leer-mas:focus-visible, .registro-card__ver:focus-visible, .btn:focus-visible {
