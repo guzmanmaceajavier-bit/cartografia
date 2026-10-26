@@ -3642,10 +3642,18 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     pintarMenuTerritorio();
     repintar();
     pintarEstadoGuardado();
-    pintarEstadoNube(deNube ? "☁ Nube conectada ✓" : "☁ Sin conexión: guardado local");
+    pintarEstadoNube(deNube
+      ? "☁ Datos cargados de la nube. Los próximos cambios se compartirán al guardarse."
+      : "⚠ Trabajo guardado en este navegador. Pulsa «Guardar y compartir con el profesor» para publicarlo.");
     eventos();
-    // Persistir la migración sin borrar datos previos ni duplicar registros documentados.
-    guardar();
+    // Al abrir la página, guardar la migración solo en local. No intentar una escritura
+    // remota automática durante el arranque ni pedir credenciales sin que el usuario lo decida.
+    try {
+      localStorage.setItem(CLAVE, JSON.stringify(estado));
+      pintarEstadoGuardado();
+    } catch (e) {
+      pintarEstadoNube("⚠ El navegador no permite guardar localmente. Exporta un respaldo.");
+    }
     navegar("mapa");
     if (window.matchMedia && window.matchMedia("(max-width: 900px)").matches) alternarTira(true);
 
