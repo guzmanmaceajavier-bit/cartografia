@@ -1,14 +1,6 @@
 const { createClient } = require("@libsql/client");
-const crypto = require("crypto");
 
 let db = null;
-
-function coincideClave(recibida, esperada) {
-  if (typeof recibida !== "string" || typeof esperada !== "string") return false;
-  const a = Buffer.from(recibida, "utf8");
-  const b = Buffer.from(esperada, "utf8");
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
 
 function cliente() {
   if (!db) {
@@ -19,28 +11,13 @@ function cliente() {
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, max-age=0");
-  res.setHeader("Vary", "Content-Type");
-  if (req.method !== "POST") {
+  res.setHeader("X-Robots-Tag", "noindex, nofollow");
+
+  if (req.method !== "GET") {
     return res.status(405).json({ ok: false, error: "Método no permitido" });
   }
 
   try {
-    if (!process.env.REVISION_PASSWORD) {
-      return res.status(503).json({
-        ok: false,
-        error: "La vista de revisión todavía no está configurada. Falta REVISION_PASSWORD en Vercel."
-      });
-    }
-
-    let cuerpo = req.body;
-    if (typeof cuerpo === "string") {
-      try { cuerpo = JSON.parse(cuerpo); }
-      catch (e) { return res.status(400).json({ ok: false, error: "Solicitud no válida" }); }
-    }
-
-    if (!coincideClave(cuerpo && cuerpo.password, process.env.REVISION_PASSWORD)) {
-      return res.status(401).json({ ok: false, error: "Contraseña incorrecta" });
-    }
     if (!process.env.TURSO_URL || !process.env.TURSO_TOKEN) {
       return res.status(503).json({
         ok: false,
