@@ -648,14 +648,17 @@
   document.addEventListener("click", (event) => {
     const boton = event.target.closest("[data-leer-mas]");
     if (!boton) return;
-    const texto = boton.previousElementSibling;
-    if (!texto) return;
-    const completo = texto.querySelector(".texto-completo");
-    if (!completo) return;
+    const contenedor = boton.closest(".texto-expandible");
+    if (!contenedor) return;
+    const partes = contenedor.querySelectorAll(":scope > span");
+    const resumen = partes[0];
+    const completo = contenedor.querySelector(".texto-completo");
+    if (!resumen || !completo) return;
     const expandido = boton.getAttribute("aria-expanded") === "true";
+    resumen.hidden = !expandido;
     completo.hidden = expandido;
     boton.setAttribute("aria-expanded", String(!expandido));
-    boton.textContent = expandido ? "Seguir leyendo" : "Mostrar menos";
+    boton.textContent = expandido ? "Leer más" : "Leer menos";
   });
   $("#listaRegistros").addEventListener("click", (event) => {
     const button = event.target.closest("[data-enfocar]");
