@@ -491,8 +491,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
   async function guardarNube() {
     nubeTimer = null;
-    if (!estado) return;
-    pintarEstadoNube("☁ Guardando en la nube…");
+    if (!estado) return false;
+    pintarEstadoNube("☁ Guardando cambios para compartir con el profesor…");
     try {
       const r = await fetchEstadoNube({
         method: "PUT",
@@ -500,10 +500,37 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         body: JSON.stringify(estado)
       });
       const j = await r.json().catch(() => null);
-      pintarEstadoNube(j && j.ok ? "☁ Nube al día ✓" : "☁ Sin conexión: guardado local");
+      if (r.ok && j && j.ok) {
+        pintarEstadoNube("☁ Nube al día ✓ · El profesor verá estos cambios al actualizar su vista.");
+        return true;
+      }
+      const detalle = (j && j.error) || ("Error HTTP " + r.status);
+      if (r.status === 503 && /EDITOR_PASSWORD/i.test(detalle)) {
+        pintarEstadoNube("⚠ No compartido: falta configurar EDITOR_PASSWORD en Vercel.");
+      } else if (r.status === 401) {
+        pintarEstadoNube("⚠ No compartido: contraseña de edición no válida o cancelada.");
+      } else {
+        pintarEstadoNube("⚠ No compartido: " + detalle);
+      }
+      return false;
     } catch (e) {
-      pintarEstadoNube("☁ Sin conexión: guardado local");
+      pintarEstadoNube("⚠ No compartido: no se pudo conectar con la nube. Los cambios siguen guardados en este navegador.");
+      return false;
     }
+  }
+
+  function guardarYCompartirAhora() {
+    if (nubeTimer) {
+      clearTimeout(nubeTimer);
+      nubeTimer = null;
+    }
+    try {
+      localStorage.setItem(CLAVE, JSON.stringify(estado));
+    } catch (e) {
+      pintarEstadoNube("⚠ No compartido: el navegador no permitió guardar los cambios localmente.");
+      return;
+    }
+    guardarNube();
   }
 
   function programarNube() {
@@ -3311,6 +3338,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   /* ==================== EVENTOS ==================== */
 
   function eventos() {
+    const btnCompartir = $("#btnGuardarNube");
+    if (btnCompartir) btnCompartir.addEventListener("click", guardarYCompartirAhora);
+
     $("#btnNueva").addEventListener("click", () => {
       if (seccionActual === "ideas") {
         const btnNuevaIdea = document.querySelector('[data-accion="nuevaIdea"]');
