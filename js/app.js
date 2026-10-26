@@ -1196,8 +1196,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         toast("Vértice " + (indice + 1) + " actualizado.");
       });
       handle.on("contextmenu", (ev) => {
-        L.DomEvent.stopPropagation(ev);
-        L.DomEvent.preventDefault(ev);
+        if (ev.originalEvent) {
+          L.DomEvent.stopPropagation(ev.originalEvent);
+          L.DomEvent.preventDefault(ev.originalEvent);
+        }
         const actual = (estado.zonas || []).find((x) => x.id === id);
         if (!actual || !Array.isArray(actual.coords)) return;
         const minimo = actual.tipo === "poligono" ? 3 : 2;
