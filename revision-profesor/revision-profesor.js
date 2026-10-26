@@ -677,6 +677,8 @@
       boton.textContent = "Leer menos";
     }
   });
+  window.addEventListener("resize", () => actualizarTextosExpandibles(document));
+
   $("#listaRegistros").addEventListener("click", (event) => {
     const button = event.target.closest("[data-enfocar]");
     if (!button || !mapa) return;
