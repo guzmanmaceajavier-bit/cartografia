@@ -332,10 +332,16 @@
       .then((r) => r.ok ? r.json() : [])
       .then((resultados) => {
         const lista = Array.isArray(resultados) ? resultados : [];
-        const candidatos = lista.filter((r) => r && r.address && r.address.country_code === "co" &&
-          r.geojson && ["Polygon", "MultiPolygon"].includes(r.geojson.type) &&
-          (r.class === "boundary" || r.type === "administrative" || r.addresstype === "municipality" ||
-            r.addresstype === "state" || r.addresstype === "county" || r.addresstype === "department"));
+        const candidatos = lista.filter((r) => {
+          if (!r || !r.geojson || !["Polygon", "MultiPolygon"].includes(r.geojson.type)) return false;
+          const pais = normalizarTexto((r.address && r.address.country_code) || r.country_code || "");
+          const nombreCompleto = normalizarTexto(r.display_name || "");
+          const esColombia = pais === "co" || nombreCompleto.includes("colombia");
+          const esAdministrativo = r.class === "boundary" || r.type === "administrative" ||
+            r.addresstype === "municipality" || r.addresstype === "state" ||
+            r.addresstype === "county" || r.addresstype === "department";
+          return esColombia && esAdministrativo;
+        });
         const elegido = candidatos.find((r) => {
           const nombreResultado = normalizarTexto(r.name || r.display_name || "");
           return nombreResultado.includes(normalizarTexto(nombre));
