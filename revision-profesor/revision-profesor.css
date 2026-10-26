@@ -200,3 +200,8 @@ button { cursor: pointer; }
   .mapa-controles button { flex:1 1 auto; font-size:.74rem; padding:8px 9px; }
   #btnZoomMas, #btnZoomMenos { flex:0 0 40px; }
 }
+
+.registro-card__pendiente {
+  margin-top:8px; padding:7px 9px; border:1px solid #eadbb0; border-radius:8px;
+  background:#fff9e8; color:#775b13; font-size:.73rem; line-height:1.4;
+}
