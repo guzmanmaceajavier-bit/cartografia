@@ -276,34 +276,32 @@
     setTimeout(() => mapa && mapa.invalidateSize(), 80);
   }
 
-  async function entrar(password) {
-    const btn = $("#btnEntrar");
+  async function entrar() {
     const error = $("#accesoError");
-    btn.disabled = true;
-    btn.textContent = "Comprobando…";
-    error.textContent = "";
+    const titulo = $("#accesoTitulo");
+    error.textContent = "Estamos consultando los registros compartidos. No necesita contraseña.";
+    if (titulo) titulo.textContent = "Cargando cartografía";
     try {
       const r = await fetch("/api/revision", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "GET",
         cache: "no-store",
-        body: JSON.stringify({ password })
+        headers: { "Accept": "application/json" }
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data.ok) {
-        error.textContent = data.error || "No fue posible abrir la cartografía.";
+        if (titulo) titulo.textContent = "No fue posible cargar la cartografía";
+        error.textContent = data.error || "No fue posible abrir la cartografía. Inténtelo de nuevo más tarde.";
         return;
       }
       if (!data.estado) {
-        error.textContent = "La base de datos compartida está vacía. Abra primero la cartografía de trabajo y guarde sus registros en la nube.";
+        if (titulo) titulo.textContent = "La cartografía aún no está disponible";
+        error.textContent = "La base de datos compartida está vacía. Abra la aplicación de trabajo y guarde los registros en la nube.";
         return;
       }
       mostrarEstado(data.estado);
     } catch (e) {
-      error.textContent = "No fue posible conectar con el servidor. Compruebe su conexión e inténtelo de nuevo.";
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "Ver cartografía";
+      if (titulo) titulo.textContent = "No fue posible conectar";
+      error.textContent = "Compruebe su conexión a internet e inténtelo de nuevo.";
     }
   }
 
@@ -321,12 +319,7 @@
     $("#accesoError").textContent = "";
   }
 
-  $("#formAcceso").addEventListener("submit", (event) => {
-    event.preventDefault();
-    const password = $("#claveRevision").value;
-    if (password) entrar(password);
-  });
-  $("#btnSalir").addEventListener("click", salir);
+  $("#btnSalir").addEventListener("click", () => window.location.reload());
   $("#btnTodas").addEventListener("click", () => {
     categoriasActivas = new Set(Object.keys(CATEGORIAS || {}));
     document.querySelectorAll("[data-filtro-categoria]").forEach((input) => { input.checked = true; });
@@ -360,3 +353,7 @@
     $("#mapaRevision").scrollIntoView({ behavior: "smooth", block: "center" });
   });
 })();
+
+
+  // La vista del profesor es pública y de solo lectura: cargar sin pedir contraseña.
+  entrar();
