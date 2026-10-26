@@ -1194,10 +1194,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       "</div>";
     const popup = L.popup({ closeButton: true, className: "zona-popup-caja", maxWidth: 240 })
       .setLatLng(latlng)
-      .setContent(html)
-      .openOn(mapa);
-    // Vincular la acción al propio botón del popup evita que dependa del clic
-    // delegado del documento (que algunos controles del mapa pueden interceptar).
+      .setContent(html);
+    // Vincular antes de abrir: la acción no depende del clic delegado del documento.
     popup.once("add", () => {
       const elemento = popup.getElement();
       const botonEliminar = elemento && elemento.querySelector("[data-zona-eliminar]");
@@ -1208,6 +1206,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         eliminarZona(z.id);
       });
     });
+    popup.openOn(mapa);
   }
 
   function editarVerticesZona(id) {
