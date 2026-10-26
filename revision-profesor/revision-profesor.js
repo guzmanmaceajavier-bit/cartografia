@@ -17,6 +17,17 @@
   let items = [];
   let categoriasActivas = new Set();
   let mapaListo = false;
+  let limiteTerritorialCapa = null;
+  let territorioSolicitado = "";
+  const cacheLimites = new Map();
+  const MUNICIPIOS_CORDOBA = [
+    "Ayapel","Buenavista","Canalete","Cereté","Chimá","Chinú","Ciénaga de Oro",
+    "Cotorra","La Apartada","Lorica","Los Córdobas","Momil","Montelíbano","Montería",
+    "Moñitos","Planeta Rica","Pueblo Nuevo","Puerto Escondido","Puerto Libertador",
+    "Purísima","Sahagún","San Andrés de Sotavento","San Antero","San Bernardo del Viento",
+    "San Carlos","San José de Uré","San Pelayo","Tierralta","Tuchín","Valencia",
+    "Santa Cruz de Lorica","San Antero"
+  ];
 
   function categoriaDe(key) {
     return (typeof CATEGORIAS !== "undefined" && CATEGORIAS[key]) || {
@@ -151,19 +162,114 @@
       (item.precision ? "<p><strong>Precisión:</strong> " + escapeHTML(item.precision) + "</p>" : "") + fuente + "</div>";
   }
 
+  function normalizarTexto(valor) {
+    return cleanText(valor).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es");
+  }
+
+  function territorioDeItemsActivos() {
+    const todas = Object.keys(CATEGORIAS || {});
+    if (categoriasActivas.size >= todas.length && todas.every((key) => categoriasActivas.has(key))) {
+      return { nombre: "Córdoba", tipo: "departamento" };
+    }
+    const activos = items.filter((item) => categoriasActivas.has(item.categoria));
+    const textos = activos.map((item) => {
+      const raw = item.raw || {};
+      return [
+        item.nombre, item.subtema, item.descripcion, item.historia, item.fuente,
+        raw.municipio, raw.territorio, raw.departamento, raw.zona, raw.vereda, raw.barrio,
+        ...(item.ubicaciones || []).flatMap((u) => [u.nombre, u.lugar, u.descripcion, u.municipio, u.territorio, u.departamento])
+      ].filter(Boolean).join(" ");
+    });
+    const encontrados = MUNICIPIOS_CORDOBA.filter((municipio) => {
+      const n = normalizarTexto(municipio);
+      return textos.some((t) => {
+        const txt = normalizarTexto(t);
+        return txt.includes(n) || (n === "cerete" && /\bcerete\b/.test(txt)) ||
+          (n === "sahagun" && /\bsahagun\b/.test(txt));
+      });
+    });
+    if (encontrados.length === 1) return { nombre: encontrados[0], tipo: "municipio" };
+    if (encontrados.length > 1) return { nombre: "Córdoba", tipo: "departamento" };
+    const municipioGuardado = cleanText(estado?.config?.municipio);
+    if (municipioGuardado) return { nombre: municipioGuardado, tipo: "municipio" };
+    return { nombre: "Córdoba", tipo: "departamento" };
+  }
+
+  async function obtenerLimiteTerritorial(territorio) {
+    const nombre = territorio.nombre || "Córdoba";
+    const tipo = territorio.tipo || "municipio";
+    const clave = normalizarTexto(nombre + "|" + tipo);
+    if (cacheLimites.has(clave)) return cacheLimites.get(clave);
+    const consulta = tipo === "departamento"
+      ? "Departamento de Córdoba, Colombia"
+      : nombre + ", Córdoba, Colombia";
+    const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&polygon_geojson=1&addressdetails=1&limit=8&q=" + encodeURIComponent(consulta);
+    const promesa = fetch(url, { headers: { "Accept": "application/json" } })
+      .then((r) => r.ok ? r.json() : [])
+      .then((resultados) => {
+        const lista = Array.isArray(resultados) ? resultados : [];
+        const candidatos = lista.filter((r) => r && r.geojson && r.geojson.type &&
+          (r.class === "boundary" || r.type === "administrative" || r.addresstype === "municipality" || r.addresstype === "state" || r.addresstype === "county"));
+        const elegido = candidatos.find((r) => {
+          const nombreResultado = normalizarTexto(r.name || r.display_name || "");
+          return nombreResultado.includes(normalizarTexto(nombre));
+        }) || candidatos[0];
+        if (!elegido) return null;
+        return {
+          type: "Feature",
+          properties: {
+            nombre: "Límite de referencia de " + nombre,
+            fuente: "OpenStreetMap / Nominatim",
+            oficial: false,
+            nota: "Límite cartográfico de referencia; consulte la fuente oficial para usos administrativos o legales."
+          },
+          geometry: elegido.geojson
+        };
+      })
+      .catch(() => null);
+    cacheLimites.set(clave, promesa);
+    return promesa;
+  }
+
+  async function actualizarLimiteTerritorial() {
+    if (!capaLimite || !estado) return;
+    capaLimite.clearLayers();
+    if (!$("#verFiguras").checked) return;
+    const territorio = territorioDeItemsActivos();
+    const solicitud = territorio.nombre + "|" + territorio.tipo;
+    territorioSolicitado = solicitud;
+    const cfg = estado.config || {};
+    let geojson = null;
+    if (territorio.tipo === "municipio" &&
+        normalizarTexto(territorio.nombre) === normalizarTexto(cfg.municipio || "Sahagún") &&
+        cfg.mostrarLimite && cfg.limite) {
+      geojson = cfg.limite;
+    } else {
+      geojson = await obtenerLimiteTerritorial(territorio);
+    }
+    if (territorioSolicitado !== solicitud || !capaLimite) return;
+    if (!geojson && territorio.tipo === "municipio" && cfg.limite) geojson = cfg.limite;
+    if (geojson) {
+      try {
+        L.geoJSON(geojson, {
+          style: { color: "#102D4F", weight: 3, opacity: .95, dashArray: "7 5", fillColor: "#52745D", fillOpacity: .09 }
+        }).addTo(capaLimite);
+        const bounds = L.geoJSON(geojson).getBounds();
+        if (bounds.isValid()) mapa.fitBounds(bounds, { padding: [24, 24], maxZoom: territorio.tipo === "departamento" ? 9 : 12 });
+        $("#nombreTerritorio").textContent = territorio.nombre + (territorio.tipo === "departamento" ? " · departamento" : " · municipio");
+      } catch (e) {
+        $("#nombreTerritorio").textContent = territorio.nombre;
+      }
+    } else {
+      $("#nombreTerritorio").textContent = territorio.nombre + " · límite no disponible";
+    }
+  }
+
   function dibujarLimiteYFiguras() {
     if (!capaFiguras || !capaLimite) return;
     capaFiguras.clearLayers();
-    capaLimite.clearLayers();
     const cfg = estado.config || {};
     if ($("#verFiguras").checked) {
-      if (categoriasActivas.has("delimitacion") && cfg.mostrarLimite && cfg.limite) {
-        try {
-          L.geoJSON(cfg.limite, {
-            style: { color: "#102D4F", weight: 3, opacity: .9, dashArray: "7 5", fillColor: "#52745D", fillOpacity: .05 }
-          }).addTo(capaLimite);
-        } catch (e) {}
-      }
       (Array.isArray(estado.zonas) ? estado.zonas : []).forEach((z) => {
         if (!z || !z.tipo) return;
         const color = z.color || "#C9A227";
@@ -206,6 +312,7 @@
       });
     });
     dibujarLimiteYFiguras();
+    actualizarLimiteTerritorial();
     $("#estadoResultados").textContent = visibles + " registros visibles · " + ubicados + " puntos ubicados";
     $("#totalUbicaciones").textContent = ubicados;
   }
@@ -236,10 +343,13 @@
         : (item.fuente ? "<div class='registro-card__meta'>Fuente: " + escapeHTML(item.fuente) + "</div>" : "");
       const coords = ubicacionesConCoordenadas(item);
       const button = coords.length ? "<button class='registro-card__ver' type='button' data-enfocar='" + escapeHTML(item.id) + "'>Ver en el mapa</button>" : "";
+      const resumenCorto = resumen.length > 380;
+      const resumenHtml = resumenCorto
+        ? "<p class='texto-expandible'><span>" + escapeHTML(resumen.slice(0, 380)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(resumen.slice(380)) + "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más</button>"
+        : "<p class='texto-expandible'>" + escapeHTML(resumen) + "</p>";
       return "<article class='registro-card'><div class='registro-card__cabecera'><span class='registro-card__simbolo' style='background:" + escapeHTML(cat.color || "#5D6B7E") + "'>" +
         escapeHTML(cat.simbolo || "•") + "</span><div><h3>" + escapeHTML(item.nombre) + "</h3><div class='registro-card__meta'>" +
-        escapeHTML(cat.nombre || item.categoria) + fecha + "</div>" + sitio + "</div></div><p>" +
-        escapeHTML(resumen.length > 500 ? resumen.slice(0, 500) + "…" : resumen) + "</p>" + fuente + button + "</article>";
+        escapeHTML(cat.nombre || item.categoria) + fecha + "</div>" + sitio + "</div></div>" + resumenHtml + fuente + button + "</article>";
     }).join("");
   }
 
@@ -250,9 +360,15 @@
       ["Retos actuales", r.reto],
       ["Oportunidades y signos de esperanza", r.oportunidad]
     ].filter((b) => cleanText(b[1]));
-    $("#contenidoReflexion").innerHTML = bloques.length ? bloques.map((b) =>
-      "<article class='reflexion-bloque'><h3>" + escapeHTML(b[0]) + "</h3><p>" + escapeHTML(b[1]) + "</p></article>"
-    ).join("") : "<p>La reflexión final aún no tiene contenido guardado.</p>";
+    $("#contenidoReflexion").innerHTML = bloques.length ? bloques.map((b) => {
+      const texto = cleanText(b[1]);
+      if (texto.length > 480) {
+        return "<article class='reflexion-bloque'><h3>" + escapeHTML(b[0]) + "</h3><p class='texto-expandible'><span>" +
+          escapeHTML(texto.slice(0, 480)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(texto.slice(480)) +
+          "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más</button></article>";
+      }
+      return "<article class='reflexion-bloque'><h3>" + escapeHTML(b[0]) + "</h3><p>" + escapeHTML(texto) + "</p></article>";
+    }).join("") : "<p>La reflexión final aún no tiene contenido guardado.</p>";
   }
 
   function mostrarEstado(estadoNuevo) {
@@ -338,7 +454,22 @@
     renderMapa();
     renderLista();
   });
-  $("#verFiguras").addEventListener("change", dibujarLimiteYFiguras);
+  $("#verFiguras").addEventListener("change", () => {
+    dibujarLimiteYFiguras();
+    actualizarLimiteTerritorial();
+  });
+  document.addEventListener("click", (event) => {
+    const boton = event.target.closest("[data-leer-mas]");
+    if (!boton) return;
+    const texto = boton.previousElementSibling;
+    if (!texto) return;
+    const completo = texto.querySelector(".texto-completo");
+    if (!completo) return;
+    const expandido = boton.getAttribute("aria-expanded") === "true";
+    completo.hidden = expandido;
+    boton.setAttribute("aria-expanded", String(!expandido));
+    boton.textContent = expandido ? "Leer más" : "Leer menos";
+  });
   $("#listaRegistros").addEventListener("click", (event) => {
     const button = event.target.closest("[data-enfocar]");
     if (!button || !mapa) return;
