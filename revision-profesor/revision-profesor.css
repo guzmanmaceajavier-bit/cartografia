@@ -274,3 +274,75 @@ button { cursor: pointer; }
 .btn-leer-mas[aria-expanded="true"]::after { content:"−"; }
 .btn-leer-mas:hover { border-color:#a8c9b2; background:#e5f1e7; color:#194d2d; }
 .btn-leer-mas:focus-visible { outline:3px solid #7ba9cf; outline-offset:3px; }
+
+
+/* Responsive final: móvil estrecho, tablet y escritorio */
+html { width:100%; min-width:0; overflow-x:clip; }
+body { width:100%; min-width:0; overflow-x:clip; }
+img, svg, canvas, iframe { max-width:100%; }
+.revision-contenido,
+.revision-layout,
+.revision-panel,
+.revision-mapa-panel,
+.registros-panel,
+.reflexion-panel,
+.temas-panel,
+.lista-temas,
+.lista-registros,
+.contenido-reflexion,
+.tema-card,
+.registro-card,
+.reflexion-bloque { min-width:0; max-width:100%; }
+.revision-marca { min-width:0; }
+.revision-marca strong,
+.revision-marca small,
+.panel-titulo h2,
+.revision-mapa-titulo h2,
+.tema-card h3,
+.tema-card p,
+.tema-card li,
+.reflexion-bloque,
+.revision-pie span { overflow-wrap:anywhere; }
+.acceso-campo { min-width:0; }
+.acceso-campo input { min-width:0; }
+.lista-temas { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.tema-card__ubicaciones ul { padding-left:1.2rem; }
+.tema-card__ubicaciones li { min-width:0; overflow-wrap:anywhere; }
+.rp-popup { width:min(250px,70vw); min-width:0; overflow-wrap:anywhere; }
+.leaflet-popup-content { max-width:calc(70vw - 24px); overflow-wrap:anywhere; }
+.leaflet-popup-content-wrapper { max-width:calc(100vw - 32px); }
+@media (max-width:850px) {
+  .revision-layout { grid-template-columns:minmax(0,1fr); }
+  .revision-panel { order:2; }
+  .revision-mapa-panel { order:1; }
+  .lista-temas { grid-template-columns:minmax(0,1fr); }
+  .lista-registros, .contenido-reflexion { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:620px) {
+  .revision-cabecera { padding:12px; }
+  .revision-marca { flex:1 1 100%; }
+  .revision-cabecera__acciones { width:100%; flex-wrap:wrap; justify-content:flex-start; }
+  .revision-sololectura { white-space:normal; }
+  .revision-contenido { padding:12px 8px; }
+  .revision-intro h1 { font-size:clamp(1.4rem,7vw,1.8rem); }
+  .revision-resumen { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .revision-resumen > div { padding:10px; }
+  .revision-layout { gap:12px; }
+  .revision-mapa-titulo { padding:14px 12px 10px; }
+  #mapaRevision { min-height:clamp(320px,95vw,430px); }
+  .mapa-pie { padding:9px 12px; }
+  .filtros-categorias, .lista-registros, .contenido-reflexion { grid-template-columns:minmax(0,1fr); }
+  .panel-titulo { flex-wrap:wrap; }
+  .cantidad-lista { white-space:normal; }
+  .temas-panel, .registros-panel, .reflexion-panel { padding:12px; }
+  .tema-card, .registro-card, .reflexion-bloque { padding:12px; }
+  .revision-pie { overflow-wrap:anywhere; }
+}
+@media (max-width:360px) {
+  .revision-contenido { padding:10px 6px; }
+  .revision-resumen { grid-template-columns:minmax(0,1fr); }
+  .revision-resumen > div:first-child { grid-column:auto; }
+  .acceso-panel { padding:18px 14px; }
+  .revision-mapa-titulo h2, .panel-titulo h2, .reflexion-panel h2 { font-size:1rem; }
+  .btn { max-width:100%; white-space:normal; }
+}
