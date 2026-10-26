@@ -266,8 +266,8 @@
       ? "<a href='" + escapeHTML(item.fuente) + "' target='_blank' rel='noopener noreferrer'>Consultar fuente</a>"
       : (item.fuente ? "<p><strong>Fuente:</strong> " + escapeHTML(item.fuente) + "</p>" : "");
     const descripcionHtml = descripcion.length > 450
-      ? "<p class='texto-expandible'><span>" + escapeHTML(descripcion.slice(0, 450)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(descripcion.slice(450)) +
-        "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button>"
+      ? "<p class='texto-expandible'><span>" + escapeHTML(descripcion.slice(0, 320)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(descripcion.slice(320)) +
+        "</span> <button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button></p>"
       : (descripcion ? "<p>" + escapeHTML(descripcion) + "</p>" : "");
     return "<div class='rp-popup'><div class='rp-popup__categoria' style='color:" + escapeHTML(cat.color || "#5D6B7E") + "'>" +
       escapeHTML(cat.simbolo || "") + " " + escapeHTML(cat.nombre || item.categoria) + "</div><h3>" + escapeHTML(nombre) + "</h3>" +
@@ -448,9 +448,9 @@
       const fecha = cleanText(idea.fecha) ? "<span> · " + escapeHTML(idea.fecha) + "</span>" : "";
       let descripcion = "<p class='tema-card__descripcion'>" + escapeHTML(texto) + "</p>";
       if (texto.length > 560) {
-        descripcion = "<p class='tema-card__descripcion texto-expandible'><span>" + escapeHTML(texto.slice(0, 560)) +
-          "…</span><span class='texto-completo' hidden>" + escapeHTML(texto.slice(560)) +
-          "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button>";
+        descripcion = "<p class='tema-card__descripcion texto-expandible'><span>" + escapeHTML(texto.slice(0, 320)) +
+          "…</span><span class='texto-completo' hidden>" + escapeHTML(texto.slice(320)) +
+          "</span> <button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button></p>";
       }
       const listaSitios = sitios.length ? "<div class='tema-card__ubicaciones'><h4>Ubicaciones asociadas (" + sitios.length + ")</h4><ul>" +
         sitios.map((u) => {
@@ -459,7 +459,7 @@
           const municipio = cleanText(u.municipio || u.territorio || u.zona);
           const coords = hasCoord(u.lat) && hasCoord(u.lng) ? "<p>Coordenadas: " + escapeHTML(u.lat) + ", " + escapeHTML(u.lng) + "</p>" : "";
           const detalleHtml = !detalle ? "" : (detalle.length > 240
-            ? "<p class='texto-expandible'><span>" + escapeHTML(detalle.slice(0, 240)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(detalle.slice(240)) + "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button>"
+            ? "<p class='texto-expandible'><span>" + escapeHTML(detalle.slice(0, 240)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(detalle.slice(240)) + "</span> <button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button></p>"
             : "<p>" + escapeHTML(detalle) + "</p>");
           return "<li><strong>" + escapeHTML(nombre) + "</strong>" +
             (municipio ? "<span class='tema-card__lugar'> · " + escapeHTML(municipio) + "</span>" : "") +
@@ -513,7 +513,7 @@
         ". No se coloca un punto exacto sin coordenadas fiables.</div>" : "";
       const resumenCorto = resumen.length > 380;
       const resumenHtml = resumenCorto
-        ? "<p class='texto-expandible'><span>" + escapeHTML(resumen.slice(0, 380)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(resumen.slice(380)) + "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button>"
+        ? "<p class='texto-expandible'><span>" + escapeHTML(resumen.slice(0, 320)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(resumen.slice(320)) + "</span> <button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button></p>"
         : "<p class='texto-expandible'>" + escapeHTML(resumen) + "</p>";
       return "<article class='registro-card'><div class='registro-card__cabecera'><span class='registro-card__simbolo' style='background:" + escapeHTML(cat.color || "#5D6B7E") + "'>" +
         escapeHTML(cat.simbolo || "•") + "</span><div><h3>" + escapeHTML(item.nombre) + "</h3><div class='registro-card__meta'>" +
@@ -532,8 +532,8 @@
       const texto = cleanText(b[1]);
       if (texto.length > 480) {
         return "<article class='reflexion-bloque'><h3>" + escapeHTML(b[0]) + "</h3><p class='texto-expandible'><span>" +
-          escapeHTML(texto.slice(0, 480)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(texto.slice(480)) +
-          "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button></article>";
+          escapeHTML(texto.slice(0, 320)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(texto.slice(320)) +
+          "</span> <button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button></p></article>";
       }
       return "<article class='reflexion-bloque'><h3>" + escapeHTML(b[0]) + "</h3><p>" + escapeHTML(texto) + "</p></article>";
     }).join("") : "<p>La reflexión final aún no tiene contenido guardado.</p>";
