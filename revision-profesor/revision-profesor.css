@@ -178,3 +178,25 @@ button { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior:auto !important; transition:none !important; }
 }
+
+/* Controles de zoom y encuadre del mapa */
+.mapa-controles {
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+  padding:0 16px 13px; background:#fff;
+}
+.mapa-controles button {
+  min-height:36px; padding:7px 12px; border:1px solid #cbd7df; border-radius:9px;
+  background:#f8fafb; color:#19324a; font-size:.78rem; font-weight:750;
+  box-shadow:0 2px 5px #19324a08; transition:background .15s,border-color .15s,transform .15s;
+}
+.mapa-controles button:hover { background:#edf4f7; border-color:#8da8bb; }
+.mapa-controles button:active { transform:translateY(1px); }
+.mapa-controles button:focus-visible { outline:3px solid #7ba9cf; outline-offset:2px; }
+#btnZoomMas, #btnZoomMenos { min-width:38px; padding:5px 10px; font-size:1.2rem; line-height:1; }
+#btnAjustarMapa { background:#edf3ee; border-color:#d4e2d7; color:#315d43; }
+#btnVerCordoba { background:#edf2f8; border-color:#d6e0eb; color:#244e75; }
+@media (max-width:620px) {
+  .mapa-controles { padding:0 11px 11px; gap:6px; }
+  .mapa-controles button { flex:1 1 auto; font-size:.74rem; padding:8px 9px; }
+  #btnZoomMas, #btnZoomMenos { flex:0 0 40px; }
+}
