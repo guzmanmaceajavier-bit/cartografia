@@ -245,18 +245,18 @@ button { cursor: pointer; }
 }
 
 
-/* Lectura expandible: botón visible, elegante y accesible */
+/* Los textos solo se contraen si realmente superan cuatro líneas visibles. */
 .texto-expandible { line-height:1.75; overflow-wrap:anywhere; }
-.texto-expandible > span:first-child { color:inherit; }
-.texto-expandible .texto-completo { display:inline; white-space:pre-line; }
-.texto-expandible .texto-completo[hidden],
-.texto-expandible > span[hidden] { display:none !important; }
+.texto-expandible__contenido { display:block; white-space:pre-line; }
+.texto-expandible__contenido--limitado { max-height:7em; overflow:hidden; }
+.texto-expandible__contenido--abierto { max-height:none; overflow:visible; }
+.btn-leer-mas[hidden] { display:none !important; }
 .btn-leer-mas {
   display:inline-flex;
   align-items:center;
   justify-content:center;
   vertical-align:baseline;
-  margin:5px 0 0 4px;
+  margin:6px 0 0 0;
   padding:5px 11px;
   border:1px solid #d5e5d9;
   border-radius:999px;
