@@ -572,6 +572,18 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     return leyendaActual().ocultas.indexOf(clave) !== -1;
   }
 
+  function numeroCoordenada(valor) {
+    if (typeof valor === "number") return Number.isFinite(valor) ? valor : null;
+    if (typeof valor !== "string" || !valor.trim()) return null;
+    // Acepta coordenadas guardadas como texto, tanto con punto como con coma decimal.
+    const numero = Number(valor.trim().replace(",", "."));
+    return Number.isFinite(numero) ? numero : null;
+  }
+
+  function coordenadasValidas(lat, lng) {
+    return lat !== null && lng !== null && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+  }
+
   function catOculta(claveCat) {
     const o = leyendaActual().cats[claveCat];
     return !!(o && o.oculta);
@@ -1180,10 +1192,22 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       "<p class='zona-popup__nota'>Elija un color para cambiar el relleno de la figura.</p>" +
       "<button type='button' class='btn btn--mini btn--peligro' data-zona-eliminar='" + z.id + "'>🗑 Eliminar figura</button>" +
       "</div>";
-    L.popup({ closeButton: true, className: "zona-popup-caja", maxWidth: 240 })
+    const popup = L.popup({ closeButton: true, className: "zona-popup-caja", maxWidth: 240 })
       .setLatLng(latlng)
       .setContent(html)
       .openOn(mapa);
+    // Vincular la acción al propio botón del popup evita que dependa del clic
+    // delegado del documento (que algunos controles del mapa pueden interceptar).
+    popup.once("add", () => {
+      const elemento = popup.getElement();
+      const botonEliminar = elemento && elemento.querySelector("[data-zona-eliminar]");
+      if (botonEliminar) botonEliminar.addEventListener("click", (evento) => {
+        evento.preventDefault();
+        evento.stopPropagation();
+        L.DomEvent.stop(evento);
+        eliminarZona(z.id);
+      });
+    });
   }
 
   function editarVerticesZona(id) {
@@ -1339,6 +1363,20 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (mapa) mapa.closePopup();
     pintarZonas();
     toast("Figura eliminada.");
+  }
+
+  function ajustarVistaTodasUbicaciones() {
+    if (!mapa) return;
+    const puntos = Object.values(marcadores)
+      .filter((marcador) => marcador && typeof marcador.getLatLng === "function")
+      .map((marcador) => marcador.getLatLng());
+    if (!puntos.length) {
+      toast("No hay ubicaciones con coordenadas válidas para mostrar. Revise latitud, longitud y precisión.", "error");
+      return;
+    }
+    if (puntos.length === 1) mapa.setView(puntos[0], Math.max(mapa.getZoom(), 13));
+    else mapa.fitBounds(L.latLngBounds(puntos), { padding: [36, 36], maxZoom: 14 });
+    toast("Vista ajustada a las " + puntos.length + " ubicaciones con coordenadas guardadas.");
   }
 
   function enfocarDepartamentoCordoba() {
@@ -1674,12 +1712,15 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     capaMarcadores.clearLayers();
     marcadores = {};
 
-    // Registros principales de la cartografía.
-    fichasVisibles().forEach((f) => {
-      if (catOculta(f.categoria)) return;
+    // El mapa conserva todas las ubicaciones guardadas; la búsqueda y el filtro
+    // de verificación afectan la lista, no hacen desaparecer puntos del mapa.
+    (estado.fichas || []).forEach((f) => {
+      if (!CATEGORIAS[f.categoria] || catOculta(f.categoria)) return;
       if (f.visible === false || f.precision === "sin") return;
-      if (typeof f.lat !== "number" || typeof f.lng !== "number") return;
-      const m = L.marker([f.lat, f.lng], { icon: iconoDe(f) });
+      const lat = numeroCoordenada(f.lat);
+      const lng = numeroCoordenada(f.lng);
+      if (!coordenadasValidas(lat, lng)) return;
+      const m = L.marker([lat, lng], { icon: iconoDe(f) });
       m.on("click", () => seleccionarFicha(f.id, false));
       m.addTo(capaMarcadores);
       const padre = estado.fichas.find((t) => t.id === f.territorio_padre);
@@ -1693,7 +1734,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       (idea.ubicaciones || []).forEach((u) => {
         if (u.categoria && catOculta(u.categoria)) return;
         if (u.precision === "sin") return;
-        if (typeof u.lat !== "number" || typeof u.lng !== "number") return;
+        const lat = numeroCoordenada(u.lat);
+        const lng = numeroCoordenada(u.lng);
+        if (!coordenadasValidas(lat, lng)) return;
         const cat = CATEGORIAS[u.categoria] || { color: idea.color || "#9B1C1C", simbolo: idea.simbolo || "•", nombre: "Sin clasificar" };
         // El símbolo principal identifica el componente cartográfico; el color coincide con la leyenda.
         // El símbolo del tipo de lugar se conserva en la ficha emergente, sin reemplazar el componente.
@@ -1704,7 +1747,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           iconSize: [36, 36],
           iconAnchor: [18, 18]
         });
-        const m = L.marker([u.lat, u.lng], { icon: icono, ubiId: u.id });
+        const m = L.marker([lat, lng], { icon: icono, ubiId: u.id });
         m.addTo(capaMarcadores);
         m.bindTooltip(escapar(u.nombre), { permanent: true, direction: "top", offset: [0, -16], className: "etiqueta-nombre", opacity: 1 });
         m.bindPopup("<strong>" + escapar(u.nombre) + "</strong><br><span>" + escapar(idea.nombre) + "</span>" +
@@ -1828,8 +1871,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#infoDetalle").hidden = false;
     $("#panelInfoTitulo").textContent = "Ficha seleccionada";
     pintarMapa();
-    if (centrar !== false && typeof f.lat === "number" && f.visible !== false && f.precision !== "sin") {
-      mapa.setView([f.lat, f.lng], Math.max(mapa.getZoom(), 14));
+    const lat = numeroCoordenada(f.lat);
+    const lng = numeroCoordenada(f.lng);
+    if (centrar !== false && coordenadasValidas(lat, lng) && f.visible !== false && f.precision !== "sin") {
+      mapa.setView([lat, lng], Math.max(mapa.getZoom(), 14));
     }
     if (window.matchMedia("(max-width: 900px)").matches) cambiarVista("info");
   }
@@ -3402,6 +3447,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (!btn) return;
       if (btn.dataset.dibujo === "cordoba") {
         enfocarDepartamentoCordoba();
+        return;
+      }
+      if (btn.dataset.dibujo === "ver-todas") {
+        ajustarVistaTodasUbicaciones();
         return;
       }
       setHerramienta(btn.dataset.dibujo);
