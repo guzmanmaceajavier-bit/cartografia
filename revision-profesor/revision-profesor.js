@@ -352,8 +352,7 @@
     });
     $("#mapaRevision").scrollIntoView({ behavior: "smooth", block: "center" });
   });
-})();
-
 
   // La vista del profesor es pública y de solo lectura: cargar sin pedir contraseña.
   entrar();
+})();
