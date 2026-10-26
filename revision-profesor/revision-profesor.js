@@ -461,12 +461,18 @@
     const consulta = cleanText($("#buscarRegistro").value).toLocaleLowerCase("es");
     let visibles = 0;
     let ubicados = 0;
+    let ubicacionesPendientes = 0;
     items.forEach((item) => {
       if (!categoriasActivas.has(item.categoria)) return;
       const texto = [item.nombre, item.subtema, item.descripcion, item.historia, item.fuente,
         ...(item.ubicaciones || []).map((u) => [u.nombre, u.lugar, u.descripcion].join(" "))].join(" ").toLocaleLowerCase("es");
       if (consulta && !texto.includes(consulta)) return;
       visibles += 1;
+      (item.ubicaciones || []).forEach((ubi) => {
+        if ((!hasCoord(ubi.lat) || !hasCoord(ubi.lng)) && !ubicacionesGeocodificadas.has(claveUbicacion(item, ubi))) {
+          ubicacionesPendientes += 1;
+        }
+      });
       ubicacionesConCoordenadas(item).forEach((ubi) => {
         const marker = L.marker([ubi.lat, ubi.lng], { icon: iconoMarcador(item), keyboard: true });
         marker.bindPopup(popupHTML(item, ubi), { maxWidth: 300 });
@@ -477,7 +483,8 @@
     dibujarLimiteYFiguras();
     actualizarLimiteTerritorial();
     geocodificarUbicacionesPendientes();
-    $("#estadoResultados").textContent = visibles + " registros visibles · " + ubicados + " puntos ubicados";
+    $("#estadoResultados").textContent = visibles + " registros visibles · " + ubicados +
+      " puntos ubicados" + (ubicacionesPendientes ? " · " + ubicacionesPendientes + " ubicaciones por verificar" : "");
     $("#totalUbicaciones").textContent = ubicados;
   }
 
@@ -506,14 +513,20 @@
         ? "<a class='registro-card__fuente' href='" + escapeHTML(item.fuente) + "' target='_blank' rel='noopener noreferrer'>Consultar fuente ↗</a>"
         : (item.fuente ? "<div class='registro-card__meta'>Fuente: " + escapeHTML(item.fuente) + "</div>" : "");
       const coords = ubicacionesConCoordenadas(item);
+      const pendientes = sitios.filter((u) =>
+        (!hasCoord(u.lat) || !hasCoord(u.lng)) && !ubicacionesGeocodificadas.has(claveUbicacion(item, u))
+      ).length;
       const button = coords.length ? "<button class='registro-card__ver' type='button' data-enfocar='" + escapeHTML(item.id) + "'>Ver en el mapa</button>" : "";
+      const pendienteHtml = pendientes ? "<div class='registro-card__pendiente'>📍 " + pendientes +
+        (pendientes === 1 ? " ubicación por verificar" : " ubicaciones por verificar") +
+        ". No se coloca un punto exacto sin coordenadas fiables.</div>" : "";
       const resumenCorto = resumen.length > 380;
       const resumenHtml = resumenCorto
         ? "<p class='texto-expandible'><span>" + escapeHTML(resumen.slice(0, 380)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(resumen.slice(380)) + "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más</button>"
         : "<p class='texto-expandible'>" + escapeHTML(resumen) + "</p>";
       return "<article class='registro-card'><div class='registro-card__cabecera'><span class='registro-card__simbolo' style='background:" + escapeHTML(cat.color || "#5D6B7E") + "'>" +
         escapeHTML(cat.simbolo || "•") + "</span><div><h3>" + escapeHTML(item.nombre) + "</h3><div class='registro-card__meta'>" +
-        escapeHTML(cat.nombre || item.categoria) + fecha + "</div>" + sitio + "</div></div>" + resumenHtml + fuente + button + "</article>";
+        escapeHTML(cat.nombre || item.categoria) + fecha + "</div>" + sitio + pendienteHtml + "</div></div>" + resumenHtml + fuente + button + "</article>";
     }).join("");
   }
 
