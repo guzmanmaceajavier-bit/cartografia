@@ -256,6 +256,32 @@
     });
   }
 
+
+  function textoExpandibleHtml(texto, clase) {
+    const contenido = cleanText(texto);
+    if (!contenido) return "";
+    const clases = (clase ? clase + " " : "") + "texto-expandible";
+    return "<p class='" + clases + "'><span class='texto-expandible__contenido'>" +
+      escapeHTML(contenido) + "</span><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false' hidden>Leer más…</button></p>";
+  }
+
+  function actualizarTextosExpandibles(raiz) {
+    const base = raiz || document;
+    base.querySelectorAll(".texto-expandible").forEach((bloque) => {
+      const contenido = bloque.querySelector(".texto-expandible__contenido");
+      const boton = bloque.querySelector("[data-leer-mas]");
+      if (!contenido || !boton || bloque.classList.contains("texto-expandible--abierto")) return;
+      contenido.style.maxHeight = "7em";
+      contenido.style.overflow = "hidden";
+      const necesitaExpandir = contenido.scrollHeight > contenido.clientHeight + 2;
+      boton.hidden = !necesitaExpandir;
+      if (!necesitaExpandir) {
+        contenido.style.maxHeight = "none";
+        contenido.style.overflow = "visible";
+      }
+    });
+  }
+
   function popupHTML(item, ubi) {
     const cat = categoriaDe(item.categoria);
     const nombre = ubi && ubi.nombre ? item.nombre + " — " + ubi.nombre : item.nombre;
@@ -265,10 +291,7 @@
     const fuente = item.fuente && /^https?:\/\//i.test(item.fuente)
       ? "<a href='" + escapeHTML(item.fuente) + "' target='_blank' rel='noopener noreferrer'>Consultar fuente</a>"
       : (item.fuente ? "<p><strong>Fuente:</strong> " + escapeHTML(item.fuente) + "</p>" : "");
-    const descripcionHtml = descripcion.length > 420
-      ? "<p class='texto-expandible'><span>" + escapeHTML(descripcion.slice(0, 320)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(descripcion.slice(320)) +
-        "</span> <button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más…</button></p>"
-      : (descripcion ? "<p>" + escapeHTML(descripcion) + "</p>" : "");
+    const descripcionHtml = textoExpandibleHtml(descripcion);
     return "<div class='rp-popup'><div class='rp-popup__categoria' style='color:" + escapeHTML(cat.color || "#5D6B7E") + "'>" +
       escapeHTML(cat.simbolo || "") + " " + escapeHTML(cat.nombre || item.categoria) + "</div><h3>" + escapeHTML(nombre) + "</h3>" +
       (fecha ? "<p><strong>Fecha o periodo:</strong> " + escapeHTML(fecha) + "</p>" : "") + lugar +
@@ -446,21 +469,14 @@
       const texto = cleanText(idea.descripcion) || "Este tema aún no tiene una descripción.";
       const sitios = Array.isArray(idea.ubicaciones) ? idea.ubicaciones.filter(Boolean) : [];
       const fecha = cleanText(idea.fecha) ? "<span> · " + escapeHTML(idea.fecha) + "</span>" : "";
-      let descripcion = "<p class='tema-card__descripcion'>" + escapeHTML(texto) + "</p>";
-      if (texto.length > 420) {
-        descripcion = "<p class='tema-card__descripcion texto-expandible'><span>" + escapeHTML(texto.slice(0, 320)) +
-          "…</span><span class='texto-completo' hidden>" + escapeHTML(texto.slice(320)) +
-          "</span> <button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más…</button></p>";
-      }
+      const descripcion = textoExpandibleHtml(texto, "tema-card__descripcion");
       const listaSitios = sitios.length ? "<div class='tema-card__ubicaciones'><h4>Ubicaciones asociadas (" + sitios.length + ")</h4><ul>" +
         sitios.map((u) => {
           const nombre = cleanText(u.nombre || u.lugar) || "Lugar sin nombre";
           const detalle = cleanText(u.descripcion);
           const municipio = cleanText(u.municipio || u.territorio || u.zona);
           const coords = hasCoord(u.lat) && hasCoord(u.lng) ? "<p>Coordenadas: " + escapeHTML(u.lat) + ", " + escapeHTML(u.lng) + "</p>" : "";
-          const detalleHtml = !detalle ? "" : (detalle.length > 420
-            ? "<p class='texto-expandible'><span>" + escapeHTML(detalle.slice(0, 300)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(detalle.slice(300)) + "</span> <button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más…</button></p>"
-            : "<p>" + escapeHTML(detalle) + "</p>");
+          const detalleHtml = textoExpandibleHtml(detalle);
           return "<li><strong>" + escapeHTML(nombre) + "</strong>" +
             (municipio ? "<span class='tema-card__lugar'> · " + escapeHTML(municipio) + "</span>" : "") +
             detalleHtml + coords + "</li>";
@@ -476,6 +492,7 @@
         "</h3><p class='registro-card__meta'>" + escapeHTML(cat.nombre || idea.categoria || "Sin categoría") + fecha +
         "</p></div></div>" + descripcion + listaSitios + fuenteHtml + btn + "</article>";
     }).join("");
+    actualizarTextosExpandibles(cont);
   }
 
   function renderLista() {
@@ -511,14 +528,12 @@
       const pendienteHtml = pendientes ? "<div class='registro-card__pendiente'>📍 " + pendientes +
         (pendientes === 1 ? " ubicación por verificar" : " ubicaciones por verificar") +
         ". No se coloca un punto exacto sin coordenadas fiables.</div>" : "";
-      const resumenCorto = resumen.length > 420;
-      const resumenHtml = resumenCorto
-        ? "<p class='texto-expandible'><span>" + escapeHTML(resumen.slice(0, 320)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(resumen.slice(320)) + "</span> <button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más…</button></p>"
-        : "<p class='texto-expandible'>" + escapeHTML(resumen) + "</p>";
+      const resumenHtml = textoExpandibleHtml(resumen);
       return "<article class='registro-card'><div class='registro-card__cabecera'><span class='registro-card__simbolo' style='background:" + escapeHTML(cat.color || "#5D6B7E") + "'>" +
         escapeHTML(cat.simbolo || "•") + "</span><div><h3>" + escapeHTML(item.nombre) + "</h3><div class='registro-card__meta'>" +
         escapeHTML(cat.nombre || item.categoria) + fecha + "</div>" + sitio + pendienteHtml + "</div></div>" + resumenHtml + fuente + button + "</article>";
     }).join("");
+    actualizarTextosExpandibles(cont);
   }
 
   function renderReflexion() {
@@ -530,13 +545,9 @@
     ].filter((b) => cleanText(b[1]));
     $("#contenidoReflexion").innerHTML = bloques.length ? bloques.map((b) => {
       const texto = cleanText(b[1]);
-      if (texto.length > 420) {
-        return "<article class='reflexion-bloque'><h3>" + escapeHTML(b[0]) + "</h3><p class='texto-expandible'><span>" +
-          escapeHTML(texto.slice(0, 320)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(texto.slice(320)) +
-          "</span> <button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más…</button></p></article>";
-      }
-      return "<article class='reflexion-bloque'><h3>" + escapeHTML(b[0]) + "</h3><p>" + escapeHTML(texto) + "</p></article>";
+      return "<article class='reflexion-bloque'><h3>" + escapeHTML(b[0]) + "</h3>" + textoExpandibleHtml(texto) + "</article>";
     }).join("") : "<p>La reflexión final aún no tiene contenido guardado.</p>";
+    actualizarTextosExpandibles($("#contenidoReflexion"));
   }
 
   function mostrarEstado(estadoNuevo) {
@@ -649,16 +660,22 @@
     const boton = event.target.closest("[data-leer-mas]");
     if (!boton) return;
     const contenedor = boton.closest(".texto-expandible");
-    if (!contenedor) return;
-    const partes = contenedor.querySelectorAll(":scope > span");
-    const resumen = partes[0];
-    const completo = contenedor.querySelector(".texto-completo");
-    if (!resumen || !completo) return;
+    const contenido = contenedor && contenedor.querySelector(".texto-expandible__contenido");
+    if (!contenedor || !contenido) return;
     const expandido = boton.getAttribute("aria-expanded") === "true";
-    resumen.hidden = !expandido;
-    completo.hidden = expandido;
-    boton.setAttribute("aria-expanded", String(!expandido));
-    boton.textContent = expandido ? "Leer más…" : "Leer menos";
+    if (expandido) {
+      contenedor.classList.remove("texto-expandible--abierto");
+      contenido.style.maxHeight = "7em";
+      contenido.style.overflow = "hidden";
+      boton.setAttribute("aria-expanded", "false");
+      boton.textContent = "Leer más…";
+    } else {
+      contenedor.classList.add("texto-expandible--abierto");
+      contenido.style.maxHeight = "none";
+      contenido.style.overflow = "visible";
+      boton.setAttribute("aria-expanded", "true");
+      boton.textContent = "Leer menos";
+    }
   });
   $("#listaRegistros").addEventListener("click", (event) => {
     const button = event.target.closest("[data-enfocar]");
