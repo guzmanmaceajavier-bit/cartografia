@@ -3577,13 +3577,20 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   /* ==================== INICIO ==================== */
 
   async function iniciar() {
-    let previo = null;
+    // En este navegador, el guardado local es la copia de trabajo principal.
+    // Antes se prefería siempre la nube, incluso si contenía una versión anterior:
+    // eso hacía reaparecer figuras eliminadas y restablecía categorías ocultas.
+    // Cargar primero lo local evita perder los cambios del usuario al recargar.
+    let previo = cargar();
     let deNube = false;
-    try {
-      const remoto = await cargarNube();
-      if (remoto) { previo = remoto; deNube = true; }
-    } catch (e) { previo = null; }
-    if (!previo) previo = cargar();
+    if (previo) {
+      deNube = false;
+    } else {
+      try {
+        const remoto = await cargarNube();
+        if (remoto) { previo = remoto; deNube = true; }
+      } catch (e) { previo = null; }
+    }
     estado = previo || null;
     if (!estado) restaurarSemilla();
     if (!estado.config) estado.config = clonar(CONFIGURACION_INICIAL);
