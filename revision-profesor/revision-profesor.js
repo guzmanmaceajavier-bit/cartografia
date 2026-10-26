@@ -209,10 +209,17 @@
     const tipo = territorio.tipo || "municipio";
     const clave = normalizarTexto(nombre + "|" + tipo);
     if (cacheLimites.has(clave)) return cacheLimites.get(clave);
-    const consulta = tipo === "departamento"
-      ? "Departamento de Córdoba, Colombia"
-      : nombre + ", Córdoba, Colombia";
-    const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&polygon_geojson=1&addressdetails=1&countrycodes=co&limit=8&q=" + encodeURIComponent(consulta);
+    const parametros = new URLSearchParams({
+      format: "jsonv2",
+      polygon_geojson: "1",
+      addressdetails: "1",
+      countrycodes: "co",
+      limit: "8",
+      state: "Córdoba",
+      country: "Colombia"
+    });
+    if (tipo !== "departamento") parametros.set("city", nombre);
+    const url = "https://nominatim.openstreetmap.org/search?" + parametros.toString();
     const promesa = fetch(url, { headers: { "Accept": "application/json" } })
       .then((r) => r.ok ? r.json() : [])
       .then((resultados) => {
