@@ -234,7 +234,6 @@
     items.forEach((item) => { cantidades[item.categoria] = (cantidades[item.categoria] || 0) + 1; });
     const cfg = estado && estado.config ? estado.config : {};
     if (cfg.mostrarLimite && cfg.limite) cantidades.delimitacion = (cantidades.delimitacion || 0) + 1;
-    if (!categoriasActivas.size) categoriasActivas = new Set(keys);
     cont.innerHTML = keys.map((key) => {
       const cat = categoriaDe(key);
       const checked = categoriasActivas.has(key) ? " checked" : "";
@@ -544,7 +543,13 @@
     estado.ideas = Array.isArray(estado.ideas) ? estado.ideas : [];
     estado.zonas = Array.isArray(estado.zonas) ? estado.zonas : [];
     items = construirItems();
-    categoriasActivas = new Set(Object.keys(CATEGORIAS || {}));
+    // La vista del profesor toma la visibilidad de categorías del estado compartido
+    // de la cartografía, no vuelve a activar todas por defecto al recargar.
+    const categoriasGuardadas = estado.leyenda && estado.leyenda.cats && typeof estado.leyenda.cats === "object"
+      ? estado.leyenda.cats : {};
+    categoriasActivas = new Set(Object.keys(CATEGORIAS || {}).filter((key) =>
+      !(categoriasGuardadas[key] && categoriasGuardadas[key].oculta)
+    ));
     $("#nombreTerritorio").textContent = "Departamento de Córdoba";
     $("#totalRegistros").textContent = items.length;
     $("#acceso").hidden = true;
