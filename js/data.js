@@ -4,56 +4,56 @@ const CATEGORIAS = {
     nombre: "Delimitación y nombre del territorio",
     color: "#102D4F",
     simbolo: "◎",
-    descripcion: "Nombre del territorio o comunidad, municipio y departamento, con su límite oficial o aproximado. Es el marco de toda la cartografía: no lleva marcadores."
+    descripcion: "Identifica el territorio que estamos mirando —municipio, comunidad o zona— y ayuda a entender hasta dónde llega el trabajo. Su límite puede ser oficial o aproximado según la información disponible. Es el marco general de la cartografía, no un hecho ni una ubicación temática."
   },
   lugares: {
     seccion: 2,
     nombre: "Lugares significativos",
     color: "#0E7490",
     simbolo: "⬢",
-    descripcion: "Sitios importantes para la vida del territorio: cabecera, zona rural, vías, espacios públicos y lugares de encuentro."
+    descripcion: "El símbolo ⬢ señala lugares que tienen importancia en la vida cotidiana y la historia de la comunidad: barrios, veredas, caminos, parques, escuelas, fincas, espacios de encuentro o sitios de referencia. Su presencia en el mapa indica que ese lugar ayuda a comprender el territorio; por sí sola no significa que allí haya ocurrido violencia."
   },
   afectaciones: {
     seccion: 3,
     nombre: "Afectaciones y huellas de la violencia",
     color: "#9B1C1C",
     simbolo: "✕",
-    descripcion: "Lugares, acontecimientos o situaciones de violencia, desplazamiento, amenazas, desapariciones, confrontaciones o exclusión que marcaron a la comunidad."
+    descripcion: "La ✕ identifica lugares o situaciones relacionadas con afectaciones y huellas de la violencia, como amenazas, extorsión, homicidios, desaparición, desplazamiento, confrontaciones o exclusión. Cada registro debe leerse junto con su descripción, fecha y fuente: el símbolo ubica el tema que se documenta, pero no reemplaza las pruebas ni confirma por sí solo un hecho."
   },
   actores: {
     seccion: 4,
     nombre: "Actores sociales, comunitarios y eclesiales",
     color: "#1D4ED8",
     simbolo: "◉",
-    descripcion: "Comunidades, organizaciones sociales, iglesias, instituciones públicas, organizaciones de víctimas, líderes comunitarios, jóvenes e iniciativas de paz."
+    descripcion: "El símbolo ◉ representa a las personas y grupos que hacen parte de la vida del territorio: comunidades, liderazgos, organizaciones sociales, colectivos de víctimas, iglesias e instituciones. Permite reconocer quiénes participan o pueden tener un papel en la convivencia y la construcción de paz. Que un actor aparezca en el mapa no significa, por sí solo, que se le atribuya una acción específica."
   },
   resistencia: {
     seccion: 5,
     nombre: "Experiencias de resistencia y construcción de paz",
     color: "#15803D",
     simbolo: "✊",
-    descripcion: "Acciones que protegieron la vida y promovieron reconciliación: procesos comunitarios, acompañamiento a víctimas, educación para la paz, defensa de derechos, memoria e incidencia."
+    descripcion: "El puño ✊ representa experiencias en las que la comunidad se organiza, cuida la vida y busca responder a la violencia sin renunciar a la dignidad. Aquí pueden ubicarse procesos comunitarios, acompañamiento a víctimas, defensa de derechos, educación para la paz, organización campesina, diálogo e iniciativas que trabajan por la convivencia. La descripción de cada registro explica qué se hizo y quiénes participaron, cuando esa información está disponible."
   },
   memoria: {
     seccion: 6,
     nombre: "Lugares y experiencias de memoria",
     color: "#6D28D9",
     simbolo: "✦",
-    descripcion: "Sitios donde ocurrieron hechos importantes, monumentos, templos, espacios comunitarios y experiencias para recordar a las víctimas y comprender la historia."
+    descripcion: "La estrella ✦ señala lugares y experiencias que ayudan a mantener viva la memoria: espacios de homenaje, encuentros conmemorativos, relatos, documentos, iniciativas comunitarias o sitios vinculados con hechos que la comunidad considera importantes recordar. Su propósito es reconocer a las víctimas, comprender lo ocurrido y transmitir esa memoria con respeto."
   },
   esperanza: {
     seccion: 7,
     nombre: "Signos de esperanza y reconciliación",
     color: "#C9A227",
     simbolo: "☀",
-    descripcion: "Personas, organizaciones, lugares y prácticas que representan posibilidades de transformación y esperanza para la comunidad."
+    descripcion: "El sol ☀ identifica gestos, personas, espacios o iniciativas que alimentan la esperanza y abren posibilidades de reconciliación. Puede representar encuentros, redes de cuidado, trabajo comunitario, diálogo, solidaridad o acciones que reconstruyen la confianza. No quiere decir que los problemas estén resueltos: muestra esfuerzos y posibilidades de cambio que conviene reconocer."
   },
   retos: {
     seccion: 8,
     nombre: "Retos actuales para la construcción de paz",
     color: "#C2410C",
     simbolo: "▲",
-    descripcion: "Situaciones que hoy dificultan la convivencia y la reconciliación, identificadas en el reconocimiento del territorio."
+    descripcion: "El triángulo ▲ advierte sobre asuntos que siguen siendo un desafío para construir paz: riesgos para la población, amenazas, falta de protección, exclusión, dificultades para acceder a derechos o problemas que afectan la convivencia. Ayuda a identificar qué necesita atención y qué respuestas podrían hacer falta. Cuando el registro se basa en una alerta o informe, esa fuente debe consultarse; una advertencia de riesgo no demuestra que haya ocurrido un hecho en cada lugar mencionado."
   }
 };
 
