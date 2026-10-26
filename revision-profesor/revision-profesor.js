@@ -110,6 +110,8 @@
     const keys = Object.keys(CATEGORIAS || {});
     const cantidades = {};
     items.forEach((item) => { cantidades[item.categoria] = (cantidades[item.categoria] || 0) + 1; });
+    const cfg = estado && estado.config ? estado.config : {};
+    if (cfg.mostrarLimite && cfg.limite) cantidades.delimitacion = (cantidades.delimitacion || 0) + 1;
     if (!categoriasActivas.size) categoriasActivas = new Set(keys);
     cont.innerHTML = keys.map((key) => {
       const cat = categoriaDe(key);
@@ -155,7 +157,7 @@
     capaLimite.clearLayers();
     const cfg = estado.config || {};
     if ($("#verFiguras").checked) {
-      if (cfg.mostrarLimite && cfg.limite) {
+      if (categoriasActivas.has("delimitacion") && cfg.mostrarLimite && cfg.limite) {
         try {
           L.geoJSON(cfg.limite, {
             style: { color: "#102D4F", weight: 3, opacity: .9, dashArray: "7 5", fillColor: "#52745D", fillOpacity: .05 }
