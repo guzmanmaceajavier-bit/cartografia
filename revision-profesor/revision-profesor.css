@@ -243,3 +243,34 @@ button { cursor: pointer; }
   .tema-card { padding:14px; }
   .mapa-controles { align-items:flex-start; flex-direction:column; }
 }
+
+
+/* Lectura expandible: botón visible, elegante y accesible */
+.texto-expandible { line-height:1.75; overflow-wrap:anywhere; }
+.texto-expandible > span:first-child { color:inherit; }
+.texto-expandible .texto-completo { display:inline; white-space:pre-line; }
+.texto-expandible .texto-completo[hidden],
+.texto-expandible > span[hidden] { display:none !important; }
+.btn-leer-mas {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  vertical-align:baseline;
+  margin:5px 0 0 4px;
+  padding:5px 11px;
+  border:1px solid #d5e5d9;
+  border-radius:999px;
+  background:#f1f7f2;
+  color:#286541;
+  font-size:.78rem;
+  font-weight:750;
+  line-height:1.4;
+  text-decoration:none;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:background .18s ease,border-color .18s ease,color .18s ease;
+}
+.btn-leer-mas::after { content:"＋"; margin-left:6px; font-size:.85rem; }
+.btn-leer-mas[aria-expanded="true"]::after { content:"−"; }
+.btn-leer-mas:hover { border-color:#a8c9b2; background:#e5f1e7; color:#194d2d; }
+.btn-leer-mas:focus-visible { outline:3px solid #7ba9cf; outline-offset:3px; }
