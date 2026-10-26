@@ -1730,7 +1730,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
     // Las ubicaciones de cada narrativa también se muestran en el mapa.
     (estado.ideas || []).forEach((idea) => {
-      (idea.ubicaciones || []).forEach((u) => {
+      (idea.ubicaciones || []).forEach((u, indiceUbicacion) => {
         if (u.categoria && catOculta(u.categoria)) return;
         if (u.precision === "sin") return;
         const lat = numeroCoordenada(u.lat);
@@ -1753,7 +1753,9 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           "<p><strong>Componente:</strong> " + escapar(CATEGORIAS[u.categoria]?.nombre || u.categoria || "Sin clasificar") + "</p>" +
           ((u.lugar || idea.territorio) ? "<p><strong>Zona:</strong> " + escapar(u.lugar || idea.territorio) + "</p>" : "") +
           (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : ""));
-        marcadores["ubi:" + u.id] = m;
+        // Clave única por tema y posición: evita que IDs repetidos oculten puntos
+        // del ajuste de vista general aunque los marcadores sí estén dibujados.
+        marcadores["ubi:" + idea.id + ":" + (u.id || indiceUbicacion)] = m;
 
 
       });
