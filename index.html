@@ -112,7 +112,9 @@
         <button type="button" class="menu__seccion-titulo menu__acordeon-btn" data-panel-plegable aria-expanded="false" aria-controls="cuerpoEstado"><span>Estado del trabajo</span><span class="menu__acordeon-icono" aria-hidden="true">＋</span></button>
         <div class="menu__acordeon-cuerpo" id="cuerpoEstado" hidden>
         <div class="menu__guardado" id="estadoGuardado">Guardado automático activo</div>
-        <div class="menu__guardado" id="estadoNube">☁ Conectando…</div>
+        <div class="menu__guardado" id="estadoNube" role="status" aria-live="polite">☁ Conectando…</div>
+        <button type="button" class="btn menu__btn" id="btnGuardarNube">☁ Guardar y compartir con el profesor</button>
+        <div class="menu__nota">Después de guardar, la vista del profesor mostrará estos cambios al actualizar los datos.</div>
         <div class="menu__progreso" id="progresoEntrega"></div>
         </div>
       </div>
