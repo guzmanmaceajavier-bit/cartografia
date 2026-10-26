@@ -155,10 +155,14 @@
     const fuente = item.fuente && /^https?:\/\//i.test(item.fuente)
       ? "<a href='" + escapeHTML(item.fuente) + "' target='_blank' rel='noopener noreferrer'>Consultar fuente</a>"
       : (item.fuente ? "<p><strong>Fuente:</strong> " + escapeHTML(item.fuente) + "</p>" : "");
+    const descripcionHtml = descripcion.length > 450
+      ? "<p class='texto-expandible'><span>" + escapeHTML(descripcion.slice(0, 450)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(descripcion.slice(450)) +
+        "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más</button>"
+      : (descripcion ? "<p>" + escapeHTML(descripcion) + "</p>" : "");
     return "<div class='rp-popup'><div class='rp-popup__categoria' style='color:" + escapeHTML(cat.color || "#5D6B7E") + "'>" +
       escapeHTML(cat.simbolo || "") + " " + escapeHTML(cat.nombre || item.categoria) + "</div><h3>" + escapeHTML(nombre) + "</h3>" +
       (fecha ? "<p><strong>Fecha o periodo:</strong> " + escapeHTML(fecha) + "</p>" : "") + lugar +
-      (descripcion ? "<p>" + escapeHTML(descripcion.slice(0, 650)) + (descripcion.length > 650 ? "…" : "") + "</p>" : "") +
+      descripcionHtml +
       (item.precision ? "<p><strong>Precisión:</strong> " + escapeHTML(item.precision) + "</p>" : "") + fuente + "</div>";
   }
 
@@ -190,6 +194,9 @@
     });
     if (encontrados.length === 1) return { nombre: encontrados[0], tipo: "municipio" };
     if (encontrados.length > 1) return { nombre: "Córdoba", tipo: "departamento" };
+    if (textos.some((t) => /\bdepartamento de cordoba\b|\bcordoba, colombia\b|\bcordoba colombia\b/i.test(normalizarTexto(t)))) {
+      return { nombre: "Córdoba", tipo: "departamento" };
+    }
     const municipioGuardado = cleanText(estado?.config?.municipio);
     if (municipioGuardado) return { nombre: municipioGuardado, tipo: "municipio" };
     return { nombre: "Córdoba", tipo: "departamento" };
@@ -248,7 +255,9 @@
       geojson = await obtenerLimiteTerritorial(territorio);
     }
     if (territorioSolicitado !== solicitud || !capaLimite) return;
-    if (!geojson && territorio.tipo === "municipio" && cfg.limite) geojson = cfg.limite;
+    if (!geojson && territorio.tipo === "municipio" &&
+        normalizarTexto(territorio.nombre) === normalizarTexto(cfg.municipio || "Sahagún") &&
+        cfg.limite) geojson = cfg.limite;
     if (geojson) {
       try {
         L.geoJSON(geojson, {
