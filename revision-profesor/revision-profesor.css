@@ -124,3 +124,57 @@ button { cursor: pointer; }
   .lista-registros, .contenido-reflexion { grid-template-columns:1fr; }
   .registros-panel, .reflexion-panel { padding:15px; }
 }
+
+
+/* Ajustes de lectura, accesibilidad y diseño adaptable */
+.revision-cabecera { position:relative; }
+.revision-contenido { width:100%; }
+.revision-resumen > div { box-shadow:0 3px 12px #19324a08; }
+.revision-panel, .revision-mapa-panel, .registros-panel, .reflexion-panel {
+  box-shadow:0 6px 22px #19324a08;
+}
+.registro-card { display:flex; flex-direction:column; align-items:flex-start; background:linear-gradient(180deg,#fff,#fcfdfd); }
+.registro-card__cabecera { width:100%; }
+.registro-card__cabecera > div { min-width:0; }
+.registro-card h3, .registro-card__meta { overflow-wrap:anywhere; }
+.registro-card p, .reflexion-bloque p { overflow-wrap:anywhere; }
+.texto-completo { white-space:pre-line; }
+.btn-leer-mas {
+  display:inline-flex; align-items:center; gap:6px; margin-top:7px; padding:6px 0;
+  border:0; background:transparent; color:#245a7d; font-size:.8rem; font-weight:800;
+  text-decoration:underline; text-underline-offset:3px;
+}
+.btn-leer-mas:hover { color:#102d4f; }
+.btn-leer-mas:focus-visible, .registro-card__ver:focus-visible, .btn:focus-visible {
+  outline:3px solid #7ba9cf; outline-offset:3px;
+}
+#mapaRevision { min-height:clamp(360px,48vw,620px); }
+@media (max-width:1000px) {
+  .revision-contenido { padding:24px; }
+  .revision-layout { gap:13px; }
+  .revision-panel { padding:17px; }
+  #mapaRevision { min-height:460px; }
+}
+@media (max-width:620px) {
+  .revision-cabecera { flex-wrap:wrap; align-items:center; gap:10px; }
+  .revision-marca { flex:1 1 200px; }
+  .revision-cabecera__acciones { flex:1 1 100%; flex-direction:row; justify-content:space-between; align-items:center; }
+  .revision-contenido { padding:14px 10px; }
+  .revision-intro { padding:0 5px; }
+  .revision-intro h1 { font-size:clamp(1.55rem,7vw,2rem); }
+  .revision-intro > p:last-child { font-size:.9rem; }
+  .revision-resumen { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .revision-resumen > div:first-child { grid-column:1/-1; }
+  .revision-resumen strong { font-size:1rem; overflow-wrap:anywhere; }
+  .revision-panel, .registros-panel, .reflexion-panel { padding:13px; border-radius:12px; }
+  .filtros-categorias { grid-template-columns:1fr; }
+  .filtro-categoria { padding:9px; }
+  #mapaRevision { min-height:390px; }
+  .mapa-pie { font-size:.66rem; }
+  .lista-registros { gap:10px; }
+  .registro-card { padding:13px; }
+  .revision-pie { font-size:.68rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior:auto !important; transition:none !important; }
+}
