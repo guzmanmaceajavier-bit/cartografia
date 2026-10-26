@@ -26,7 +26,6 @@
     "Moñitos","Planeta Rica","Pueblo Nuevo","Puerto Escondido","Puerto Libertador",
     "Purísima","Sahagún","San Andrés de Sotavento","San Antero","San Bernardo del Viento",
     "San Carlos","San José de Uré","San Pelayo","Tierralta","Tuchín","Valencia",
-    "Santa Cruz de Lorica","San Antero"
   ];
 
   function categoriaDe(key) {
@@ -194,7 +193,7 @@
     });
     if (encontrados.length === 1) return { nombre: encontrados[0], tipo: "municipio" };
     if (encontrados.length > 1) return { nombre: "Córdoba", tipo: "departamento" };
-    if (textos.some((t) => /\bdepartamento de cordoba\b|\bcordoba, colombia\b|\bcordoba colombia\b/i.test(normalizarTexto(t)))) {
+    if (textos.some((t) => /\bcordoba\b/i.test(normalizarTexto(t)))) {
       return { nombre: "Córdoba", tipo: "departamento" };
     }
     const municipioGuardado = cleanText(estado?.config?.municipio);
