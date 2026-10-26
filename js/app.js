@@ -1124,6 +1124,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       toast("Figura rellenada con el color elegido.");
     } else if (dibujoTool === "eliminar") {
       if (!confirm("¿Eliminar esta figura dibujada?")) return;
+      if (zonaEditandoVertices === z.id) terminarEdicionVertices();
       estado.zonas = estado.zonas.filter((x) => x.id !== z.id);
       guardar();
       pintarZonas();
@@ -1194,9 +1195,28 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         pintarZonas();
         toast("Vértice " + (indice + 1) + " actualizado.");
       });
+      handle.on("contextmenu", (ev) => {
+        if (ev.originalEvent) {
+          L.DomEvent.stopPropagation(ev.originalEvent);
+          L.DomEvent.preventDefault(ev.originalEvent);
+        }
+        const actual = (estado.zonas || []).find((x) => x.id === id);
+        if (!actual || !Array.isArray(actual.coords)) return;
+        const minimo = actual.tipo === "poligono" ? 3 : 2;
+        if (actual.coords.length <= minimo) {
+          toast("Esta figura necesita al menos " + minimo + " vértices.", "error");
+          return;
+        }
+        if (!confirm("¿Eliminar el vértice " + (indice + 1) + " de esta figura?")) return;
+        actual.coords.splice(indice, 1);
+        guardar();
+        pintarZonas();
+        editarVerticesZona(id);
+        toast("Vértice eliminado. Clic derecho sobre otro punto para quitarlo.");
+      });
       handle.addTo(capaVerticesEdicion);
     });
-    toast("Arrastre los puntos blancos para ajustar cada vértice. Pulse «Terminar edición» cuando acabe.");
+    toast("Arrastre los puntos blancos para ajustar vértices. En computador, haga clic derecho sobre un punto para eliminar ese vértice; pulse «Terminar edición» para ocultarlos.");
   }
 
   function terminarEdicionVertices() {
@@ -1292,6 +1312,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const z = (estado.zonas || []).find((x) => x.id === id);
     if (!z) return;
     if (!confirm("¿Eliminar esta figura dibujada?")) return;
+    if (zonaEditandoVertices === id) terminarEdicionVertices();
     estado.zonas = estado.zonas.filter((x) => x.id !== id);
     guardar();
     if (mapa) mapa.closePopup();
@@ -1316,13 +1337,22 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
   }
 
   function setHerramienta(tool) {
+    // Los puntos blancos son controles temporales de edición, no figuras del mapa.
+    // Ocultarlos al cambiar de herramienta evita que intercepten los clics de borrado.
+    if (zonaEditandoVertices && tool !== null) terminarEdicionVertices();
     if (tool === "limpiar") {
-      if (!estado.zonas || !estado.zonas.length) { toast("No hay figuras dibujadas."); return; }
+      if (!estado.zonas || !estado.zonas.length) {
+        terminarEdicionVertices();
+        toast("No hay figuras dibujadas.");
+        return;
+      }
       if (!confirm("¿Borrar todas las figuras dibujadas (" + estado.zonas.length + ")?")) return;
+      terminarEdicionVertices();
+      if (mapa) mapa.closePopup();
       estado.zonas = [];
       guardar();
       pintarZonas();
-      toast("Figuras borradas.");
+      toast("Figuras borradas, incluidos los puntos de edición.");
       return;
     }
     if (tool === "cerrar") {
