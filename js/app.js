@@ -451,7 +451,16 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
   function pintarEstadoNube(texto) {
     const n = $("#estadoNube");
-    if (n) n.textContent = texto;
+    const visible = $("#estadoNubeVisible");
+    const mensaje = String(texto || "");
+    if (n) n.textContent = mensaje;
+    if (visible) {
+      visible.textContent = mensaje;
+      visible.classList.remove("estado-nube-global--ok", "estado-nube-global--pendiente", "estado-nube-global--error");
+      const ok = /Nube al día|guardado.*nube|datos cargados de la nube/i.test(mensaje);
+      const error = /No compartido|falta configurar|no se pudo conectar|no es correcta|no permite guardar/i.test(mensaje);
+      visible.classList.add(ok ? "estado-nube-global--ok" : error ? "estado-nube-global--error" : "estado-nube-global--pendiente");
+    }
   }
 
   async function fetchEstadoNube(opciones) {
