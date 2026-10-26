@@ -450,7 +450,7 @@
       if (texto.length > 560) {
         descripcion = "<p class='tema-card__descripcion texto-expandible'><span>" + escapeHTML(texto.slice(0, 560)) +
           "…</span><span class='texto-completo' hidden>" + escapeHTML(texto.slice(560)) +
-          "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más</button>";
+          "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button>";
       }
       const listaSitios = sitios.length ? "<div class='tema-card__ubicaciones'><h4>Ubicaciones asociadas (" + sitios.length + ")</h4><ul>" +
         sitios.map((u) => {
@@ -513,7 +513,7 @@
         ". No se coloca un punto exacto sin coordenadas fiables.</div>" : "";
       const resumenCorto = resumen.length > 380;
       const resumenHtml = resumenCorto
-        ? "<p class='texto-expandible'><span>" + escapeHTML(resumen.slice(0, 380)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(resumen.slice(380)) + "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más</button>"
+        ? "<p class='texto-expandible'><span>" + escapeHTML(resumen.slice(0, 380)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(resumen.slice(380)) + "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button>"
         : "<p class='texto-expandible'>" + escapeHTML(resumen) + "</p>";
       return "<article class='registro-card'><div class='registro-card__cabecera'><span class='registro-card__simbolo' style='background:" + escapeHTML(cat.color || "#5D6B7E") + "'>" +
         escapeHTML(cat.simbolo || "•") + "</span><div><h3>" + escapeHTML(item.nombre) + "</h3><div class='registro-card__meta'>" +
@@ -533,7 +533,7 @@
       if (texto.length > 480) {
         return "<article class='reflexion-bloque'><h3>" + escapeHTML(b[0]) + "</h3><p class='texto-expandible'><span>" +
           escapeHTML(texto.slice(0, 480)) + "…</span><span class='texto-completo' hidden>" + escapeHTML(texto.slice(480)) +
-          "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más</button></article>";
+          "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Seguir leyendo</button></article>";
       }
       return "<article class='reflexion-bloque'><h3>" + escapeHTML(b[0]) + "</h3><p>" + escapeHTML(texto) + "</p></article>";
     }).join("") : "<p>La reflexión final aún no tiene contenido guardado.</p>";
