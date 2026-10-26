@@ -2042,7 +2042,11 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!cont) return;
     const base = fichasVisibles();
     const cats = categoriasConMarcador();
-    let html = "<div class='leyenda-introduccion'><p><strong>¿Cómo leer este cuadro?</strong> Cada símbolo representa una dimensión de la vida del territorio. Busca el símbolo que ves en el mapa y lee su explicación para saber qué se está señalando y por qué es importante para la cartografía de paz.</p><div class='leyenda-claves'><span><i class='leyenda-clave leyenda-clave--color'></i> <strong>Color del punto:</strong> categoría de la actividad</span><span><i class='leyenda-clave leyenda-clave--icono'>📍</i> <strong>Icono:</strong> tipo de lugar o elemento</span><span><i class='leyenda-clave leyenda-clave--punto'>●</i> <strong>Punto:</strong> ubicación registrada</span></div><p class='leyenda-introduccion__nota'>Un símbolo ayuda a leer el mapa, pero no demuestra por sí solo que un hecho haya ocurrido. Para comprender cada registro, revisa su descripción, fecha y fuente. Si la información está pendiente de confirmar, debe interpretarse con esa precaución.</p></div><div class='leyenda-grupo-titulo'>A. Categorías temáticas de la cartografía de paz</div>";
+    let html = "<div class='leyenda-introduccion'><p><strong>¿Cómo leer este cuadro de convenciones?</strong> Cada símbolo permite reconocer rápidamente qué aspecto del territorio se está documentando. Busca en el mapa el mismo símbolo y color, y consulta la explicación para entender qué representa y cómo se relaciona con la construcción de paz.</p><div class='leyenda-claves'><span><i class='leyenda-clave leyenda-clave--color'></i> <strong>Color del punto:</strong> categoría temática del registro</span><span><i class='leyenda-clave leyenda-clave--icono'>📍</i> <strong>Icono del lugar:</strong> tipo de sitio o elemento, como una escuela, finca o iglesia</span><span><i class='leyenda-clave leyenda-clave--punto'>●</i> <strong>Punto del mapa:</strong> ubicación registrada</span><span><i class='leyenda-clave leyenda-clave--punto'>🗺️</i> <strong>Línea o polígono:</strong> territorio o zona delimitada</span></div><p class='leyenda-introduccion__nota'>Una ubicación puede ser exacta, aproximada o no mostrarse en el mapa, según los datos disponibles. El símbolo clasifica el tema, pero no demuestra por sí solo que un hecho haya ocurrido. Lee la descripción, la fecha y la fuente; distingue los hechos documentados de los testimonios y de la información pendiente de confirmar.</p></div><div class='leyenda-grupo-titulo'>A. Categorías de la cartografía de paz</div>";
+    // La delimitación es una convención territorial (línea o polígono), no un marcador temático.
+    const limite = CATEGORIAS.delimitacion;
+    html += "<div class='menu__cat'><span class='menu__cat__simbolo' style='--cat-color:" + limite.color + "'>" + limite.simbolo + "</span><div class='menu__cat__info'><div class='menu__cat__encabezado'><strong style='color:" + limite.color + "'>" + limite.seccion + ". " + escapar(limite.nombre) + "</strong></div><p>" + escapar(limite.descripcion) + "</p></div></div>";
+
     cats.forEach((k) => {
       const c = CATEGORIAS[k];
       const n = base.filter((f) => f.categoria === k).length + (estado.ideas || []).reduce((total, idea) => total + (idea.ubicaciones || []).filter((u) => u.categoria === k).length, 0);
@@ -3091,7 +3095,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const ideas = (estado.ideas || []).filter((idea) => (idea.ubicaciones || []).some((u) => !u.categoria || !catOculta(u.categoria)));
     const fecha = new Date().toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
     const config = estado.config || {};
-    const categorias = Object.keys(CATEGORIAS).filter((k) => k !== "delimitacion" && !catOculta(k)).sort((a,b) => CATEGORIAS[a].seccion-CATEGORIAS[b].seccion);
+    const categorias = Object.keys(CATEGORIAS).filter((k) => k === "delimitacion" || !catOculta(k)).sort((a,b) => CATEGORIAS[a].seccion-CATEGORIAS[b].seccion);
     const leyenda = categorias.map((k) => {
       const c = CATEGORIAS[k];
       return "<li><span class='imp-simbolo' style='background:" + escapar(c.color) + "'>" + escapar(c.simbolo) + "</span><span><strong>" + escapar(c.seccion + ". " + c.nombre) + "</strong> — " + escapar(c.descripcion || "") + "</span></li>";
