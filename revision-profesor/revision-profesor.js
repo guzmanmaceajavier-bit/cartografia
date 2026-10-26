@@ -172,10 +172,10 @@
     return cleanText(valor).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es");
   }
 
-  function territorioDeItemsActivos() {
+  function territoriosDeItemsActivos() {
     const todas = Object.keys(CATEGORIAS || {});
     if (categoriasActivas.size >= todas.length && todas.every((key) => categoriasActivas.has(key))) {
-      return { nombre: "Córdoba", tipo: "departamento" };
+      return [{ nombre: "Córdoba", tipo: "departamento" }];
     }
     const activos = items.filter((item) => categoriasActivas.has(item.categoria));
     const textos = activos.map((item) => {
@@ -190,18 +190,17 @@
       const n = normalizarTexto(municipio);
       return textos.some((t) => {
         const txt = normalizarTexto(t);
-        return txt.includes(n) || (n === "cerete" && /\bcerete\b/.test(txt)) ||
-          (n === "sahagun" && /\bsahagun\b/.test(txt));
+        return txt.includes(n) || (n === "cerete" && /\\bcerete\\b/.test(txt)) ||
+          (n === "sahagun" && /\\bsahagun\\b/.test(txt));
       });
     });
-    if (encontrados.length === 1) return { nombre: encontrados[0], tipo: "municipio" };
-    if (encontrados.length > 1) return { nombre: "Córdoba", tipo: "departamento" };
-    if (textos.some((t) => /\bcordoba\b/i.test(normalizarTexto(t)))) {
-      return { nombre: "Córdoba", tipo: "departamento" };
+    if (encontrados.length) return encontrados.map((nombre) => ({ nombre, tipo: "municipio" }));
+    if (textos.some((t) => /\\bcordoba\\b/i.test(normalizarTexto(t)))) {
+      return [{ nombre: "Córdoba", tipo: "departamento" }];
     }
     const municipioGuardado = cleanText(estado?.config?.municipio);
-    if (municipioGuardado) return { nombre: municipioGuardado, tipo: "municipio" };
-    return { nombre: "Córdoba", tipo: "departamento" };
+    if (municipioGuardado) return [{ nombre: municipioGuardado, tipo: "municipio" }];
+    return [{ nombre: "Córdoba", tipo: "departamento" }];
   }
 
   async function obtenerLimiteTerritorial(territorio) {
@@ -253,36 +252,50 @@
     if (!capaLimite || !estado) return;
     capaLimite.clearLayers();
     if (!$("#verFiguras").checked) return;
-    const territorio = territorioDeItemsActivos();
-    const solicitud = territorio.nombre + "|" + territorio.tipo;
+    const territorios = territoriosDeItemsActivos();
+    const solicitud = territorios.map((t) => t.nombre + "|" + t.tipo).join(";");
     territorioSolicitado = solicitud;
     const cfg = estado.config || {};
-    let geojson = null;
-    if (territorio.tipo === "municipio" &&
-        normalizarTexto(territorio.nombre) === normalizarTexto(cfg.municipio || "Sahagún") &&
-        cfg.mostrarLimite && cfg.limite) {
-      geojson = cfg.limite;
-    } else {
-      geojson = await obtenerLimiteTerritorial(territorio);
-    }
-    if (territorioSolicitado !== solicitud || !capaLimite) return;
-    if (!geojson && territorio.tipo === "municipio" &&
-        normalizarTexto(territorio.nombre) === normalizarTexto(cfg.municipio || "Sahagún") &&
-        cfg.limite) geojson = cfg.limite;
-    if (geojson) {
-      try {
-        L.geoJSON(geojson, {
-          style: { color: "#102D4F", weight: 3, opacity: .95, dashArray: "7 5", fillColor: "#52745D", fillOpacity: .09 }
-        }).addTo(capaLimite);
-        const bounds = L.geoJSON(geojson).getBounds();
-        if (bounds.isValid()) mapa.fitBounds(bounds, { padding: [24, 24], maxZoom: territorio.tipo === "departamento" ? 9 : 12 });
-        $("#nombreTerritorio").textContent = territorio.nombre + (territorio.tipo === "departamento" ? " · departamento" : " · municipio");
-      } catch (e) {
-        $("#nombreTerritorio").textContent = territorio.nombre;
+    const limites = await Promise.all(territorios.map(async (territorio) => {
+      let geojson = null;
+      if (territorio.tipo === "municipio" &&
+          normalizarTexto(territorio.nombre) === normalizarTexto(cfg.municipio || "Sahagún") &&
+          cfg.mostrarLimite && cfg.limite) {
+        geojson = cfg.limite;
+      } else {
+        geojson = await obtenerLimiteTerritorial(territorio);
       }
-    } else {
-      $("#nombreTerritorio").textContent = territorio.nombre + " · límite no disponible";
+      if (!geojson && territorio.tipo === "municipio" &&
+          normalizarTexto(territorio.nombre) === normalizarTexto(cfg.municipio || "Sahagún") &&
+          cfg.limite) geojson = cfg.limite;
+      return { territorio, geojson };
+    }));
+    if (territorioSolicitado !== solicitud || !capaLimite) return;
+    let bounds = null;
+    let limiteMostrado = 0;
+    limites.forEach(({ territorio, geojson }) => {
+      if (!geojson) return;
+      try {
+        const layer = L.geoJSON(geojson, {
+          style: { color: territorio.tipo === "departamento" ? "#102D4F" : "#52745D",
+            weight: territorio.tipo === "departamento" ? 3.5 : 2.5, opacity: .95,
+            dashArray: territorio.tipo === "departamento" ? "7 5" : "4 4",
+            fillColor: territorio.tipo === "departamento" ? "#52745D" : "#0E7490",
+            fillOpacity: .07 }
+        }).addTo(capaLimite);
+        const currentBounds = layer.getBounds();
+        if (currentBounds.isValid()) {
+          if (!bounds) bounds = currentBounds;
+          else bounds.extend(currentBounds);
+        }
+        limiteMostrado += 1;
+      } catch (e) {}
+    });
+    if (bounds && bounds.isValid()) {
+      mapa.fitBounds(bounds, { padding: [24, 24], maxZoom: territorios.some((t) => t.tipo === "departamento") ? 9 : 12 });
     }
+    const nombres = territorios.map((t) => t.nombre).join(" · ");
+    $("#nombreTerritorio").textContent = nombres + (limiteMostrado === territorios.length ? "" : " · límite parcial/no disponible");
   }
 
   function dibujarLimiteYFiguras() {
