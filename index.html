@@ -39,6 +39,7 @@
 
   <div class="cabecera__acciones">
     <input type="search" id="busqueda" placeholder="Buscar registro, actor, palabra clave…" aria-label="Buscar en la cartografía">
+    <a class="btn btn--suave" href="/revision-profesor/" title="Abrir la vista de consulta para el profesor">Vista del profesor</a>
     <button class="btn btn--primario" id="btnNueva">＋ Agregar registro</button>
   </div>
 </header>
@@ -476,12 +477,33 @@
             <input type="text" id="terrMunicipio">
           </label>
           <label>Departamento
-            <input type="text" id="terrDepartamento">
+            <select id="terrDepartamento">
+              <option value="">Seleccione el departamento</option>
+              <option>Amazonas</option><option>Antioquia</option><option>Arauca</option><option>Atlántico</option>
+              <option>Bogotá, D. C.</option><option>Bolívar</option><option>Boyacá</option><option>Caldas</option>
+              <option>Caquetá</option><option>Casanare</option><option>Cauca</option><option>Cesar</option>
+              <option>Chocó</option><option>Córdoba</option><option>Cundinamarca</option><option>Guainía</option>
+              <option>Guaviare</option><option>Huila</option><option>La Guajira</option><option>Magdalena</option>
+              <option>Meta</option><option>Nariño</option><option>Norte de Santander</option><option>Putumayo</option>
+              <option>Quindío</option><option>Risaralda</option><option>San Andrés, Providencia y Santa Catalina</option>
+              <option>Santander</option><option>Sucre</option><option>Tolima</option><option>Valle del Cauca</option>
+              <option>Vaupés</option><option>Vichada</option>
+            </select>
           </label>
         </div>
       <label>Descripción delimitada del territorio
         <textarea id="terrDescripcion" rows="3" placeholder="Barrio, vereda, municipio, comunidad de fe… dónde empieza y termina lo representado"></textarea>
       </label>
+      <div id="terrAyudaCordoba" class="aviso-territorio-cordoba" hidden>
+        <div class="aviso-territorio-cordoba__simbolo" aria-hidden="true">🗺️</div>
+        <div>
+          <strong>01 · Delimitación y nombre del territorio</strong>
+          <p><strong>Delimite claramente el lugar que será representado.</strong> Si la cartografía abarca todo el departamento de Córdoba, represente su contorno completo con un polígono o cargue un límite oficial verificable. Si el trabajo se concentra en Sahagún, una vereda, un barrio o una zona, delimite únicamente esa área e indique su nombre.</p>
+          <p>El símbolo 🗺️ y el contorno azul identifican el territorio de referencia; no señalan por sí mismos un hecho de violencia ni una iniciativa. Use el dibujo de polígono para trazar el área o «Cargar límite oficial» cuando la fuente disponible corresponda exactamente al lugar seleccionado.</p>
+          <button type="button" class="btn btn--suave" id="btnEnfocarCordoba">Ver extensión general de Córdoba en el mapa</button>
+        </div>
+      </div>
+
       <div class="formulario__fila">
         <label>Centro (latitud)
           <input type="number" id="terrLat" step="any">

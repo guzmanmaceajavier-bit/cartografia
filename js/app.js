@@ -34,6 +34,7 @@
   let zonaEditandoVertices = null;
   let moveZona = null;
   let nubeTimer = null;
+  let claveEditorNube = "";
 
 const PALETA = ["#C9A227", "#102D4F", "#15803D", "#9B1C1C", "#6D28D9", "#1D4ED8", "#C2410C", "#5D6B7E"];
 
@@ -453,11 +454,31 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (n) n.textContent = texto;
   }
 
+  async function fetchEstadoNube(opciones) {
+    const ejecutar = () => {
+      const headers = Object.assign({}, opciones.headers || {});
+      if (claveEditorNube) headers["x-editor-password"] = claveEditorNube;
+      return fetch("api/estado", Object.assign({}, opciones, { headers }));
+    };
+    let respuesta = await ejecutar();
+    if (respuesta.status === 401) {
+      const clave = window.prompt("La nube está protegida. Introduce la contraseña de edición configurada en Vercel (EDITOR_PASSWORD).");
+      if (!clave) return respuesta;
+      claveEditorNube = clave;
+      respuesta = await ejecutar();
+      if (respuesta.status === 401) {
+        claveEditorNube = "";
+        window.alert("La contraseña de edición no es correcta. Puedes seguir trabajando con los datos guardados en este navegador.");
+      }
+    }
+    return respuesta;
+  }
+
   async function cargarNube() {
     try {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), 7000);
-      const r = await fetch("api/estado", { signal: ctrl.signal });
+      const r = await fetchEstadoNube({ signal: ctrl.signal });
       clearTimeout(t);
       if (!r.ok) return null;
       const j = await r.json();
@@ -473,7 +494,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!estado) return;
     pintarEstadoNube("☁ Guardando en la nube…");
     try {
-      const r = await fetch("api/estado", {
+      const r = await fetchEstadoNube({
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(estado)
@@ -2869,17 +2890,32 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     $("#terrMenuDesc").textContent = (desc || "Sin descripción delimitada. Edite la delimitación para completarla.") + (oficial ? " · Límite oficial cargado ✓" : "");
   }
 
+  function actualizarAyudaDepartamento() {
+    const departamento = ($("#terrDepartamento").value || "").trim().toLocaleLowerCase("es");
+    const aviso = $("#terrAyudaCordoba");
+    if (aviso) aviso.hidden = departamento !== "córdoba" && departamento !== "cordoba";
+  }
+
   function abrirTerritorio() {
     $("#terrNombre").value = estado.config.nombreTerritorio || "";
     $("#terrParticipante").value = estado.config.participante || "";
     $("#terrMunicipio").value = estado.config.municipio || "";
-    $("#terrDepartamento").value = estado.config.departamento || "";
+    const departamento = estado.config.departamento || "";
+    const selectorDepartamento = $("#terrDepartamento");
+    if (departamento && !Array.from(selectorDepartamento.options).some((o) => o.value === departamento)) {
+      const opcion = document.createElement("option");
+      opcion.value = departamento;
+      opcion.textContent = departamento;
+      selectorDepartamento.appendChild(opcion);
+    }
+    selectorDepartamento.value = departamento;
     $("#terrDescripcion").value = estado.config.descripcionTerritorio || "";
     $("#terrLat").value = estado.config.centro.lat;
     $("#terrLng").value = estado.config.centro.lng;
     $("#terrZoom").value = estado.config.centro.zoom;
     $("#terrMostrarLimite").checked = !!estado.config.mostrarLimite;
     $("#terrLimite").value = JSON.stringify(estado.config.limite || {}, null, 2);
+    actualizarAyudaDepartamento();
     abrirModal("modalTerritorio");
   }
 
@@ -3254,6 +3290,11 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       });
     });
     $("#btnTerritorio").addEventListener("click", abrirTerritorio);
+    $("#terrDepartamento").addEventListener("change", actualizarAyudaDepartamento);
+    $("#btnEnfocarCordoba").addEventListener("click", () => {
+      enfocarDepartamentoCordoba();
+      if (mapa) setTimeout(() => mapa.invalidateSize(), 80);
+    });
     $("#btnGuardarTerritorio").addEventListener("click", guardarTerritorio);
     $("#btnLimiteOficial").addEventListener("click", cargarLimiteOficial);
     $("#btnRestablecer").addEventListener("click", restablecer);
