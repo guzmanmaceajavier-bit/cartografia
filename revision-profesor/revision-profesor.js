@@ -212,13 +212,15 @@
     const consulta = tipo === "departamento"
       ? "Departamento de Córdoba, Colombia"
       : nombre + ", Córdoba, Colombia";
-    const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&polygon_geojson=1&addressdetails=1&limit=8&q=" + encodeURIComponent(consulta);
+    const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&polygon_geojson=1&addressdetails=1&countrycodes=co&limit=8&q=" + encodeURIComponent(consulta);
     const promesa = fetch(url, { headers: { "Accept": "application/json" } })
       .then((r) => r.ok ? r.json() : [])
       .then((resultados) => {
         const lista = Array.isArray(resultados) ? resultados : [];
-        const candidatos = lista.filter((r) => r && r.geojson && r.geojson.type &&
-          (r.class === "boundary" || r.type === "administrative" || r.addresstype === "municipality" || r.addresstype === "state" || r.addresstype === "county"));
+        const candidatos = lista.filter((r) => r && r.address && r.address.country_code === "co" &&
+          r.geojson && ["Polygon", "MultiPolygon"].includes(r.geojson.type) &&
+          (r.class === "boundary" || r.type === "administrative" || r.addresstype === "municipality" ||
+            r.addresstype === "state" || r.addresstype === "county" || r.addresstype === "department"));
         const elegido = candidatos.find((r) => {
           const nombreResultado = normalizarTexto(r.name || r.display_name || "");
           return nombreResultado.includes(normalizarTexto(nombre));
