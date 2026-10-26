@@ -488,6 +488,48 @@
     $("#totalUbicaciones").textContent = ubicados;
   }
 
+  function renderTemas() {
+    const cont = $("#listaTemas");
+    const ideas = Array.isArray(estado.ideas) ? estado.ideas : [];
+    $("#cantidadTemas").textContent = ideas.length + (ideas.length === 1 ? " tema" : " temas");
+    if (!ideas.length) {
+      cont.innerHTML = "<div class='registro-vacio'>No hay temas guardados en la cartografía compartida. Guarda los cambios en la aplicación de trabajo y vuelve a cargar esta vista.</div>";
+      return;
+    }
+    cont.innerHTML = ideas.map((idea) => {
+      const cat = categoriaDe(idea.categoria);
+      const texto = cleanText(idea.descripcion) || "Este tema aún no tiene una descripción.";
+      const sitios = Array.isArray(idea.ubicaciones) ? idea.ubicaciones.filter(Boolean) : [];
+      const fecha = cleanText(idea.fecha) ? "<span> · " + escapeHTML(idea.fecha) + "</span>" : "";
+      let descripcion = "<p class='tema-card__descripcion'>" + escapeHTML(texto) + "</p>";
+      if (texto.length > 560) {
+        descripcion = "<p class='tema-card__descripcion texto-expandible'><span>" + escapeHTML(texto.slice(0, 560)) +
+          "…</span><span class='texto-completo' hidden>" + escapeHTML(texto.slice(560)) +
+          "</span></p><button type='button' class='btn-leer-mas' data-leer-mas aria-expanded='false'>Leer más</button>";
+      }
+      const listaSitios = sitios.length ? "<div class='tema-card__ubicaciones'><h4>Ubicaciones asociadas (" + sitios.length + ")</h4><ul>" +
+        sitios.map((u) => {
+          const nombre = cleanText(u.nombre || u.lugar) || "Lugar sin nombre";
+          const detalle = cleanText(u.descripcion);
+          const municipio = cleanText(u.municipio || u.territorio || u.zona);
+          const coords = hasCoord(u.lat) && hasCoord(u.lng) ? "<p>Coordenadas: " + escapeHTML(u.lat) + ", " + escapeHTML(u.lng) + "</p>" : "";
+          return "<li><strong>" + escapeHTML(nombre) + "</strong>" +
+            (municipio ? "<span class='tema-card__lugar'> · " + escapeHTML(municipio) + "</span>" : "") +
+            (detalle ? "<p>" + escapeHTML(detalle) + "</p>" : "") + coords + "</li>";
+        }).join("") + "</ul></div>" : "<p class='tema-card__sin-ubicaciones'>Este tema no tiene ubicaciones asociadas guardadas.</p>";
+      const fuente = cleanText(idea.fuente);
+      const fuenteHtml = fuente ? "<p class='tema-card__fuente'>Fuente: " + escapeHTML(fuente) + "</p>" : "";
+      const itemId = "idea:" + (idea.id || "");
+      const btn = sitios.some((u) => hasCoord(u.lat) && hasCoord(u.lng))
+        ? "<button type='button' class='registro-card__ver' data-enfocar='" + escapeHTML(itemId) + "'>Ver tema en el mapa</button>" : "";
+      return "<article class='tema-card'><div class='tema-card__cabecera'><span class='registro-card__simbolo' style='background:" +
+        escapeHTML(cat.color || "#5D6B7E") + "'>" + escapeHTML(cat.simbolo || "•") +
+        "</span><div class='tema-card__titulos'><h3>" + escapeHTML(cleanText(idea.nombre) || "Tema sin título") +
+        "</h3><p class='registro-card__meta'>" + escapeHTML(cat.nombre || idea.categoria || "Sin categoría") + fecha +
+        "</p></div></div>" + descripcion + listaSitios + fuenteHtml + btn + "</article>";
+    }).join("");
+  }
+
   function renderLista() {
     const cont = $("#listaRegistros");
     const consulta = cleanText($("#buscarRegistro").value).toLocaleLowerCase("es");
