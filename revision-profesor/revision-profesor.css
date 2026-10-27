@@ -346,3 +346,20 @@ img, svg, canvas, iframe { max-width:100%; }
   .revision-mapa-titulo h2, .panel-titulo h2, .reflexion-panel h2 { font-size:1rem; }
   .btn { max-width:100%; white-space:normal; }
 }
+
+
+/* Símbolo ilustrado para el territorio ancestral Zenú en la lista de ubicaciones. */
+.revision-simbolo-lugar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin-right: .2rem;
+}
+.revision-simbolo-lugar__imagen {
+  display: inline-block;
+  width: 1.8rem;
+  height: 1.8rem;
+  object-fit: contain;
+  vertical-align: middle;
+}
