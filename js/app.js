@@ -2072,8 +2072,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         "<small>" + ubicaciones.length + " ubicación" + (ubicaciones.length === 1 ? "" : "es") + "</small>" +
         (ubicaciones.length ? "<ul>" + ubicaciones.map((u) => {
           const tipoLugar = simboloCampoDe(u);
-          const iconoLugar = tipoLugar === "Comunidad indígena" ? "🪶" : ((SIMBOLOS_CAMPO || {})[tipoLugar] || "•");
-          return "<li><strong><span class='simbolo-lugar-informe' aria-label='" + escapar(tipoLugar) + "'>" + escapar(iconoLugar) + "</span> " + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" +
+          const iconoLugar = tipoLugar === "Comunidad indígena"
+            ? "<img src='assets/tocado-indigena.svg' alt='Tocado tejido tradicional' style='width:26px;height:26px;object-fit:contain;vertical-align:middle'>"
+            : escapar((SIMBOLOS_CAMPO || {})[tipoLugar] || "•");
+          return "<li><strong><span class='simbolo-lugar-informe' aria-label='" + escapar(tipoLugar) + "'>" + iconoLugar + "</span> " + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" +
             "<p><small><strong>Símbolo del lugar:</strong> " + escapar(tipoLugar) + "</small></p>" +
             (u.lugar ? " · " + escapar(u.lugar) : "") + (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") + (typeof u.lat === "number" && typeof u.lng === "number" ? "<small>Coordenadas: " + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + "</small>" : "<small>Sin coordenadas guardadas</small>") + "</li>";
         }).join("") + "</ul>" : "<p class='vacio'>Este tema aún no tiene ubicaciones agregadas.</p>") +
@@ -2135,8 +2137,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
             (idea.descripcion ? "<p>" + escapar(idea.descripcion) + "</p>" : "") +
             (ubicaciones.length ? "<ul>" + ubicaciones.map((u) => {
           const tipoLugar = simboloCampoDe(u);
-          const iconoLugar = tipoLugar === "Comunidad indígena" ? "🪶" : ((SIMBOLOS_CAMPO || {})[tipoLugar] || "•");
-          return "<li><strong><span class='simbolo-lugar-informe' aria-label='" + escapar(tipoLugar) + "'>" + escapar(iconoLugar) + "</span> " + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" +
+          const iconoLugar = tipoLugar === "Comunidad indígena"
+            ? "<img src='assets/tocado-indigena.svg' alt='Tocado tejido tradicional' style='width:26px;height:26px;object-fit:contain;vertical-align:middle'>"
+            : escapar((SIMBOLOS_CAMPO || {})[tipoLugar] || "•");
+          return "<li><strong><span class='simbolo-lugar-informe' aria-label='" + escapar(tipoLugar) + "'>" + iconoLugar + "</span> " + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" +
             "<p><small><strong>Símbolo del lugar:</strong> " + escapar(tipoLugar) + "</small></p>" +
             (u.lugar ? " · " + escapar(u.lugar) : "") + (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") + (typeof u.lat === "number" && typeof u.lng === "number" ? "<small>Coordenadas: " + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + "</small>" : "<small>Sin coordenadas guardadas</small>") + "</li>";
         }).join("") + "</ul>" : "<p class='vacio'>Sin ubicaciones registradas.</p>") +
