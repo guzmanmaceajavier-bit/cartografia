@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Cartografía de Paz · Sahagún y Córdoba</title>
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="/revision-profesor/revision-profesor.css?v=cartografia-20261027">
+</head>
+<body>
+  <header class="revision-cabecera">
+    <a class="revision-marca" href="/cartografia/" aria-label="Cartografía de Paz">
+      <span class="revision-icono" aria-hidden="true">🕊️</span>
+      <span><strong>Cartografía de Paz</strong><small>Sahagún · Córdoba, Colombia</small></span>
+    </a>
+    <div class="revision-cabecera__acciones">
+      <span class="revision-sololectura"><span aria-hidden="true">◉</span> Vista de consulta</span>
+      <button id="btnSalir" class="btn btn--secundario" type="button" hidden>Actualizar datos</button>
+    </div>
+  </header>
+
+  <main class="revision-contenido">
+    <section class="revision-intro">
+      <p class="revision-ceja">TRABAJO ACADÉMICO · JUSTAPAZ</p>
+      <h1>Cartografía de Paz de Sahagún y Córdoba</h1>
+      <p>Exploración del territorio, las huellas de la violencia, las experiencias de resistencia, la memoria y los signos de esperanza y reconciliación.</p>
+    </section>
+
+    <section id="acceso" class="acceso-panel" aria-live="polite">
+      <div class="acceso-panel__icono" aria-hidden="true">🕊️</div>
+      <h2 id="accesoTitulo">Cargando cartografía</h2>
+      <p id="accesoError" role="status">Estamos consultando los registros compartidos. No necesita contraseña.</p>
+    </section>
+
+    <section id="panelRevision" hidden>
+      <div class="revision-resumen">
+        <div><span class="resumen-etiqueta">Territorio</span><strong id="nombreTerritorio">Sahagún, Córdoba</strong></div>
+        <div><span class="resumen-etiqueta">Temas y fichas</span><strong id="totalRegistros">0</strong></div>
+        <div><span class="resumen-etiqueta">Lugares ubicados</span><strong id="totalUbicaciones">0</strong></div>
+      </div>
+
+      <div class="revision-layout">
+        <aside class="revision-panel">
+          <div class="panel-titulo">
+            <div><span class="panel-ceja">EXPLORAR</span><h2>Cuadro de convenciones</h2></div>
+            <button id="btnTodas" type="button" class="btn-enlace">Todas</button>
+          </div>
+          <p class="panel-ayuda">Active las categorías que desea observar. El mapa se actualizará automáticamente.</p>
+          <div id="filtrosCategorias" class="filtros-categorias"></div>
+          <div class="filtro-separador"></div>
+          <label class="filtro-figuras"><input type="checkbox" id="verFiguras" checked> Mostrar figuras dibujadas</label>
+          <label class="busqueda-label" for="buscarRegistro">Buscar en la cartografía</label>
+          <input id="buscarRegistro" class="busqueda-registro" type="search" placeholder="Nombre, lugar o palabra clave">
+          <p id="estadoResultados" class="estado-resultados" aria-live="polite"></p>
+        </aside>
+
+        <section class="revision-mapa-panel" aria-label="Mapa interactivo">
+          <div class="revision-mapa-titulo">
+            <div><span class="panel-ceja">MAPA INTERACTIVO</span><h2>Territorio y registros</h2></div>
+            <span class="mapa-ayuda">Seleccione un marcador para consultar su ficha</span>
+          </div>
+          <div class="mapa-controles" role="group" aria-label="Encuadre del mapa">
+            <span>Use los controles + y − del mapa para acercar o alejar.</span>
+            <button id="btnVerCordoba" type="button">Volver a Córdoba</button>
+          </div>
+          <div id="mapaRevision" role="application" aria-label="Mapa de la cartografía de paz"></div>
+          <div class="mapa-pie"><span>© OpenStreetMap contributors</span><span>La ubicación aproximada no equivale a la confirmación de un hecho.</span></div>
+        </section>
+      </div>
+
+      <section class="temas-panel" aria-labelledby="tituloTemas">
+        <div class="panel-titulo">
+          <div><span class="panel-ceja">CUERPO DEL TRABAJO</span><h2 id="tituloTemas">Temas desarrollados en la cartografía</h2></div>
+          <span id="cantidadTemas" class="cantidad-lista">0 temas</span>
+        </div>
+        <p class="temas-intro">Este es el contenido central del trabajo: temas, descripciones y ubicaciones guardadas en la cartografía.</p>
+        <div id="listaTemas" class="lista-temas"></div>
+      </section>
+
+      <section class="registros-panel">
+        <div class="panel-titulo">
+          <div><span class="panel-ceja">CONSULTA</span><h2>Registros de la cartografía</h2></div>
+          <span id="cantidadLista" class="cantidad-lista">0 registros</span>
+        </div>
+        <div id="listaRegistros" class="lista-registros"></div>
+      </section>
+
+      <section class="reflexion-panel">
+        <div class="panel-ceja">LECTURA DEL TERRITORIO</div>
+        <h2>Reflexión final para la construcción de paz</h2>
+        <div id="contenidoReflexion" class="contenido-reflexion"></div>
+      </section>
+      <footer class="revision-pie">
+        <span>Cartografía de Paz · Sahagún, Córdoba</span>
+        <span>Vista de consulta: los cambios solo pueden realizarse desde la aplicación de trabajo.</span>
+      </footer>
+    </section>
+  </main>
+
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/js/data.js"></script>
+  <script src="/revision-profesor/revision-profesor.js?v=cartografia-20261027"></script>
+</body>
+</html>
