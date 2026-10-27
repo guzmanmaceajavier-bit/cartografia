@@ -36,10 +36,10 @@ const CATEGORIAS = {
   },
   memoria: {
     seccion: 6,
-    nombre: "Lugares y experiencias de memoria",
+    nombre: "Memorias y lugares significativos",
     color: "#6D28D9",
     simbolo: "🕯️",
-    descripcion: "🕯️ La vela representa los lugares y las experiencias que mantienen viva la memoria: homenajes, conmemoraciones, relatos de la comunidad, documentos y espacios vinculados con hechos que es importante recordar. Busca reconocer a las víctimas, comprender lo ocurrido y transmitir la memoria con respeto, sin exponer a las personas a nuevos riesgos."
+    descripcion: "🕯️ Registre lugares importantes para la comunidad y espacios o experiencias que ayuden a recordar a las víctimas, comprender la historia del territorio y mantener viva la memoria colectiva. Incluya una descripción y proteja la información sensible."
   },
   esperanza: {
     seccion: 7,
