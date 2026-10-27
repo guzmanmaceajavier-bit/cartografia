@@ -190,13 +190,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
     datos.ideas = Array.isArray(datos.ideas) ? datos.ideas : [];
     if (!datos.reflexion || typeof datos.reflexion !== "object") datos.reflexion = clonar(REFLEXION_INICIAL);
-    const idsIdeasExistentes = new Set(datos.ideas.map((idea) => idea && idea.id).filter(Boolean));
-    (typeof IDEAS_VERIFICADAS_INICIALES !== "undefined" ? IDEAS_VERIFICADAS_INICIALES : []).forEach((idea) => {
-      if (idea && idea.id && !idsIdeasExistentes.has(idea.id)) {
-        datos.ideas.push(clonar(idea));
-        idsIdeasExistentes.add(idea.id);
-      }
-    });
+    // No volver a insertar ideas de ejemplo que la persona haya eliminado.
+    // Las ideas iniciales solo se cargan al crear el estado por primera vez.
     const reflexionTexto = String(datos.reflexion.texto || "");
     if (typeof REFLEXION_DOCUMENTADA !== "undefined" &&
         (!reflexionTexto.trim() || reflexionTexto === REFLEXION_INICIAL.texto ||
@@ -307,9 +302,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       });
       datos.meta.clasificacionOchoCategoriasV2 = true;
     }
-    // Integrar las fuentes documentadas en sus categorías existentes, sin crear temas
-    // independientes en "Temas y ubicaciones". La fuente inicial sirve como respaldo
-    // si una ejecución anterior ya retiró la idea pero no llegó a guardar la ficha.
+    // Integrar las fuentes documentadas que sigan existiendo en los temas.
+    // Si se elimina una idea, no reconstruirla desde los datos iniciales.
     datos.fichas = Array.isArray(datos.fichas) ? datos.fichas : [];
     const idsFuentesIntegradas = [
       "fuente-alerta-011-24-sahagun",
@@ -324,12 +318,14 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       "fuente-la-macarena-sahagun-2025": "Acceso a la tierra para mujeres rurales"
     };
     idsFuentesIntegradas.forEach((idFuente) => {
-      const idea = datos.ideas.find((idea) => idea && idea.id === idFuente) ||
-        (typeof IDEAS_VERIFICADAS_INICIALES !== "undefined"
-          ? IDEAS_VERIFICADAS_INICIALES.find((idea) => idea && idea.id === idFuente)
-          : null);
-      if (!idea) return;
+      const idea = datos.ideas.find((idea) => idea && idea.id === idFuente);
       const idFicha = "ficha-integrada-" + idFuente;
+      if (!idea) {
+        // Las fichas de este grupo son generadas automáticamente a partir de la idea.
+        // Si la idea fue eliminada, retirar también su ficha derivada para que no reaparezca.
+        datos.fichas = datos.fichas.filter((f) => !f || f.id !== idFicha);
+        return;
+      }
       const ubicacion = Array.isArray(idea.ubicaciones) ? idea.ubicaciones[0] : null;
       let ficha = datos.fichas.find((f) => f.id === idFicha);
       if (!ficha) {
