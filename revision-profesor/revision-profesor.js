@@ -55,7 +55,7 @@
   function simboloLugarHTML(u) {
     const tipo = tipoSimboloLugar(u);
     if (tipo === "Comunidad indígena") {
-      return "<span class='revision-simbolo-lugar' role='img' aria-label='Comunidad indígena'>🪶</span>";
+      return "<span class='revision-simbolo-lugar revision-simbolo-lugar--indigena' role='img' aria-label='Tocado tejido tradicional del pueblo Zenú'><img src='/assets/tocado-indigena.svg' alt='' class='revision-simbolo-lugar__imagen' width='30' height='30' loading='eager'></span>";
     }
     const disponibles = typeof SIMBOLOS_CAMPO !== "undefined" ? SIMBOLOS_CAMPO : {};
     return "<span class='revision-simbolo-lugar' role='img' aria-label='" + escapeHTML(tipo) + "'>" +
