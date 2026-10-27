@@ -711,18 +711,39 @@
   });
   window.addEventListener("resize", () => actualizarTextosExpandibles(document));
 
-  $("#listaRegistros").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-enfocar]");
+  function enfocarRegistroDesdeBoton(button) {
     if (!button || !mapa) return;
     const item = items.find((entry) => entry.id === button.dataset.enfocar);
-    const first = item && ubicacionesConCoordenadas(item)[0];
-    if (!first) return;
-    mapa.setView([first.lat, first.lng], Math.max(mapa.getZoom(), 14), { animate: true });
+    const ubicaciones = item && ubicacionesConCoordenadas(item);
+    const primera = ubicaciones && ubicaciones[0];
+    if (!item || !primera) return;
+
+    // El tema debe poder localizarse aunque esté oculto por filtros o por la búsqueda.
+    categoriasActivas.add(item.categoria);
+    const filtro = document.querySelector('[data-filtro-categoria="' + CSS.escape(item.categoria) + '"]');
+    if (filtro) filtro.checked = true;
+    $("#buscarRegistro").value = "";
+    renderMapa();
+    renderLista();
+
+    mapa.setView([primera.lat, primera.lng], Math.max(mapa.getZoom(), 14), { animate: true });
+    let marcadorAbierto = false;
     capaMarcadores.eachLayer((marker) => {
       const ll = marker.getLatLng();
-      if (Math.abs(ll.lat - first.lat) < 1e-6 && Math.abs(ll.lng - first.lng) < 1e-6) marker.openPopup();
+      if (!marcadorAbierto && Math.abs(ll.lat - primera.lat) < 1e-6 && Math.abs(ll.lng - primera.lng) < 1e-6) {
+        marker.openPopup();
+        marcadorAbierto = true;
+      }
     });
     $("#mapaRevision").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // El mismo comportamiento sirve para las tarjetas de temas y los registros.
+  ["#listaTemas", "#listaRegistros"].forEach((selector) => {
+    $(selector).addEventListener("click", (event) => {
+      const button = event.target.closest("[data-enfocar]");
+      if (button) enfocarRegistroDesdeBoton(button);
+    });
   });
 
   // La vista del profesor es pública y de solo lectura: cargar sin pedir contraseña.
