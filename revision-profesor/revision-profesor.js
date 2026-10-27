@@ -417,7 +417,7 @@
       layer._rpTipoTerritorio = "departamento";
       const bounds = layer.getBounds();
       if (bounds.isValid() && !ultimoLimiteAjustado) {
-        mapa.fitBounds(bounds, { padding: [28, 28], maxZoom: 8, animate: true });
+        mapa.fitBounds(bounds, { padding: [12, 12], maxZoom: 9, animate: true });
         ultimoLimiteAjustado = solicitud;
       }
       $("#nombreTerritorio").textContent = "Departamento de Córdoba";
