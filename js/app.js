@@ -2070,7 +2070,13 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         "<article class='grupo-tema-vinculado'><strong>" + escapar(idea.nombre || "Tema sin nombre") + "</strong>" +
         (idea.descripcion ? "<p>" + escapar(idea.descripcion) + "</p>" : "") +
         "<small>" + ubicaciones.length + " ubicación" + (ubicaciones.length === 1 ? "" : "es") + "</small>" +
-        (ubicaciones.length ? "<ul>" + ubicaciones.map((u) => "<li><strong>" + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" + (u.lugar ? " · " + escapar(u.lugar) : "") + (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") + (typeof u.lat === "number" && typeof u.lng === "number" ? "<small>Coordenadas: " + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + "</small>" : "<small>Sin coordenadas guardadas</small>") + "</li>").join("") + "</ul>" : "<p class='vacio'>Este tema aún no tiene ubicaciones agregadas.</p>") +
+        (ubicaciones.length ? "<ul>" + ubicaciones.map((u) => {
+          const tipoLugar = simboloCampoDe(u);
+          const iconoLugar = tipoLugar === "Comunidad indígena" ? "🪶" : ((SIMBOLOS_CAMPO || {})[tipoLugar] || "•");
+          return "<li><strong><span class='simbolo-lugar-informe' aria-label='" + escapar(tipoLugar) + "'>" + escapar(iconoLugar) + "</span> " + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" +
+            "<p><small><strong>Símbolo del lugar:</strong> " + escapar(tipoLugar) + "</small></p>" +
+            (u.lugar ? " · " + escapar(u.lugar) : "") + (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") + (typeof u.lat === "number" && typeof u.lng === "number" ? "<small>Coordenadas: " + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + "</small>" : "<small>Sin coordenadas guardadas</small>") + "</li>";
+        }).join("") + "</ul>" : "<p class='vacio'>Este tema aún no tiene ubicaciones agregadas.</p>") +
         "<button type='button' class='btn btn--mini' data-abrir-tema='" + escapar(idea.id) + "'>Abrir tema →</button></article>"
       ).join("") + "<button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Gestionar temas y ubicaciones →</button></div>";
   }
@@ -2127,7 +2133,13 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
           return "<article class='grupo-tema-vinculado'><strong>" + escapar(idea.nombre || "Tema sin nombre") + "</strong>" +
             "<small>" + escapar(cat ? cat.nombre : "Componente sin clasificar") + " · " + ubicaciones.length + " ubicación" + (ubicaciones.length === 1 ? "" : "es") + "</small>" +
             (idea.descripcion ? "<p>" + escapar(idea.descripcion) + "</p>" : "") +
-            (ubicaciones.length ? "<ul>" + ubicaciones.map((u) => "<li><strong>" + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" + (u.lugar ? " · " + escapar(u.lugar) : "") + (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") + (typeof u.lat === "number" && typeof u.lng === "number" ? "<small>Coordenadas: " + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + "</small>" : "<small>Sin coordenadas guardadas</small>") + "</li>").join("") + "</ul>" : "<p class='vacio'>Sin ubicaciones registradas.</p>") +
+            (ubicaciones.length ? "<ul>" + ubicaciones.map((u) => {
+          const tipoLugar = simboloCampoDe(u);
+          const iconoLugar = tipoLugar === "Comunidad indígena" ? "🪶" : ((SIMBOLOS_CAMPO || {})[tipoLugar] || "•");
+          return "<li><strong><span class='simbolo-lugar-informe' aria-label='" + escapar(tipoLugar) + "'>" + escapar(iconoLugar) + "</span> " + escapar(u.nombre || "Ubicación sin nombre") + "</strong>" +
+            "<p><small><strong>Símbolo del lugar:</strong> " + escapar(tipoLugar) + "</small></p>" +
+            (u.lugar ? " · " + escapar(u.lugar) : "") + (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") + (typeof u.lat === "number" && typeof u.lng === "number" ? "<small>Coordenadas: " + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + "</small>" : "<small>Sin coordenadas guardadas</small>") + "</li>";
+        }).join("") + "</ul>" : "<p class='vacio'>Sin ubicaciones registradas.</p>") +
             "</article>";
         }).join("") +
         "<button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Revisar temas y ubicaciones →</button>"
