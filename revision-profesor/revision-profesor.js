@@ -505,24 +505,25 @@
           const nombre = cleanText(u.nombre || u.lugar) || "Lugar sin nombre";
           const detalle = cleanText(u.descripcion);
           const municipio = cleanText(u.municipio || u.territorio || u.zona);
-          const coords = hasCoord(u.lat) && hasCoord(u.lng) ? "<p>Coordenadas: " + escapeHTML(u.lat) + ", " + escapeHTML(u.lng) + "</p>" : "";
+          const tieneCoordenadas = hasCoord(u.lat) && hasCoord(u.lng);
+          const coords = tieneCoordenadas ? "<p>Coordenadas: " + escapeHTML(u.lat) + ", " + escapeHTML(u.lng) + "</p>" : "";
           const detalleHtml = textoExpandibleHtml(detalle);
           const tipoLugar = tipoSimboloLugar(u);
+          const botonUbicacion = tieneCoordenadas
+            ? "<button type='button' class='registro-card__ver' data-enfocar='" + escapeHTML("idea:" + (idea.id || "")) + "' data-enfocar-ubicacion='" + sitios.indexOf(u) + "'>Ver esta ubicación en el mapa</button>"
+            : "";
           return "<li><strong class='tema-card__nombre-lugar'>" + simboloLugarHTML(u) + " " + escapeHTML(nombre) + "</strong>" +
             "<p class='tema-card__simbolo-lugar'><small><strong>Símbolo del lugar:</strong> " + escapeHTML(tipoLugar) + "</small></p>" +
             (municipio ? "<span class='tema-card__lugar'> · " + escapeHTML(municipio) + "</span>" : "") +
-            detalleHtml + coords + "</li>";
+            detalleHtml + coords + botonUbicacion + "</li>";
         }).join("") + "</ul></div>" : "<p class='tema-card__sin-ubicaciones'>Este tema no tiene ubicaciones asociadas guardadas.</p>";
       const fuente = cleanText(idea.fuente);
       const fuenteHtml = fuente ? "<p class='tema-card__fuente'>Fuente: " + escapeHTML(fuente) + "</p>" : "";
-      const itemId = "idea:" + (idea.id || "");
-      const btn = sitios.some((u) => hasCoord(u.lat) && hasCoord(u.lng))
-        ? "<button type='button' class='registro-card__ver' data-enfocar='" + escapeHTML(itemId) + "'>Ver tema en el mapa</button>" : "";
       return "<article class='tema-card'><div class='tema-card__cabecera'><span class='registro-card__simbolo' style='background:" +
         escapeHTML(cat.color || "#5D6B7E") + "'>" + escapeHTML(cat.simbolo || "•") +
         "</span><div class='tema-card__titulos'><h3>" + escapeHTML(cleanText(idea.nombre) || "Tema sin título") +
         "</h3><p class='registro-card__meta'>" + escapeHTML(cat.nombre || idea.categoria || "Sin categoría") + fecha +
-        "</p></div></div>" + descripcion + listaSitios + fuenteHtml + btn + "</article>";
+        "</p></div></div>" + descripcion + listaSitios + fuenteHtml + "</article>";
     }).join("");
     actualizarTextosExpandibles(cont);
   }
@@ -715,7 +716,13 @@
     if (!button || !mapa) return;
     const item = items.find((entry) => entry.id === button.dataset.enfocar);
     const ubicaciones = item && ubicacionesConCoordenadas(item);
-    const primera = ubicaciones && ubicaciones[0];
+    const indiceUbicacion = button.hasAttribute("data-enfocar-ubicacion")
+      ? Number(button.dataset.enfocarUbicacion) : 0;
+    const ubicacionSolicitada = item && Array.isArray(item.ubicaciones)
+      ? item.ubicaciones[indiceUbicacion] : null;
+    const primera = ubicacionSolicitada && hasCoord(ubicacionSolicitada.lat) && hasCoord(ubicacionSolicitada.lng)
+      ? ubicacionSolicitada
+      : (button.hasAttribute("data-enfocar-ubicacion") ? null : (ubicaciones && ubicaciones[0]));
     if (!item || !primera) return;
 
     // El tema debe poder localizarse aunque esté oculto por filtros o por la búsqueda.
