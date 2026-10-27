@@ -143,6 +143,7 @@ const SIMBOLOS_CAMPO = {
   "Memoria de las víctimas": "🕯️",
   "Resistencia y paz": "✊",
   "Esperanza / reconciliación": "☀️",
+  "Retos actuales para la construcción de paz": "🚧",
 };
 
 const CONFIGURACION_INICIAL = {
