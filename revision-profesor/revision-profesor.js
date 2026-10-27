@@ -45,7 +45,7 @@
     if (/escuela de futbol|escuela de fútbol|cancha|futbol|fútbol/.test(texto)) return "Escuela de fútbol";
     if (/colegio|escuela|institucion educativa/.test(texto)) return "Colegio";
     if (/comercio|tienda|banco|calle comercial/.test(texto)) return "Comercio";
-    if (/comunidad indigena|pueblo zenu|pueblo zenú|resguardo|cabildo indigena/.test(texto)) return "Comunidad indígena";
+    if (/comunidad indigena|pueblo zenu|territorio ancestral|\bzenu\b|resguardo|cabildo indigena|comunidad zen[uú]/.test(texto)) return "Comunidad indígena";
     if (/hospital|centro de salud|puesto de salud/.test(texto)) return "Hospital / salud";
     if (/parque|plaza/.test(texto)) return "Parque / plaza";
     if (/memoria|victima|víctima|reparacion|reparación/.test(texto)) return "Memoria de las víctimas";
