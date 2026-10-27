@@ -2206,7 +2206,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       const etiqueta = nombre.charAt(0).toUpperCase() + nombre.slice(1);
       const explicaciones = {"ganadería":"Fincas o zonas dedicadas a la ganadería","escuelas":"Instituciones educativas y escuelas","parques":"Parques, plazas y espacios públicos","iglesias":"Iglesias y espacios de comunidad de fe","jóvenes":"Espacios o iniciativas de jóvenes","fincas":"Fincas, predios y espacios rurales","agrícolas":"Cultivos y actividades agrícolas","salud":"Hospitales, centros y puestos de salud","comercio":"Tiendas, mercados y zonas comerciales","transporte":"Rutas, terminales y puntos de transporte"};
       const explicacion = explicaciones[nombre] || ("Lugar clasificado como " + nombre);
-      html += "<div class='leyenda-icono-item'><span class='leyenda-icono-muestra' aria-hidden='true'>" + simbolo + "</span><span class='leyenda-icono-texto'><strong>" + escapar(etiqueta) + "</strong><small>" + escapar(explicacion) + "</small></span></div>";
+      html += "<div class='leyenda-icono-item'><span class='leyenda-icono-muestra' aria-hidden='true'>" + (nombre === "Comunidad indígena" ? "<img src='assets/tocado-indigena.svg' alt='' style='width:30px;height:30px;object-fit:contain;vertical-align:middle'>" : simbolo) + "</span><span class='leyenda-icono-texto'><strong>" + escapar(etiqueta) + "</strong><small>" + escapar(explicacion) + "</small></span></div>";
     });
     const personalizados = [...new Set(base.map((f) => (f.simboloCampo || "").trim()).filter(Boolean))]
       .filter((s) => !entradas.some(([, icono]) => icono === s));
@@ -2285,7 +2285,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const vista = $("#ubiSimboloVistaPrevia");
     if (!campo || !vista) return;
     const simbolo = SIMBOLOS_CAMPO[campo.value] || "•";
-    vista.innerHTML = "<span>" + escapar(simbolo) + "</span><strong>" + escapar(campo.value || "Símbolo del lugar") + "</strong>";
+    vista.innerHTML = "<span>" + (campo.value === "Comunidad indígena" ? "<img src='assets/tocado-indigena.svg' alt='' style='width:32px;height:32px;object-fit:contain;vertical-align:middle'>" : escapar(simbolo)) + "</span><strong>" + escapar(campo.value || "Símbolo del lugar") + "</strong>";
   }
 
   function agregarUbicacionAlFormularioTema() {
