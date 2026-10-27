@@ -678,6 +678,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         "<label class='gestion__campo'>Símbolo<input type='text' data-campo='simbolo' maxlength='8' list='catalogoSimbolos' value='" + escapar(c.simbolo) + "' aria-label='Símbolo de " + escapar(c.nombre) + "'></label>" +
         "<label class='gestion__campo'>Color<input type='color' data-campo='color' value='" + c.color + "'></label>" +
         "<label class='gestion__check'><input type='checkbox' data-campo='oculta'" + (o.oculta ? " checked" : "") + "> Oculta en la leyenda</label>" +
+        "<button type='button' class='btn btn--mini btn--peligro' data-cat-restablecer='" + k + "' title='Restaurar nombre, símbolo y color originales'>Restablecer</button>" +
         "</div>"
       );
     }).join("");
@@ -3601,6 +3602,22 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (zt) { guardarTextoZona(zt.dataset.zonaTexto); return; }
       const convEli = e.target.closest("[data-custom-eliminar]");
       if (convEli) { eliminarConvencion(convEli.dataset.customEliminar); return; }
+      const catReset = e.target.closest("[data-cat-restablecer]");
+      if (catReset) {
+        const clave = catReset.dataset.catRestablecer;
+        const base = CATEGORIAS_BASE[clave];
+        const L = leyendaActual();
+        if (!base || !confirm("¿Restablecer la convención «" + base.nombre + "» a su nombre, símbolo y color originales? Se conservarán los registros de esa categoría.")) return;
+        delete L.cats[clave];
+        aplicarLeyenda();
+        guardar();
+        pintarGestionLeyenda();
+        pintarMapa();
+        pintarMenuConvenciones();
+        if ($("#modalConvencionesCompleto") && !$("#modalConvencionesCompleto").hidden) abrirConvencionesCompletas();
+        toast("Convención restablecida; los registros se conservaron.");
+        return;
+      }
       const ojo = e.target.closest("[data-oculta-cat]");
       if (ojo) { alternarOcultaCat(ojo.dataset.ocultaCat); return; }
       const completa = e.target.closest("[data-completa]");
