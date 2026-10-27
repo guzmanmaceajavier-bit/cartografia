@@ -129,7 +129,7 @@ const SIMBOLOS_CAMPO = {
   "Colegio": "🏫",
   "Escuela de fútbol": "⚽",
   "Iglesia": "⛪",
-  "Comunidad indígena": "🪶",
+  "Comunidad indígena": "🛖",
   "Jóvenes": "🧑‍🤝‍🧑",
   "Hospital / salud": "🏥",
   "Bomberos": "🚒",
