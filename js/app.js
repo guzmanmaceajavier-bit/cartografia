@@ -3272,12 +3272,19 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (!ubicaciones.length) return "";
       return "<li><h3>" + escapar(idea.nombre || "Narrativa temática") + "</h3>" +
         (idea.descripcion ? "<p>" + escapar(idea.descripcion) + "</p>" : "") +
-        "<ul>" + ubicaciones.map((u) => "<li><strong>" + (simboloCampoDe(u) === "Comunidad indígena" ? "<img src='" + new URL("assets/tocado-indigena.svg", document.baseURI).href + "' alt='Tocado tejido tradicional' style='width:24px;height:24px;object-fit:contain;vertical-align:middle'> " : escapar((SIMBOLOS_CAMPO || {})[simboloCampoDe(u)] || "•") + " ") + escapar(u.nombre || "Lugar sin nombre") + "</strong>" +
-          (u.categoria ? " · " + escapar((CATEGORIAS[u.categoria] || {}).nombre || u.categoria) : "") +
-          (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") +
-          "<p><strong>Ubicación:</strong> " + escapar(u.lugar || idea.territorio || "No especificada") +
-          (typeof u.lat === "number" && typeof u.lng === "number" ? " (" + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + ")" : "") +
-          "</p></li>").join("") + "</ul></li>";
+        "<ul>" + ubicaciones.map((u) => {
+          const tipoLugar = simboloCampoDe(u);
+          const simboloVisible = tipoLugar === "Comunidad indígena"
+            ? "<img src='" + new URL("assets/tocado-indigena.svg", document.baseURI).href + "' alt='Tocado tejido tradicional' style='width:28px;height:28px;object-fit:contain;vertical-align:middle'>"
+            : "<span style='font-size:1.2em;display:inline-block;min-width:1.6em'>" + escapar((SIMBOLOS_CAMPO || {})[tipoLugar] || "•") + "</span>";
+          return "<li class='imp-ubicacion-asociada'><strong>" + simboloVisible + " " + escapar(u.nombre || "Lugar sin nombre") + "</strong>" +
+            "<p><strong>Símbolo del lugar:</strong> " + escapar(tipoLugar) + "</p>" +
+            (u.categoria ? "<p><strong>Componente de la cartografía:</strong> " + escapar((CATEGORIAS[u.categoria] || {}).nombre || u.categoria) + "</p>" : "") +
+            (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") +
+            "<p><strong>Ubicación:</strong> " + escapar(u.lugar || idea.territorio || "No especificada") +
+            (typeof u.lat === "number" && typeof u.lng === "number" ? " (" + u.lat.toFixed(5) + ", " + u.lng.toFixed(5) + ")" : "") +
+            "</p></li>";
+        }).join("") + "</ul></li>";
     }).join("");
     const reflexion = estado.reflexion || {};
     area.innerHTML = "<article class='imp-portada'><h1>Cartografía de paz</h1><h2>" + escapar(config.municipio || "Sahagún") + (config.departamento ? ", " + escapar(config.departamento) : ", Córdoba") + "</h2><p>Informe cartográfico · " + escapar(fecha) + "</p><p>Registros incluidos: " + fichas.length + " · Narrativas: " + ideas.length + "</p></article>" +
