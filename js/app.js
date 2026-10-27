@@ -3257,7 +3257,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const leyenda = leyendaCategorias + simbolosLugar;
     const listaFichas = fichas.length ? fichas.map((f) => {
       const c = CATEGORIAS[f.categoria] || {};
-      return "<li><strong>" + (f.simboloCampo === "Comunidad indígena" ? "<img src='assets/tocado-indigena.svg' alt='Tocado tejido tradicional' style='width:24px;height:24px;object-fit:contain;vertical-align:middle'> " : escapar((SIMBOLOS_CAMPO || {})[f.simboloCampo] || "") + " ") + escapar(f.nombre) + "</strong> (" + escapar(c.seccion || "") + ". " + escapar(c.nombre || f.categoria) + ")" +
+      return "<li><strong>" + (simboloCampoDe(f) === "Comunidad indígena" ? "<img src='" + new URL("assets/tocado-indigena.svg", document.baseURI).href + "' alt='Tocado tejido tradicional' style='width:24px;height:24px;object-fit:contain;vertical-align:middle'> " : escapar((SIMBOLOS_CAMPO || {})[simboloCampoDe(f)] || "•") + " ") + escapar(f.nombre) + "</strong> (" + escapar(c.seccion || "") + ". " + escapar(c.nombre || f.categoria) + ")" +
         "<p>" + escapar(f.descripcion) + "</p>" +
         (f.historia ? "<p><strong>Memoria/contexto:</strong> " + escapar(f.historia) + "</p>" : "") +
         (f.aporte ? "<p><strong>Aporte a la paz:</strong> " + escapar(f.aporte) + "</p>" : "") +
@@ -3272,7 +3272,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (!ubicaciones.length) return "";
       return "<li><h3>" + escapar(idea.nombre || "Narrativa temática") + "</h3>" +
         (idea.descripcion ? "<p>" + escapar(idea.descripcion) + "</p>" : "") +
-        "<ul>" + ubicaciones.map((u) => "<li><strong>" + (u.simboloCampo === "Comunidad indígena" ? "<img src='assets/tocado-indigena.svg' alt='Tocado tejido tradicional' style='width:24px;height:24px;object-fit:contain;vertical-align:middle'> " : escapar((SIMBOLOS_CAMPO || {})[u.simboloCampo] || "") + " ") + escapar(u.nombre || "Lugar sin nombre") + "</strong>" +
+        "<ul>" + ubicaciones.map((u) => "<li><strong>" + (simboloCampoDe(u) === "Comunidad indígena" ? "<img src='" + new URL("assets/tocado-indigena.svg", document.baseURI).href + "' alt='Tocado tejido tradicional' style='width:24px;height:24px;object-fit:contain;vertical-align:middle'> " : escapar((SIMBOLOS_CAMPO || {})[simboloCampoDe(u)] || "•") + " ") + escapar(u.nombre || "Lugar sin nombre") + "</strong>" +
           (u.categoria ? " · " + escapar((CATEGORIAS[u.categoria] || {}).nombre || u.categoria) : "") +
           (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") +
           "<p><strong>Ubicación:</strong> " + escapar(u.lugar || idea.territorio || "No especificada") +
