@@ -32,6 +32,36 @@
     "San Carlos","San José de Uré","San Pelayo","Tierralta","Tuchín","Valencia",
   ];
 
+  function tipoSimboloLugar(u) {
+    const guardado = cleanText(u && (u.simboloCampo || u.simbolo));
+    const disponibles = typeof SIMBOLOS_CAMPO !== "undefined" ? SIMBOLOS_CAMPO : {};
+    if (guardado && Object.prototype.hasOwnProperty.call(disponibles, guardado)) return guardado;
+    const texto = normalizarTexto([u && u.nombre, u && u.lugar, u && u.descripcion].filter(Boolean).join(" "));
+    if (/arte|danza|folclor|baile/.test(texto)) return "Arte y danza";
+    if (/parroquia|iglesia|templo|capilla/.test(texto)) return "Iglesia";
+    if (/finca|predio|parcela/.test(texto)) return "Finca";
+    if (/ganader|hato|corral/.test(texto)) return "Ganadería";
+    if (/cultivo|agricult|siembra|campesin/.test(texto)) return "Cultivos / agricultura";
+    if (/escuela de futbol|escuela de fútbol|cancha|futbol|fútbol/.test(texto)) return "Escuela de fútbol";
+    if (/colegio|escuela|institucion educativa/.test(texto)) return "Colegio";
+    if (/comercio|tienda|banco|calle comercial/.test(texto)) return "Comercio";
+    if (/comunidad indigena|pueblo zenu|pueblo zenú|resguardo|cabildo indigena/.test(texto)) return "Comunidad indígena";
+    if (/hospital|centro de salud|puesto de salud/.test(texto)) return "Hospital / salud";
+    if (/parque|plaza/.test(texto)) return "Parque / plaza";
+    if (/memoria|victima|víctima|reparacion|reparación/.test(texto)) return "Memoria de las víctimas";
+    return "Sin símbolo específico";
+  }
+
+  function simboloLugarHTML(u) {
+    const tipo = tipoSimboloLugar(u);
+    if (tipo === "Comunidad indígena") {
+      return "<span class='revision-simbolo-lugar' role='img' aria-label='Comunidad indígena'>🪶</span>";
+    }
+    const disponibles = typeof SIMBOLOS_CAMPO !== "undefined" ? SIMBOLOS_CAMPO : {};
+    return "<span class='revision-simbolo-lugar' role='img' aria-label='" + escapeHTML(tipo) + "'>" +
+      escapeHTML(disponibles[tipo] || "📍") + "</span>";
+  }
+
   function categoriaDe(key) {
     return (typeof CATEGORIAS !== "undefined" && CATEGORIAS[key]) || {
       nombre: "Otros registros", color: "#5D6B7E", simbolo: "📍",
@@ -477,7 +507,9 @@
           const municipio = cleanText(u.municipio || u.territorio || u.zona);
           const coords = hasCoord(u.lat) && hasCoord(u.lng) ? "<p>Coordenadas: " + escapeHTML(u.lat) + ", " + escapeHTML(u.lng) + "</p>" : "";
           const detalleHtml = textoExpandibleHtml(detalle);
-          return "<li><strong>" + escapeHTML(nombre) + "</strong>" +
+          const tipoLugar = tipoSimboloLugar(u);
+          return "<li><strong class='tema-card__nombre-lugar'>" + simboloLugarHTML(u) + " " + escapeHTML(nombre) + "</strong>" +
+            "<p class='tema-card__simbolo-lugar'><small><strong>Símbolo del lugar:</strong> " + escapeHTML(tipoLugar) + "</small></p>" +
             (municipio ? "<span class='tema-card__lugar'> · " + escapeHTML(municipio) + "</span>" : "") +
             detalleHtml + coords + "</li>";
         }).join("") + "</ul></div>" : "<p class='tema-card__sin-ubicaciones'>Este tema no tiene ubicaciones asociadas guardadas.</p>";
