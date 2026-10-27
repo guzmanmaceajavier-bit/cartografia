@@ -1049,3 +1049,51 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .tema-descripcion__detalle summary { min-height: 34px; padding: 7px 11px; }
   .tema-descripcion__detalle p { padding: 10px; font-size: .8rem; }
 }
+
+
+/* Listas de lugares incluidas dentro de una descripción: presentación ordenada */
+.tema-descripcion-lista {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0 4px;
+}
+.tema-descripcion-lugar {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid #e0e8e2;
+  border-radius: 12px;
+  background: #fbfdfb;
+  min-width: 0;
+}
+.tema-descripcion-lugar__numero {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: #e7f1e9;
+  color: #286541;
+  font-size: .8rem;
+  font-weight: 800;
+}
+.tema-descripcion-lugar__cuerpo { min-width: 0; }
+.tema-descripcion-lugar__cuerpo h5 {
+  margin: 2px 0 7px;
+  color: #263b2d;
+  font-size: .93rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.tema-descripcion-lugar__cuerpo p {
+  margin: 0;
+  color: #4b5b50;
+  font-size: .83rem;
+  line-height: 1.75;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .tema-descripcion-lugar { padding: 10px; gap: 8px; }
+}
