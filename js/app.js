@@ -3244,13 +3244,20 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const fecha = new Date().toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
     const config = estado.config || {};
     const categorias = Object.keys(CATEGORIAS).filter((k) => k === "delimitacion" || !catOculta(k)).sort((a,b) => CATEGORIAS[a].seccion-CATEGORIAS[b].seccion);
-    const leyenda = categorias.map((k) => {
+    const leyendaCategorias = categorias.map((k) => {
       const c = CATEGORIAS[k];
       return "<li><span class='imp-simbolo' style='background:" + escapar(c.color) + "'>" + escapar(c.simbolo) + "</span><span><strong>" + escapar(c.seccion + ". " + c.nombre) + "</strong> — " + escapar(c.descripcion || "") + "</span></li>";
     }).join("");
+    const simbolosLugar = (typeof SIMBOLOS_CAMPO !== "undefined" && SIMBOLOS_CAMPO) ? Object.entries(SIMBOLOS_CAMPO).map(([nombre, simbolo]) => {
+      const muestra = nombre === "Comunidad indígena"
+        ? "<img src='assets/tocado-indigena.svg' alt='Tocado tejido tradicional' style='width:26px;height:26px;object-fit:contain;vertical-align:middle'>"
+        : escapar(simbolo);
+      return "<li><span class='imp-simbolo imp-simbolo-lugar'>" + muestra + "</span><span><strong>" + escapar(nombre) + "</strong> — Símbolo específico del lugar</span></li>";
+    }).join("") : "";
+    const leyenda = leyendaCategorias + simbolosLugar;
     const listaFichas = fichas.length ? fichas.map((f) => {
       const c = CATEGORIAS[f.categoria] || {};
-      return "<li><strong>" + escapar(f.nombre) + "</strong> (" + escapar(c.seccion || "") + ". " + escapar(c.nombre || f.categoria) + ")" +
+      return "<li><strong>" + (f.simboloCampo === "Comunidad indígena" ? "<img src='assets/tocado-indigena.svg' alt='Tocado tejido tradicional' style='width:24px;height:24px;object-fit:contain;vertical-align:middle'> " : escapar((SIMBOLOS_CAMPO || {})[f.simboloCampo] || "") + " ") + escapar(f.nombre) + "</strong> (" + escapar(c.seccion || "") + ". " + escapar(c.nombre || f.categoria) + ")" +
         "<p>" + escapar(f.descripcion) + "</p>" +
         (f.historia ? "<p><strong>Memoria/contexto:</strong> " + escapar(f.historia) + "</p>" : "") +
         (f.aporte ? "<p><strong>Aporte a la paz:</strong> " + escapar(f.aporte) + "</p>" : "") +
@@ -3265,7 +3272,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       if (!ubicaciones.length) return "";
       return "<li><h3>" + escapar(idea.nombre || "Narrativa temática") + "</h3>" +
         (idea.descripcion ? "<p>" + escapar(idea.descripcion) + "</p>" : "") +
-        "<ul>" + ubicaciones.map((u) => "<li><strong>" + escapar(u.nombre || "Lugar sin nombre") + "</strong>" +
+        "<ul>" + ubicaciones.map((u) => "<li><strong>" + (u.simboloCampo === "Comunidad indígena" ? "<img src='assets/tocado-indigena.svg' alt='Tocado tejido tradicional' style='width:24px;height:24px;object-fit:contain;vertical-align:middle'> " : escapar((SIMBOLOS_CAMPO || {})[u.simboloCampo] || "") + " ") + escapar(u.nombre || "Lugar sin nombre") + "</strong>" +
           (u.categoria ? " · " + escapar((CATEGORIAS[u.categoria] || {}).nombre || u.categoria) : "") +
           (u.descripcion ? "<p>" + escapar(u.descripcion) + "</p>" : "") +
           "<p><strong>Ubicación:</strong> " + escapar(u.lugar || idea.territorio || "No especificada") +
@@ -3274,7 +3281,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     }).join("");
     const reflexion = estado.reflexion || {};
     area.innerHTML = "<article class='imp-portada'><h1>Cartografía de paz</h1><h2>" + escapar(config.municipio || "Sahagún") + (config.departamento ? ", " + escapar(config.departamento) : ", Córdoba") + "</h2><p>Informe cartográfico · " + escapar(fecha) + "</p><p>Registros incluidos: " + fichas.length + " · Narrativas: " + ideas.length + "</p></article>" +
-      "<section class='imp-pagina'><h2>Convenciones y categorías visibles</h2><ul class='imp-leyenda'>" + leyenda + "</ul></section>" +
+      "<section class='imp-pagina'><h2>Convenciones y símbolos del mapa</h2><p>El color y símbolo de categoría identifica el componente de la cartografía; el símbolo específico identifica el tipo de lugar. Son convenciones distintas.</p><h3>Categorías de la cartografía</h3><ul class='imp-leyenda'>" + leyendaCategorias + "</ul><h3>Símbolos específicos del lugar</h3><ul class='imp-leyenda'>" + simbolosLugar + "</ul></section>" +
       "<section class='imp-pagina'><h2>Registros cartográficos</h2><ol class='imp-lista'>" + listaFichas + "</ol></section>" +
       (listaIdeas ? "<section class='imp-pagina'><h2>Narrativas y lugares asociados</h2><ol class='imp-lista'>" + listaIdeas + "</ol></section>" : "") +
       "<section class='imp-pagina'><h2>Lectura y reflexión del territorio</h2>" +
