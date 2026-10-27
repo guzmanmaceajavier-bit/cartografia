@@ -2595,14 +2595,14 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
 
       // Si una sola descripción contiene varios lugares numerados, separarlos visualmente.
       // Esto organiza contenido existente sin modificar ni perder el texto original.
-      const normalizada = desc.replace(/[ \\t]+(?=\\d{1,2}\\.\\s+)/g, "\\n");
-      const partes = normalizada.split(/(?=^\\d{1,2}\\.\\s+)/m).map((p) => p.trim()).filter(Boolean);
-      const esListaLugares = partes.length > 1 && partes.every((p) => /^\\d{1,2}\\.\\s+/.test(p));
+      const normalizada = desc.replace(/[ \t]+(?=\d{1,2}\.\s+)/g, "\n");
+      const partes = normalizada.split(/(?=^\d{1,2}\.\s+)/m).map((p) => p.trim()).filter(Boolean);
+      const esListaLugares = partes.length > 1 && partes.every((p) => /^\d{1,2}\.\s+/.test(p));
       if (esListaLugares) {
         return "<div class='tema-descripcion-lista'>" + partes.map((parte, indice) => {
-          const contenido = parte.replace(/^\\d{1,2}\\.\\s+/, "").trim();
-          const corte = contenido.search(/(?:Ubicación|Lugar|Fecha relevante|Categoría|Significado de memoria|Descripción|Fuente)\\s*:/i);
-          const titulo = (corte > 0 ? contenido.slice(0, corte) : contenido.split(/[.!?\\n]/)[0]).trim();
+          const contenido = parte.replace(/^\d{1,2}\.\s+/, "").trim();
+          const corte = contenido.search(/(?:Ubicación|Lugar|Fecha relevante|Categoría|Significado de memoria|Descripción|Fuente)\s*:/i);
+          const titulo = (corte > 0 ? contenido.slice(0, corte) : contenido.split(/[.!?\n]/)[0]).trim();
           return "<article class='tema-descripcion-lugar'><span class='tema-descripcion-lugar__numero'>" + (indice + 1) + "</span><div class='tema-descripcion-lugar__cuerpo'><h5>" + escapar(titulo || ("Lugar " + (indice + 1))) + "</h5><p>" + escapar(contenido) + "</p></div></article>";
         }).join("") + "</div>";
       }
