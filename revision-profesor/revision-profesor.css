@@ -363,3 +363,15 @@ img, svg, canvas, iframe { max-width:100%; }
   object-fit: contain;
   vertical-align: middle;
 }
+
+
+/* Vista amplia del mapa para leer y capturar el departamento completo. */
+#mapaRevision {
+  min-height: clamp(560px, 70vh, 860px);
+}
+@media (max-width: 1000px) {
+  #mapaRevision { min-height: clamp(500px, 68vh, 760px); }
+}
+@media (max-width: 620px) {
+  #mapaRevision { min-height: clamp(420px, 72vh, 620px); }
+}
