@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Vista de revisión · Cartografía de Paz</title>
   <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="/revision-profesor/revision-profesor.css?v=cordoba-encuadre-20261027">
+  <link rel="stylesheet" href="/revision-profesor/revision-profesor.css?v=panel-lateral-ajuste-mapa-20261028">
 </head>
 <body>
   <header class="revision-cabecera">
@@ -46,7 +46,7 @@
             <div><span class="panel-ceja">EXPLORAR</span><h2>Cuadro de convenciones</h2></div>
             <div class="panel-acciones">
               <button id="btnTodas" type="button" class="btn-enlace">Todas</button>
-              <button id="btnConvenciones" type="button" class="btn-panel" aria-expanded="true" aria-controls="contenidoConvenciones">Ocultar convenciones −</button>
+              
             </div>
           </div>
           <div id="contenidoConvenciones">
@@ -65,13 +65,14 @@
             <div><span class="panel-ceja">MAPA INTERACTIVO</span><h2>Territorio y registros</h2></div>
             <span class="mapa-ayuda">Seleccione un marcador para consultar su ficha</span>
           </div>
-          <div class="mapa-controles" role="group" aria-label="Tamaño y encuadre del mapa">
+          <div class="mapa-controles" role="group" aria-label="Controles del mapa">
             <div class="mapa-controles__acciones">
-              <button id="btnMostrarConvenciones" type="button" hidden>Mostrar convenciones</button>
-              <button id="btnVerCordoba" type="button">Volver a Córdoba</button>
+              <button id="btnPanelLateral" type="button" aria-expanded="true" aria-controls="panelConvenciones" title="Mostrar u ocultar el menú de convenciones"><span aria-hidden="true">☷</span><span class="control-texto">Convenciones</span></button>
+              <button id="btnVerCordoba" type="button" title="Encuadrar el departamento de Córdoba">Volver a Córdoba</button>
             </div>
           </div>
           <div id="mapaRevision" role="application" aria-label="Mapa de la cartografía de paz"></div>
+          <div id="tiradorMapa" class="mapa-redimensionador" role="separator" aria-orientation="horizontal" aria-label="Arrastre para ajustar la altura del mapa" title="Arrastre hacia arriba o abajo para ajustar el alto del mapa" tabindex="0"><span aria-hidden="true"></span><small>Ajustar tamaño del mapa</small></div>
           <div class="mapa-pie"><span>© OpenStreetMap contributors</span><span>La ubicación aproximada no equivale a la confirmación de un hecho.</span></div>
         </section>
       </div>
@@ -105,8 +106,10 @@
     </section>
   </main>
 
+  <button id="btnVolverArriba" class="volver-arriba" type="button" aria-label="Volver arriba" title="Volver arriba" hidden><span aria-hidden="true">↑</span><small>Volver arriba</small></button>
+
   <script src="/vendor/leaflet/leaflet.js"></script>
   <script src="/js/data.js"></script>
-  <script src="/revision-profesor/revision-profesor.js?v=boton-por-ubicacion-20261027"></script>
+  <script src="/revision-profesor/revision-profesor.js?v=panel-lateral-ajuste-mapa-20261028"></script>
 </body>
 </html>
