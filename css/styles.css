@@ -2496,3 +2496,39 @@ body.dibujando .leaflet-container { cursor: crosshair; }
 @media (max-width: 760px) {
   .estado-nube-global { padding: 9px 11px; font-size: .78rem; }
 }
+
+
+/* Iconos vectoriales de la leyenda: se conservan en vista previa e impresión/PDF. */
+.imp-icono-svg {
+  display: inline-block;
+  width: 25px;
+  min-width: 25px;
+  height: 25px;
+  padding: 3px;
+  border-radius: 5px;
+  vertical-align: middle;
+  flex: none;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.vista-previa .imp-icono-svg {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+}
+@media print {
+  .imp-icono-svg {
+    width: 23pt !important;
+    min-width: 23pt !important;
+    height: 23pt !important;
+    padding: 2pt !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+  .imp-leyenda li {
+    align-items: flex-start !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 7pt !important;
+  }
+}
