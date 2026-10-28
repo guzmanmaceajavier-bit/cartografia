@@ -3339,6 +3339,26 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
       (reflexion.tensiones ? "<p><strong>Tensiones y afectaciones:</strong> " + escapar(reflexion.tensiones) + "</p>" : "") +
       (reflexion.oportunidad ? "<p><strong>Oportunidades para la paz:</strong> " + escapar(reflexion.oportunidad) + "</p>" : "") +
       "<p class='imp-pie'>Informe generado desde la Cartografía de paz. Verifique las fuentes y proteja datos sensibles antes de compartir.</p></section>";
+    // Incluir una copia estática del mapa actual en el informe: conserva teselas y símbolos.
+    const mapaOriginalPDF = $("#mapa");
+    if (mapaOriginalPDF) {
+      const paginaMapa = document.createElement("section");
+      paginaMapa.className = "imp-pagina imp-pagina-mapa";
+      paginaMapa.innerHTML = "<h2>Mapa del territorio</h2><p>Vista del mapa y de los símbolos registrados al generar este documento.</p><div class='imp-mapa-clon'></div>";
+      const mapaClonPDF = mapaOriginalPDF.cloneNode(true);
+      mapaClonPDF.id = "mapaImpresionClon";
+      mapaClonPDF.classList.add("imp-mapa-clon__contenido");
+      mapaClonPDF.style.width = "100%";
+      mapaClonPDF.style.height = "150mm";
+      mapaClonPDF.style.position = "relative";
+      mapaClonPDF.style.inset = "auto";
+      mapaClonPDF.style.overflow = "hidden";
+      mapaClonPDF.querySelectorAll(".leaflet-control-container, .leaflet-control-zoom, .leaflet-control-attribution").forEach((el) => el.remove());
+      const destinoMapaPDF = paginaMapa.querySelector(".imp-mapa-clon");
+      destinoMapaPDF.appendChild(mapaClonPDF);
+      const portadaPDF = area.querySelector(".imp-portada");
+      if (portadaPDF) portadaPDF.insertAdjacentElement("afterend", paginaMapa);
+    }
     if (vistaPrevia) {
       const cuerpo = $("#vistaPreviaCuerpo");
       if (!cuerpo) { toast("No se encontró el panel de vista previa.", "error"); return; }
