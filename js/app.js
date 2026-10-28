@@ -3263,6 +3263,20 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     lector.readAsText(archivo);
   }
 
+  function simboloCategoriaPDF(clave, categoria) {
+    const color = escapar((categoria && categoria.color) || '#426A91');
+    const formas = {
+      delimitacion: "<path d='M5 7 L12 3 L19 7 L18 17 L10 21 L4 15 Z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/>",
+      lugares: "<path d='M12 21 C10 17 5 13 5 9 A7 7 0 1 1 19 9 C19 13 14 17 12 21Z' fill='white'/><circle cx='12' cy='9' r='2.5' fill='" + color + "'/>",
+      afectaciones: "<path d='M12 3 L22 21 H2 Z' fill='white'/><path d='M12 8 V14 M12 17 V18' stroke='" + color + "' stroke-width='2.2' stroke-linecap='round'/>",
+      actores: "<circle cx='8' cy='8' r='3' fill='white'/><circle cx='16' cy='8' r='3' fill='white'/><path d='M2 19 Q2 12 8 12 Q14 12 14 19Z M10 19 Q10 12 16 12 Q22 12 22 19Z' fill='white'/>",
+      resistencia: "<path d='M5 12 L5 8 Q5 6 7 7 L8 10 L8 5 Q8 3 10 5 L10 10 L11 4 Q13 3 13 6 L13 10 L15 6 Q17 6 16 9 L16 13 L19 11 Q21 11 19 14 L15 19 L8 19 Z' fill='white'/>",
+      memoria: "<path d='M12 3 C7 7 11 9 8 12 C5 16 8 20 12 20 C17 20 19 16 16 12 C14 9 15 7 12 3Z' fill='white'/><path d='M12 10 V17' stroke='" + color + "' stroke-width='1.5'/>",
+      esperanza: "<path d='M12 20 V11 M12 14 Q4 14 5 6 Q13 6 12 14 M12 11 Q12 3 20 4 Q21 12 12 14' fill='white' stroke='white' stroke-width='1.5' stroke-linejoin='round'/>",
+      retos: "<path d='M4 8 L12 3 L20 8 L20 17 L12 21 L4 17 Z' fill='white'/><path d='M7 10 H17 M7 14 H17' stroke='" + color + "' stroke-width='2'/>",
+    };
+    return "<svg class='imp-icono-svg' viewBox='0 0 24 24' aria-hidden='true' style='background:" + color + "'>" + (formas[clave] || "<circle cx='12' cy='12' r='7' fill='white'/>") + "</svg>";
+  }
   function imprimirPaginado(opciones) {
     const vistaPrevia = !!(opciones && opciones.vistaPrevia);
     const area = $("#areaImpresion");
@@ -3274,7 +3288,8 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     const categorias = Object.keys(CATEGORIAS).filter((k) => k === "delimitacion" || !catOculta(k)).sort((a,b) => CATEGORIAS[a].seccion-CATEGORIAS[b].seccion);
     const leyendaCategorias = categorias.map((k) => {
       const c = CATEGORIAS[k];
-      return "<li><span class='imp-simbolo' style='background:" + escapar(c.color) + "'>" + escapar(c.simbolo) + "</span><span><strong>" + escapar(c.seccion + ". " + c.nombre) + "</strong> — " + escapar(c.descripcion || "") + "</span></li>";
+      const descripcion = (c.descripcion || '').replace(/^\\S+\\s*/, '');
+      return "<li>" + simboloCategoriaPDF(k, c) + "<span><strong>" + escapar(c.seccion + ". " + c.nombre) + "</strong> — " + escapar(descripcion) + "</span></li>";
     }).join("");
     const simbolosLugar = (typeof SIMBOLOS_CAMPO !== "undefined" && SIMBOLOS_CAMPO) ? Object.entries(SIMBOLOS_CAMPO).map(([nombre, simbolo]) => {
       const muestra = nombre === "Comunidad indígena"
