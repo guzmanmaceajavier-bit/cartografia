@@ -50,10 +50,10 @@ const CATEGORIAS = {
   },
   retos: {
     seccion: 8,
-    nombre: "Retos actuales para la construcción de paz",
+    nombre: "Categoría desactivada",
     color: "#C2410C",
     simbolo: "🚧",
-    descripcion: "🚧 La barrera señala los retos que todavía dificultan la construcción de paz, como riesgos para la población, amenazas, falta de protección, exclusión o barreras para acceder a derechos y servicios. Sirve para reconocer qué necesita atención y qué respuestas hacen falta. Si el registro proviene de una alerta o informe de riesgo, debe consultarse esa fuente: advertir un riesgo no demuestra que haya ocurrido un hecho en todos los lugares mencionados."
+    descripcion: "Esta categoría está desactivada en la interfaz de la cartografía."
   }
 };
 
@@ -144,7 +144,6 @@ const SIMBOLOS_CAMPO = {
   "Resistencia y paz": "✊",
   "Esperanza / reconciliación": "☀️",
   "Retos para la construcción de paz": "🧱",
-  "Retos actuales para la construcción de paz": "🚧",
 };
 
 const CONFIGURACION_INICIAL = {
