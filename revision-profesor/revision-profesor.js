@@ -664,6 +664,9 @@
     const mostrar = panelConvenciones.hidden;
     panelConvenciones.hidden = !mostrar;
     layoutRevision.classList.toggle("revision-layout--sin-convenciones", !mostrar);
+    // Al cambiar el panel, limpiar el ancho manual para que el marco se adapte al espacio disponible.
+    layoutRevision.style.gridTemplateColumns = "";
+    if (panelMapa) panelMapa.style.width = "";
     btnPanelLateral.setAttribute("aria-expanded", String(mostrar));
     btnPanelLateral.title = mostrar ? "Ocultar el menú de convenciones" : "Mostrar el menú de convenciones";
     btnPanelLateral.innerHTML = mostrar
