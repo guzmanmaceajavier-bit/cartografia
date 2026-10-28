@@ -459,3 +459,36 @@ img, svg, canvas, iframe { max-width:100%; }
  #mapaRevision { height:62vh; min-height:320px; }
  .volver-arriba { right:12px; bottom:12px; padding:10px 12px; }
 }
+
+
+/* Ajuste real del marco del mapa: arrastre en dos ejes, con recalculo de Leaflet. */
+.revision-layout { align-items:start; }
+.revision-layout--sin-convenciones { grid-template-columns:minmax(0,1fr); }
+.revision-layout--sin-convenciones .revision-mapa-panel { width:100%; }
+.revision-mapa-panel { min-width:0; max-width:none; }
+#mapaRevision { width:100%; height:clamp(520px,68vh,820px); min-height:300px; resize:none; overflow:hidden; flex:0 0 auto; }
+.mapa-redimensionador {
+  position:relative; width:100%; min-height:34px; box-sizing:border-box;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding:7px 14px; margin:0; border:1px solid #d6e1e8; border-top:0;
+  border-radius:0 0 12px 12px; background:linear-gradient(135deg,#f8fafc,#eaf1f5);
+  color:#526a7b; cursor:nwse-resize; touch-action:none; user-select:none;
+}
+.mapa-redimensionador::after {
+  content:""; position:absolute; right:7px; bottom:6px; width:15px; height:15px;
+  border-right:3px solid #7892a2; border-bottom:3px solid #7892a2; border-radius:0 0 3px 0;
+}
+.mapa-redimensionador > span { width:34px; height:4px; border-radius:9px; background:#9aafbd; }
+.mapa-redimensionador small { font-size:.72rem; }
+.ajustando-marco-mapa, .ajustando-marco-mapa * { cursor:nwse-resize !important; user-select:none !important; }
+.revision-layout--sin-convenciones { overflow-x:auto; }
+@media (max-width:1000px) {
+ .revision-layout { grid-template-columns:minmax(0,1fr); }
+ .revision-layout .revision-panel { order:2; }
+ .revision-layout .revision-mapa-panel { order:1; }
+}
+@media (max-width:620px) {
+ .revision-mapa-panel { max-width:100%; }
+ #mapaRevision { height:62vh; min-height:300px; }
+ .mapa-redimensionador { min-height:40px; }
+}
