@@ -404,7 +404,7 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!Array.isArray(datos.leyenda.ocultas)) datos.leyenda.ocultas = [];
     if (!Array.isArray(datos.leyenda.custom)) datos.leyenda.custom = [];
     if (!datos.leyenda.cats || typeof datos.leyenda.cats !== "object") datos.leyenda.cats = {};
-    const mapaCat = { lugar: "lugares", territorio: "lugares", conflicto: "afectaciones", actor: "actores", reto: "retos" };
+    // La categoría 08 se conserva en los datos, pero se retira de las convenciones y vistas temáticas.\n    // No se borran fichas ni ubicaciones existentes; solo se oculta la categoría.\n    if (!datos.leyenda.cats.retos || typeof datos.leyenda.cats.retos !== "object") datos.leyenda.cats.retos = {};\n    if (typeof datos.leyenda.cats.retos.oculta !== "boolean") datos.leyenda.cats.retos.oculta = true;\n    const mapaCat = { lugar: "lugares", territorio: "lugares", conflicto: "afectaciones", actor: "actores", reto: "retos" };
     datos.fichas.forEach((f) => {
       if (mapaCat[f.categoria]) f.categoria = mapaCat[f.categoria];
       if (!CATEGORIAS[f.categoria]) f.categoria = "lugares";
