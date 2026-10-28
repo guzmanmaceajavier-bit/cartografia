@@ -658,6 +658,7 @@
   const btnPanelLateral = $("#btnPanelLateral");
   const panelConvenciones = $("#panelConvenciones");
   const layoutRevision = document.querySelector(".revision-layout");
+  const panelMapa = document.querySelector(".revision-mapa-panel");
   btnPanelLateral?.addEventListener("click", () => {
     if (!panelConvenciones || !layoutRevision) return;
     const mostrar = panelConvenciones.hidden;
@@ -668,42 +669,63 @@
     btnPanelLateral.innerHTML = mostrar
       ? '<span aria-hidden="true">☷</span><span class="control-texto">Convenciones</span>'
       : '<span aria-hidden="true">☰</span><span class="control-texto">Mostrar convenciones</span>';
-    if (mapa) setTimeout(() => mapa.invalidateSize({ pan: false }), 240);
+    requestAnimationFrame(() => { if (mapa) mapa.invalidateSize({ pan: false }); });
+    setTimeout(() => { if (mapa) mapa.invalidateSize({ pan: false }); }, 300);
   });
 
+  // Redimensiona el marco completo del mapa con el cursor, no solo un botón de alto.
   const contenedorMapa = $("#mapaRevision");
   const tiradorMapa = $("#tiradorMapa");
-  if (contenedorMapa && tiradorMapa) {
-    let inicioY = 0;
-    let alturaInicial = 0;
-    let arrastrando = false;
+  if (contenedorMapa && tiradorMapa && panelMapa) {
+    let drag = null;
+    const limite = (n, min, max) => Math.max(min, Math.min(max, n));
     tiradorMapa.addEventListener("pointerdown", (event) => {
-      arrastrando = true;
-      inicioY = event.clientY;
-      alturaInicial = contenedorMapa.getBoundingClientRect().height;
+      if (event.button !== 0 && event.pointerType === "mouse") return;
+      const rect = panelMapa.getBoundingClientRect();
+      drag = { x: event.clientX, y: event.clientY, width: rect.width, height: rect.height };
       tiradorMapa.setPointerCapture?.(event.pointerId);
-      document.body.classList.add("ajustando-alto-mapa");
+      document.body.classList.add("ajustando-marco-mapa");
       event.preventDefault();
     });
     tiradorMapa.addEventListener("pointermove", (event) => {
-      if (!arrastrando) return;
-      const altura = Math.max(320, Math.min(window.innerHeight * 1.25, alturaInicial + event.clientY - inicioY));
-      contenedorMapa.style.height = Math.round(altura) + "px";
+      if (!drag) return;
+      const anchoMax = Math.max(420, window.innerWidth - 32);
+      const altoMax = Math.max(420, window.innerHeight * 1.6);
+      const ancho = limite(drag.width + event.clientX - drag.x, 420, anchoMax);
+      const alto = limite(drag.height + event.clientY - drag.y, 420, altoMax);
+      panelMapa.style.width = Math.round(ancho) + "px";
+      panelMapa.style.height = Math.round(alto) + "px";
+      contenedorMapa.style.height = Math.max(300, alto - 155) + "px";
+      if (layoutRevision && !panelConvenciones.hidden) {
+        const sidebar = panelConvenciones.getBoundingClientRect().width;
+        layoutRevision.style.gridTemplateColumns = Math.round(sidebar) + "px " + Math.round(ancho) + "px";
+      } else if (layoutRevision) {
+        layoutRevision.style.gridTemplateColumns = Math.round(ancho) + "px";
+      }
       if (mapa) mapa.invalidateSize({ pan: false });
     });
-    const finalizarAjuste = () => {
-      if (!arrastrando) return;
-      arrastrando = false;
-      document.body.classList.remove("ajustando-alto-mapa");
-      if (mapa) setTimeout(() => mapa.invalidateSize({ pan: false }), 80);
+    const terminarDrag = () => {
+      if (!drag) return;
+      drag = null;
+      document.body.classList.remove("ajustando-marco-mapa");
+      if (mapa) setTimeout(() => mapa.invalidateSize({ pan: false }), 120);
     };
-    tiradorMapa.addEventListener("pointerup", finalizarAjuste);
-    tiradorMapa.addEventListener("pointercancel", finalizarAjuste);
+    tiradorMapa.addEventListener("pointerup", terminarDrag);
+    tiradorMapa.addEventListener("pointercancel", terminarDrag);
+    tiradorMapa.addEventListener("lostpointercapture", terminarDrag);
     tiradorMapa.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+      if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) return;
       event.preventDefault();
-      const current = contenedorMapa.getBoundingClientRect().height;
-      contenedorMapa.style.height = Math.max(320, Math.min(window.innerHeight * 1.25, current + (event.key === "ArrowDown" ? 40 : -40))) + "px";
+      const rect = panelMapa.getBoundingClientRect();
+      const dx = event.key === "ArrowRight" ? 40 : event.key === "ArrowLeft" ? -40 : 0;
+      const dy = event.key === "ArrowDown" ? 40 : event.key === "ArrowUp" ? -40 : 0;
+      const fake = { pointerType:"keyboard", clientX:0, clientY:0, preventDefault(){} };
+      const w = limite(rect.width + dx, 420, window.innerWidth - 32);
+      const h = limite(rect.height + dy, 420, window.innerHeight * 1.6);
+      panelMapa.style.width = w + "px";
+      panelMapa.style.height = h + "px";
+      contenedorMapa.style.height = Math.max(300, h - 155) + "px";
+      if (layoutRevision) layoutRevision.style.gridTemplateColumns = panelConvenciones.hidden ? w+"px" : panelConvenciones.getBoundingClientRect().width+"px "+w+"px";
       if (mapa) mapa.invalidateSize({ pan: false });
     });
   }
