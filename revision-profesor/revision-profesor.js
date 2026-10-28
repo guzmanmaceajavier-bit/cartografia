@@ -654,33 +654,66 @@
     $("#accesoError").textContent = "";
   }
 
-  const btnConvenciones = $("#btnConvenciones");
-  const contenidoConvenciones = $("#contenidoConvenciones");
+
+  const btnPanelLateral = $("#btnPanelLateral");
   const panelConvenciones = $("#panelConvenciones");
   const layoutRevision = document.querySelector(".revision-layout");
-  const btnMostrarConvenciones = $("#btnMostrarConvenciones");
-
-  function cambiarVisibilidadConvenciones(mostrar) {
-    if (!panelConvenciones || !layoutRevision || !contenidoConvenciones) return;
-    layoutRevision.classList.toggle("revision-layout--sin-convenciones", !mostrar);
+  btnPanelLateral?.addEventListener("click", () => {
+    if (!panelConvenciones || !layoutRevision) return;
+    const mostrar = panelConvenciones.hidden;
     panelConvenciones.hidden = !mostrar;
-    if (btnMostrarConvenciones) btnMostrarConvenciones.hidden = mostrar;
-    if (btnConvenciones) {
-      btnConvenciones.setAttribute("aria-expanded", String(mostrar));
-      btnConvenciones.textContent = mostrar ? "Ocultar convenciones −" : "Mostrar convenciones +";
-      btnConvenciones.setAttribute("aria-label", mostrar ? "Ocultar cuadro de convenciones y ampliar mapa" : "Mostrar cuadro de convenciones");
-    }
-    if (mapa) setTimeout(() => mapa.invalidateSize({ pan: false }), 220);
-  }
-  btnConvenciones?.addEventListener("click", () => cambiarVisibilidadConvenciones(false));
-  btnMostrarConvenciones?.addEventListener("click", () => cambiarVisibilidadConvenciones(true));
+    layoutRevision.classList.toggle("revision-layout--sin-convenciones", !mostrar);
+    btnPanelLateral.setAttribute("aria-expanded", String(mostrar));
+    btnPanelLateral.title = mostrar ? "Ocultar el menú de convenciones" : "Mostrar el menú de convenciones";
+    btnPanelLateral.innerHTML = mostrar
+      ? '<span aria-hidden="true">☷</span><span class="control-texto">Convenciones</span>'
+      : '<span aria-hidden="true">☰</span><span class="control-texto">Mostrar convenciones</span>';
+    if (mapa) setTimeout(() => mapa.invalidateSize({ pan: false }), 240);
+  });
 
   const contenedorMapa = $("#mapaRevision");
-  if (contenedorMapa && typeof ResizeObserver !== "undefined") {
-    const observadorMapa = new ResizeObserver(() => {
+  const tiradorMapa = $("#tiradorMapa");
+  if (contenedorMapa && tiradorMapa) {
+    let inicioY = 0;
+    let alturaInicial = 0;
+    let arrastrando = false;
+    tiradorMapa.addEventListener("pointerdown", (event) => {
+      arrastrando = true;
+      inicioY = event.clientY;
+      alturaInicial = contenedorMapa.getBoundingClientRect().height;
+      tiradorMapa.setPointerCapture?.(event.pointerId);
+      document.body.classList.add("ajustando-alto-mapa");
+      event.preventDefault();
+    });
+    tiradorMapa.addEventListener("pointermove", (event) => {
+      if (!arrastrando) return;
+      const altura = Math.max(320, Math.min(window.innerHeight * 1.25, alturaInicial + event.clientY - inicioY));
+      contenedorMapa.style.height = Math.round(altura) + "px";
       if (mapa) mapa.invalidateSize({ pan: false });
     });
-    observadorMapa.observe(contenedorMapa);
+    const finalizarAjuste = () => {
+      if (!arrastrando) return;
+      arrastrando = false;
+      document.body.classList.remove("ajustando-alto-mapa");
+      if (mapa) setTimeout(() => mapa.invalidateSize({ pan: false }), 80);
+    };
+    tiradorMapa.addEventListener("pointerup", finalizarAjuste);
+    tiradorMapa.addEventListener("pointercancel", finalizarAjuste);
+    tiradorMapa.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+      event.preventDefault();
+      const current = contenedorMapa.getBoundingClientRect().height;
+      contenedorMapa.style.height = Math.max(320, Math.min(window.innerHeight * 1.25, current + (event.key === "ArrowDown" ? 40 : -40))) + "px";
+      if (mapa) mapa.invalidateSize({ pan: false });
+    });
+  }
+
+  const btnVolverArriba = $("#btnVolverArriba");
+  btnVolverArriba?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  if (btnVolverArriba) {
+    const actualizarBotonArriba = () => { btnVolverArriba.hidden = window.scrollY < 420; };
+    window.addEventListener("scroll", actualizarBotonArriba, { passive: true });
+    actualizarBotonArriba();
   }
 
   $("#btnSalir").addEventListener("click", () => window.location.reload());
