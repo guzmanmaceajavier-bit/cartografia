@@ -41,18 +41,23 @@
       </div>
 
       <div class="revision-layout">
-        <aside class="revision-panel">
+        <aside class="revision-panel" id="panelConvenciones">
           <div class="panel-titulo">
             <div><span class="panel-ceja">EXPLORAR</span><h2>Cuadro de convenciones</h2></div>
-            <button id="btnTodas" type="button" class="btn-enlace">Todas</button>
+            <div class="panel-acciones">
+              <button id="btnTodas" type="button" class="btn-enlace">Todas</button>
+              <button id="btnConvenciones" type="button" class="btn-panel" aria-expanded="true" aria-controls="contenidoConvenciones">Minimizar −</button>
+            </div>
           </div>
-          <p class="panel-ayuda">Active las categorías que desea observar. El mapa se actualizará automáticamente.</p>
-          <div id="filtrosCategorias" class="filtros-categorias"></div>
-          <div class="filtro-separador"></div>
-          <label class="filtro-figuras"><input type="checkbox" id="verFiguras" checked> Mostrar figuras dibujadas</label>
-          <label class="busqueda-label" for="buscarRegistro">Buscar en la cartografía</label>
-          <input id="buscarRegistro" class="busqueda-registro" type="search" placeholder="Nombre, lugar o palabra clave">
-          <p id="estadoResultados" class="estado-resultados" aria-live="polite"></p>
+          <div id="contenidoConvenciones">
+            <p class="panel-ayuda">Active las categorías que desea observar. El mapa se actualizará automáticamente.</p>
+            <div id="filtrosCategorias" class="filtros-categorias"></div>
+            <div class="filtro-separador"></div>
+            <label class="filtro-figuras"><input type="checkbox" id="verFiguras" checked> Mostrar figuras dibujadas</label>
+            <label class="busqueda-label" for="buscarRegistro">Buscar en la cartografía</label>
+            <input id="buscarRegistro" class="busqueda-registro" type="search" placeholder="Nombre, lugar o palabra clave">
+            <p id="estadoResultados" class="estado-resultados" aria-live="polite"></p>
+          </div>
         </aside>
 
         <section class="revision-mapa-panel" aria-label="Mapa interactivo">
@@ -60,9 +65,14 @@
             <div><span class="panel-ceja">MAPA INTERACTIVO</span><h2>Territorio y registros</h2></div>
             <span class="mapa-ayuda">Seleccione un marcador para consultar su ficha</span>
           </div>
-          <div class="mapa-controles" role="group" aria-label="Encuadre del mapa">
-            <span>Use los controles + y − del mapa para acercar o alejar.</span>
-            <button id="btnVerCordoba" type="button">Volver a Córdoba</button>
+          <div class="mapa-controles" role="group" aria-label="Tamaño y encuadre del mapa">
+            <span>Ajuste el alto del mapa arrastrando su borde inferior o use los controles.</span>
+            <div class="mapa-controles__acciones">
+              <button id="btnMapaCompacto" type="button" title="Reducir altura del mapa">Minimizar mapa −</button>
+              <button id="btnMapaAmpliar" type="button" title="Aumentar altura del mapa">Ampliar mapa +</button>
+              <button id="btnMapaRestaurar" type="button" title="Restaurar altura del mapa">Tamaño normal</button>
+              <button id="btnVerCordoba" type="button">Volver a Córdoba</button>
+            </div>
           </div>
           <div id="mapaRevision" role="application" aria-label="Mapa de la cartografía de paz"></div>
           <div class="mapa-pie"><span>© OpenStreetMap contributors</span><span>La ubicación aproximada no equivale a la confirmación de un hecho.</span></div>
