@@ -2150,10 +2150,6 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
         "<button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Revisar temas y ubicaciones →</button>"
       : "<p class='vacio'>Todavía no hay temas creados. Primero registre una idea y sus ubicaciones en «Temas y ubicaciones»; aquí podrá consultarlas para elaborar la reflexión.</p><button type='button' class='btn btn--mini' data-seccion-ir='ideas'>Ir a Temas y ubicaciones →</button>";
 
-    const retos = ordenarPorSeccion(estado.fichas.filter((f) => f.categoria === "retos"));
-    $("#reflexionRetos").innerHTML = retos.length
-      ? retos.map(fichaCardHTML).join("")
-      : "<p class='vacio'>Aún no hay retos registrados en la sección 08. Puede crearlos aquí con «＋ Agregar registro» (categoría «Retos actuales para la construcción de paz»).</p>";
   }
 
   function repintarSeccion() {
