@@ -2532,3 +2532,30 @@ body.dibujando .leaflet-container { cursor: crosshair; }
     margin-bottom: 7pt !important;
   }
 }
+
+
+/* Página cartográfica incluida en el informe exportado. */
+.imp-pagina-mapa { break-before: page; page-break-before: always; }
+.imp-mapa-clon {
+  width: 100%;
+  height: 65vh;
+  min-height: 420px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #b8c1c8;
+  background: #f7f5ef;
+}
+.imp-mapa-clon__contenido {
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+@media print {
+  .imp-pagina-mapa { page-break-before: always !important; break-before: page !important; }
+  .imp-mapa-clon { height: 150mm !important; min-height: 150mm !important; overflow: hidden !important; }
+  .imp-mapa-clon__contenido { height: 150mm !important; }
+  .imp-mapa-clon .leaflet-pane,
+  .imp-mapa-clon .leaflet-tile-container,
+  .imp-mapa-clon .leaflet-marker-pane,
+  .imp-mapa-clon .leaflet-overlay-pane { visibility: visible !important; }
+}
