@@ -656,29 +656,26 @@
 
   const btnConvenciones = $("#btnConvenciones");
   const contenidoConvenciones = $("#contenidoConvenciones");
-  if (btnConvenciones && contenidoConvenciones) {
-    btnConvenciones.addEventListener("click", () => {
-      const expandido = btnConvenciones.getAttribute("aria-expanded") === "true";
-      contenidoConvenciones.hidden = expandido;
-      btnConvenciones.setAttribute("aria-expanded", String(!expandido));
-      btnConvenciones.textContent = expandido ? "Mostrar convenciones +" : "Minimizar −";
-      btnConvenciones.setAttribute("aria-label", expandido ? "Mostrar cuadro de convenciones" : "Minimizar cuadro de convenciones");
-      if (mapa) setTimeout(() => mapa.invalidateSize({ pan: false }), 180);
-    });
-  }
+  const panelConvenciones = $("#panelConvenciones");
+  const layoutRevision = document.querySelector(".revision-layout");
+  const btnMostrarConvenciones = $("#btnMostrarConvenciones");
 
-  const contenedorMapa = $("#mapaRevision");
-  function ajustarTamanoMapa(modo) {
-    if (!contenedorMapa) return;
-    contenedorMapa.classList.remove("mapa-revision--compacto", "mapa-revision--ampliado");
-    if (modo === "compacto") contenedorMapa.classList.add("mapa-revision--compacto");
-    else if (modo === "ampliado") contenedorMapa.classList.add("mapa-revision--ampliado");
-    else contenedorMapa.style.height = "";
+  function cambiarVisibilidadConvenciones(mostrar) {
+    if (!panelConvenciones || !layoutRevision || !contenidoConvenciones) return;
+    layoutRevision.classList.toggle("revision-layout--sin-convenciones", !mostrar);
+    panelConvenciones.hidden = !mostrar;
+    if (btnMostrarConvenciones) btnMostrarConvenciones.hidden = mostrar;
+    if (btnConvenciones) {
+      btnConvenciones.setAttribute("aria-expanded", String(mostrar));
+      btnConvenciones.textContent = mostrar ? "Ocultar convenciones −" : "Mostrar convenciones +";
+      btnConvenciones.setAttribute("aria-label", mostrar ? "Ocultar cuadro de convenciones y ampliar mapa" : "Mostrar cuadro de convenciones");
+    }
     if (mapa) setTimeout(() => mapa.invalidateSize({ pan: false }), 220);
   }
-  $("#btnMapaCompacto")?.addEventListener("click", () => ajustarTamanoMapa("compacto"));
-  $("#btnMapaAmpliar")?.addEventListener("click", () => ajustarTamanoMapa("ampliado"));
-  $("#btnMapaRestaurar")?.addEventListener("click", () => ajustarTamanoMapa("normal"));
+  btnConvenciones?.addEventListener("click", () => cambiarVisibilidadConvenciones(false));
+  btnMostrarConvenciones?.addEventListener("click", () => cambiarVisibilidadConvenciones(true));
+
+  const contenedorMapa = $("#mapaRevision");
   if (contenedorMapa && typeof ResizeObserver !== "undefined") {
     const observadorMapa = new ResizeObserver(() => {
       if (mapa) mapa.invalidateSize({ pan: false });
@@ -686,7 +683,7 @@
     observadorMapa.observe(contenedorMapa);
   }
 
-    $("#btnSalir").addEventListener("click", () => window.location.reload());
+  $("#btnSalir").addEventListener("click", () => window.location.reload());
   $("#btnVerCordoba").addEventListener("click", () => {
     if (!mapa) return;
     let bounds = null;
