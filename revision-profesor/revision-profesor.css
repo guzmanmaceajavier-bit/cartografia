@@ -398,3 +398,16 @@ img, svg, canvas, iframe { max-width:100%; }
   #mapaRevision { height:58vh; min-height:340px; }
   #mapaRevision.mapa-revision--ampliado { height:78vh; min-height:460px; }
 }
+
+
+/* Ajustes corregidos: el panel desaparece y el mapa ocupa todo el ancho. */
+.revision-layout.revision-layout--sin-convenciones { grid-template-columns:minmax(0,1fr); }
+.revision-panel[hidden], #btnMostrarConvenciones[hidden] { display:none !important; }
+.revision-layout--sin-convenciones .revision-mapa-panel { width:100%; min-width:0; }
+.mapa-controles__acciones { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.mapa-controles__acciones button { min-height:34px; padding:7px 12px; border:1px solid #cbd7df; border-radius:8px; background:#f8fafb; color:#19324a; font-size:.78rem; font-weight:750; }
+.mapa-controles__acciones button:hover { background:#edf4f7; }
+/* Redimensionar manipulando el borde del mapa; sin botones de zoom/tamaño. */
+#mapaRevision { height:clamp(560px,70vh,860px); min-height:360px; resize:both; overflow:hidden; }
+@media (max-width:1000px) { #mapaRevision { height:clamp(480px,68vh,760px); min-height:340px; resize:vertical; } }
+@media (max-width:620px) { #mapaRevision { height:clamp(420px,65vh,620px); min-height:320px; resize:vertical; } }
