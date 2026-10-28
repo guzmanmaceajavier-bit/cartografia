@@ -492,3 +492,35 @@ img, svg, canvas, iframe { max-width:100%; }
  #mapaRevision { height:62vh; min-height:300px; }
  .mapa-redimensionador { min-height:40px; }
 }
+
+
+/* Botón flotante de regreso: compacto, propio de la interfaz cartográfica. */
+.volver-arriba {
+  position:fixed; right:24px; bottom:24px; z-index:1200;
+  display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  width:54px; height:58px; padding:7px 5px;
+  border:1px solid rgba(255,255,255,.2); border-radius:17px;
+  background:linear-gradient(155deg,#214c63 0%,#123247 100%); color:#fff;
+  box-shadow:0 7px 22px rgba(17,48,67,.23),inset 0 1px 0 rgba(255,255,255,.13);
+  cursor:pointer; opacity:.94;
+  transition:transform .2s ease,box-shadow .2s ease,background .2s ease,opacity .2s ease;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+.volver-arriba:hover {
+  transform:translateY(-3px); opacity:1;
+  background:linear-gradient(155deg,#2d627c 0%,#173e55 100%);
+  box-shadow:0 11px 26px rgba(17,48,67,.3),inset 0 1px 0 rgba(255,255,255,.18);
+}
+.volver-arriba:focus-visible { outline:3px solid #8bc9d8; outline-offset:3px; }
+.volver-arriba__icono {
+  display:flex; align-items:center; justify-content:center;
+  width:25px; height:25px; border:1px solid rgba(255,255,255,.22);
+  border-radius:9px; background:rgba(255,255,255,.09);
+  font-size:20px; line-height:1; font-weight:500;
+}
+.volver-arriba__texto { font-size:10px; line-height:1.2; font-weight:750; letter-spacing:.045em; }
+.volver-arriba[hidden] { display:none !important; }
+@media (max-width:620px) {
+  .volver-arriba { right:14px; bottom:14px; width:48px; height:52px; border-radius:15px; }
+  .volver-arriba__icono { width:22px; height:22px; font-size:18px; }
+}
