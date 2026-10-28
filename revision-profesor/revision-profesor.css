@@ -562,3 +562,34 @@ button.volver-arriba[hidden] { display:none !important; }
   button.volver-arriba { right:14px !important; bottom:14px !important; height:42px !important; min-height:42px !important; padding:0 14px 0 8px !important; }
   button.volver-arriba .volver-arriba__icono { width:25px !important; height:25px !important; flex-basis:25px !important; }
 }
+
+
+/* Botón flotante solo con icono: patrón habitual de navegación web. */
+button.volver-arriba {
+  position:fixed !important; right:24px !important; bottom:24px !important; z-index:1200 !important;
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  width:46px !important; height:46px !important; min-height:46px !important; padding:0 !important;
+  border:1px solid #dbe5eb !important; border-radius:50% !important;
+  background:#fff !important; color:#23495e !important;
+  box-shadow:0 3px 12px rgba(20,47,65,.15) !important;
+  cursor:pointer !important; opacity:1 !important;
+  transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease !important;
+}
+button.volver-arriba:hover {
+  background:#f0f6f8 !important; border-color:#b9ced9 !important;
+  box-shadow:0 6px 16px rgba(20,47,65,.2) !important; transform:translateY(-2px) !important;
+}
+button.volver-arriba:active { transform:translateY(0) !important; }
+button.volver-arriba:focus-visible { outline:3px solid #8bc6d5 !important; outline-offset:3px !important; }
+button.volver-arriba .volver-arriba__icono {
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  width:100% !important; height:100% !important; flex:0 0 auto !important;
+  border:0 !important; border-radius:inherit !important; background:transparent !important;
+  color:inherit !important; font-family:Arial,sans-serif !important;
+  font-size:25px !important; font-weight:400 !important; line-height:1 !important;
+}
+button.volver-arriba[hidden] { display:none !important; }
+@media (max-width:620px) {
+  button.volver-arriba { right:15px !important; bottom:15px !important; width:42px !important; height:42px !important; min-height:42px !important; }
+  button.volver-arriba .volver-arriba__icono { font-size:23px !important; }
+}
