@@ -404,10 +404,10 @@ const CATEGORIAS_BASE = clonar(CATEGORIAS);
     if (!Array.isArray(datos.leyenda.ocultas)) datos.leyenda.ocultas = [];
     if (!Array.isArray(datos.leyenda.custom)) datos.leyenda.custom = [];
     if (!datos.leyenda.cats || typeof datos.leyenda.cats !== "object") datos.leyenda.cats = {};
-    // La categoría 08 se mantiene en los datos, pero se oculta de forma permanente en las vistas de la cartografía.
-    // No se borran fichas ni ubicaciones existentes.
+    // Restaurar el componente 08: debe estar disponible en la cartografía y en su leyenda.
+    // Se conservan todas las fichas y ubicaciones existentes.
     if (!datos.leyenda.cats.retos || typeof datos.leyenda.cats.retos !== "object") datos.leyenda.cats.retos = {};
-    datos.leyenda.cats.retos.oculta = true;
+    datos.leyenda.cats.retos.oculta = false;
     const mapaCat = { lugar: "lugares", territorio: "lugares", conflicto: "afectaciones", actor: "actores", reto: "retos" };
     datos.fichas.forEach((f) => {
       if (mapaCat[f.categoria]) f.categoria = mapaCat[f.categoria];
