@@ -375,3 +375,26 @@ img, svg, canvas, iframe { max-width:100%; }
 @media (max-width: 620px) {
   #mapaRevision { min-height: clamp(420px, 72vh, 620px); }
 }
+
+
+/* Controles solicitados para la vista de consulta del profesor */
+.panel-acciones { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
+.btn-panel { min-height:32px; padding:6px 9px; border:1px solid #cbd7df; border-radius:8px; background:#f8fafb; color:var(--rp-navy); font-size:.75rem; font-weight:750; }
+.btn-panel:hover { background:#edf4f7; }
+#contenidoConvenciones[hidden] { display:none !important; }
+.revision-panel:has(#contenidoConvenciones[hidden]) { align-self:start; max-height:none; }
+.mapa-controles { align-items:flex-start; flex-wrap:wrap; }
+.mapa-controles__acciones { display:flex; flex-wrap:wrap; gap:7px; }
+.mapa-controles__acciones button { min-height:34px; padding:7px 10px; border:1px solid #cbd7df; border-radius:8px; background:#f8fafb; color:#19324a; font-size:.74rem; font-weight:750; }
+.mapa-controles__acciones button:hover { background:#edf4f7; }
+#mapaRevision { min-height:320px; height:clamp(420px, 62vh, 760px); resize:vertical; overflow:auto; }
+#mapaRevision.mapa-revision--compacto { height:320px; min-height:260px; }
+#mapaRevision.mapa-revision--ampliado { height: min(82vh, 920px); min-height:520px; }
+@media (max-width:620px) {
+  .panel-titulo { align-items:flex-start; }
+  .panel-acciones { justify-content:flex-start; }
+  .mapa-controles__acciones { width:100%; }
+  .mapa-controles__acciones button { flex:1 1 auto; }
+  #mapaRevision { height:58vh; min-height:340px; }
+  #mapaRevision.mapa-revision--ampliado { height:78vh; min-height:460px; }
+}
