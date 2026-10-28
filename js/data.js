@@ -50,10 +50,10 @@ const CATEGORIAS = {
   },
   retos: {
     seccion: 8,
-    nombre: "Categoría desactivada",
-    color: "#C2410C",
-    simbolo: "🚧",
-    descripcion: "Esta categoría está desactivada en la interfaz de la cartografía."
+    nombre: "Retos actuales para la construcción de paz",
+    color: "#6D28D9",
+    simbolo: "🧭",
+    descripcion: "🧭 Identifica los desafíos actuales para sostener la paz en el territorio: protección de las comunidades, acceso a derechos, participación, atención a las víctimas, convivencia y garantías de no repetición. Registra los retos con contexto y fuentes cuando estén disponibles; no representa por sí solo un hecho confirmado ni una ubicación obligatoria."
   }
 };
 
