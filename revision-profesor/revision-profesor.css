@@ -593,3 +593,29 @@ button.volver-arriba[hidden] { display:none !important; }
   button.volver-arriba { right:15px !important; bottom:15px !important; width:42px !important; height:42px !important; min-height:42px !important; }
   button.volver-arriba .volver-arriba__icono { font-size:23px !important; }
 }
+
+
+/* Botón flotante de retorno con color de marca y pulso sutil de llamada a la acción. */
+button.volver-arriba {
+  background:linear-gradient(145deg,#176b78 0%,#12465f 100%) !important;
+  color:#fff !important;
+  border:1px solid rgba(255,255,255,.24) !important;
+  box-shadow:0 5px 16px rgba(18,70,95,.28),0 0 0 0 rgba(23,107,120,.35) !important;
+  animation: pulso-volver-arriba 2.2s ease-out infinite !important;
+}
+button.volver-arriba:hover {
+  background:linear-gradient(145deg,#218694 0%,#165875 100%) !important;
+  box-shadow:0 7px 20px rgba(18,70,95,.35) !important;
+  animation-play-state:paused !important;
+}
+button.volver-arriba .volver-arriba__icono {
+  color:#fff !important;
+}
+@keyframes pulso-volver-arriba {
+  0% { box-shadow:0 5px 16px rgba(18,70,95,.28),0 0 0 0 rgba(23,107,120,.34); }
+  65% { box-shadow:0 5px 16px rgba(18,70,95,.25),0 0 0 9px rgba(23,107,120,0); }
+  100% { box-shadow:0 5px 16px rgba(18,70,95,.25),0 0 0 0 rgba(23,107,120,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  button.volver-arriba { animation:none !important; transition:none !important; }
+}
